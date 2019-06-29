@@ -7,7 +7,6 @@ import io.nuls.core.basic.Result;
 import io.nuls.core.constant.TxType;
 import io.nuls.core.crypto.HexUtil;
 import io.nuls.core.exception.NulsException;
-import io.nuls.core.model.BigIntegerUtils;
 import io.nuls.core.model.StringUtils;
 import io.nuls.core.rpc.util.NulsDateUtils;
 import io.nuls.v2.SDKContext;
@@ -177,26 +176,6 @@ public class TransactionService {
         }
     }
 
-    private CoinData assemblyCoinData(CoinFromDto from, BigInteger amount, int txSize) throws NulsException {
-        List<CoinFrom> coinFroms = new ArrayList<>();
-
-        byte[] address = AddressTool.getAddress(from.getAddress());
-        byte[] nonce = HexUtil.decode(from.getNonce());
-        CoinFrom coinFrom = new CoinFrom(address, from.getChainId(), from.getAssetId(), from.getAmount(), nonce, AccountConstant.NORMAL_TX_LOCKED);
-        coinFroms.add(coinFrom);
-
-        List<CoinTo> coinTos = new ArrayList<>();
-        CoinTo coinTo = new CoinTo(address, from.getChainId(), from.getAssetId(), amount, -1);
-        coinTos.add(coinTo);
-
-        txSize = txSize + getSignatureSize(coinFroms);
-        TxUtils.calcTxFee(coinFroms, coinTos, txSize);
-        CoinData coinData = new CoinData();
-        coinData.setFrom(coinFroms);
-        coinData.setTo(coinTos);
-        return coinData;
-    }
-
     /**
      * Create a proxy consensus transaction
      * 创建委托共识交易
@@ -232,6 +211,26 @@ public class TransactionService {
         }
     }
 
+    private CoinData assemblyCoinData(CoinFromDto from, BigInteger amount, int txSize) throws NulsException {
+        List<CoinFrom> coinFroms = new ArrayList<>();
+
+        byte[] address = AddressTool.getAddress(from.getAddress());
+        byte[] nonce = HexUtil.decode(from.getNonce());
+        CoinFrom coinFrom = new CoinFrom(address, from.getChainId(), from.getAssetId(), from.getAmount(), nonce, AccountConstant.NORMAL_TX_LOCKED);
+        coinFroms.add(coinFrom);
+
+        List<CoinTo> coinTos = new ArrayList<>();
+        CoinTo coinTo = new CoinTo(address, from.getChainId(), from.getAssetId(), amount, -1);
+        coinTos.add(coinTo);
+
+        txSize = txSize + getSignatureSize(coinFroms);
+        TxUtils.calcTxFee(coinFroms, coinTos, txSize);
+        CoinData coinData = new CoinData();
+        coinData.setFrom(coinFroms);
+        coinData.setTo(coinTos);
+        return coinData;
+    }
+
     /**
      * 创建取消委托交易
      *
@@ -255,7 +254,7 @@ public class TransactionService {
             cancelDeposit.setJoinTxHash(NulsHash.fromHex(dto.getDepositHash()));
             tx.setTxData(cancelDeposit.serialize());
 
-            CoinData coinData = assemblyCoinData(dto.getInput(), dto.getDepositHash(), tx.size(), dto.getPrice());
+            CoinData coinData = assemblyCoinData(dto, tx.size());
             tx.setCoinData(coinData.serialize());
             tx.setHash(NulsHash.calcHash(tx.serializeForHash()));
 
@@ -271,17 +270,26 @@ public class TransactionService {
         }
     }
 
-    private CoinData assemblyCoinData(CoinFromDto from, String hash, int txSize, BigInteger price) throws NulsException {
+    /**
+     * 组装退出共识交易coinData
+     *
+     * @param dto    请求参数
+     * @param txSize 交易大小
+     * @return coinData
+     * @throws NulsException
+     */
+    private CoinData assemblyCoinData(WithDrawDto dto, int txSize) throws NulsException {
         List<CoinFrom> coinFroms = new ArrayList<>();
 
+        CoinFromDto from = dto.getInput();
         byte[] address = AddressTool.getAddress(from.getAddress());
         CoinFrom coinFrom = new CoinFrom(address, from.getChainId(), from.getAssetId(), from.getAmount(), (byte) -1);
-        NulsHash nulsHash = NulsHash.fromHex(hash);
+        NulsHash nulsHash = NulsHash.fromHex(dto.getDepositHash());
         coinFrom.setNonce(TxUtils.getNonce(nulsHash.getBytes()));
         coinFroms.add(coinFrom);
 
         List<CoinTo> coinTos = new ArrayList<>();
-        CoinTo coinTo = new CoinTo(address, from.getChainId(), from.getAssetId(), from.getAmount().subtract(price), 0);
+        CoinTo coinTo = new CoinTo(address, from.getChainId(), from.getAssetId(), from.getAmount().subtract(dto.getPrice()), 0);
         coinTos.add(coinTo);
 
         txSize = txSize + getSignatureSize(coinFroms);
@@ -296,12 +304,15 @@ public class TransactionService {
      * 创建注销共识节点交易
      *
      * @param dto 注销节点参数请求
-     * @return
+     * @return result
      */
     public Result createStopConsensusTx(StopConsensusDto dto) {
         validateChainId();
 
         try {
+            if (dto.getPrice() == null) {
+                dto.setPrice(SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE);
+            }
             CommonValidator.validateStopConsensusDto(dto);
 
             Transaction tx = new Transaction(TxType.STOP_AGENT);
@@ -312,18 +323,80 @@ public class TransactionService {
             stopAgent.setCreateTxHash(nulsHash);
             tx.setTxData(stopAgent.serialize());
 
+            CoinData coinData = assemblyCoinData(dto, tx.size());
+            tx.setCoinData(coinData.serialize());
+            tx.setHash(NulsHash.calcHash(tx.serializeForHash()));
 
+            Map<String, Object> map = new HashMap<>();
+            map.put("hash", tx.getHash().toHex());
+            map.put("txHex", HexUtil.encode(tx.serialize()));
+            return new Result(true).setData(map);
         } catch (NulsException e) {
             return Result.getFailed(e.getErrorCode());
         } catch (IOException e) {
             return Result.getFailed(AccountErrorCode.DATA_PARSE_ERROR);
         }
-
-        return null;
     }
 
-    private CoinData assemblyCoinData(String hash, int txSize, BigInteger price) throws NulsException {
-        return null;
+    /**
+     * 组装注销节点交易coinData
+     *
+     * @param dto    参数
+     * @param txSize 交易大小
+     * @return
+     * @throws NulsException
+     */
+    private CoinData assemblyCoinData(StopConsensusDto dto, int txSize) throws NulsException {
+        //获取当前链注册共识资产的chainId和assetId
+        CoinFromDto fromDto = dto.getDepositList().get(0).getInput();
+        int chainId = fromDto.getChainId();
+        int assetId = fromDto.getAssetId();
+
+        List<CoinFrom> coinFromList = new ArrayList<>();
+        //组装创建节点交易的coinFrom
+        byte[] addressBytes = AddressTool.getAddress(dto.getAgentAddress());
+        CoinFrom coinFrom = new CoinFrom(addressBytes, chainId, assetId, dto.getDeposit(), (byte) -1);
+        NulsHash nulsHash = NulsHash.fromHex(dto.getAgentHash());
+        coinFrom.setNonce(TxUtils.getNonce(nulsHash.getBytes()));
+        coinFromList.add(coinFrom);
+
+        Map<String, CoinFromDto> dtoMap = new HashMap<>();
+        //组装所有委托的coinFrom
+        for (StopDepositDto depositDto : dto.getDepositList()) {
+            CoinFromDto input = depositDto.getInput();
+            byte[] address = AddressTool.getAddress(input.getAddress());
+            CoinFrom coinFrom1 = new CoinFrom(address, input.getChainId(), input.getAssetId(), input.getAmount(), (byte) -1);
+            NulsHash nulsHash1 = NulsHash.fromHex(depositDto.getDepositHash());
+            coinFrom1.setNonce(TxUtils.getNonce(nulsHash1.getBytes()));
+            coinFromList.add(coinFrom1);
+            //将相同账户的多次委托的金额存放在一起
+            String key = input.getAddress() + input.getChainId() + input.getAssetId();
+            fromDto = dtoMap.get(key);
+            if (fromDto == null) {
+                dtoMap.put(key, input);
+            } else {
+                fromDto.setAmount(fromDto.getAmount().add(input.getAmount()));
+            }
+        }
+        //通过dtoMap组装交易输出
+        List<CoinTo> coinToList = new ArrayList<>();
+        for (CoinFromDto input : dtoMap.values()) {
+            byte[] address = AddressTool.getAddress(input.getAddress());
+            CoinTo coinTo = new CoinTo(address, input.getChainId(), input.getAssetId(), input.getAmount(), 0L);
+            coinToList.add(coinTo);
+        }
+        //计算手续费
+        BigInteger fee = TxUtils.calcStopConsensusTxFee(coinFromList.size(), coinToList.size() + 1, dto.getPrice());
+        //组装退回保证金的coinTo
+        CoinTo coinTo = new CoinTo(addressBytes, coinFrom.getAssetsChainId(), coinFrom.getAssetsId(), coinFrom.getAmount().subtract(fee), NulsDateUtils.getCurrentTimeSeconds() + SDKContext.STOP_AGENT_LOCK_TIME);
+        coinToList.add(0, coinTo);
+
+        txSize = txSize + P2PHKSignature.SERIALIZE_LENGTH;
+        TxUtils.calcTxFee(coinFromList, coinToList, txSize);
+        CoinData coinData = new CoinData();
+        coinData.setFrom(coinFromList);
+        coinData.setTo(coinToList);
+        return coinData;
     }
 }
 

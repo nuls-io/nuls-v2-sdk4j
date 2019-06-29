@@ -115,4 +115,14 @@ public class NulsSDKTool {
     public static Result createWithdrawDepositTx(WithDrawDto dto) {
         return transactionService.createWithdrawDepositTx(dto);
     }
+
+    /**
+     * 创建注销共识节点交易
+     *
+     * @param dto 注销节点参数请求
+     * @return result
+     */
+    public static Result createStopConsensusTx(StopConsensusDto dto) {
+        return transactionService.createStopConsensusTx(dto);
+    }
 }

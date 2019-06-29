@@ -61,6 +61,14 @@ public class TxUtils {
         return price.multiply(new BigInteger(size + ""));
     }
 
+    public static BigInteger calcStopConsensusTxFee(int fromLength, int toLength, BigInteger price) {
+        int size = 152;
+        size += 70 * fromLength;
+        size += 68 * toLength;
+        size = size / 1024 + 1;
+        return price.multiply(new BigInteger(size + ""));
+    }
+
     /**
      * 根据交易HASH获取NONCE（交易HASH后8位）
      * Obtain NONCE according to HASH (the last 8 digits of HASH)

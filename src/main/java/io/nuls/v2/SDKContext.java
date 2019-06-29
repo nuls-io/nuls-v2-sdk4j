@@ -32,6 +32,6 @@ public class SDKContext {
     /**
      * 注销共识节点，保证金锁定时间
      */
-    public static int stop_agent_lock_time = 3600;
+    public static int STOP_AGENT_LOCK_TIME = 3600;
 
 }
