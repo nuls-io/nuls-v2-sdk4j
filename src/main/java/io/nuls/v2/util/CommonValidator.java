@@ -126,4 +126,14 @@ public class CommonValidator {
         }
         validateLockCoinFrom(dto.getInput());
     }
+
+
+    public static void validateStopConsensusDto(StopConsensusDto dto) throws NulsException {
+        if (!ValidateUtil.validHash(dto.getAgentHash())) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "agentHash is invalid");
+        }
+        if (!AddressTool.validAddress(SDKContext.main_chain_id, dto.getAgentAddress())) {
+            throw new NulsException(AccountErrorCode.ADDRESS_ERROR, "agentAddress is invalid");
+        }
+    }
 }

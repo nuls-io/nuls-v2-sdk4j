@@ -4,7 +4,15 @@ import java.util.List;
 
 public class StopConsensusDto {
 
+    /**
+     * 创建节点的交易hash
+     */
     private String agentHash;
+
+    /**
+     * 节点地址
+     */
+    private String agentAddress;
 
     private List<StopDepositDto> depositList;
 
@@ -22,6 +30,14 @@ public class StopConsensusDto {
 
     public void setDepositList(List<StopDepositDto> depositList) {
         this.depositList = depositList;
+    }
+
+    public String getAgentAddress() {
+        return agentAddress;
+    }
+
+    public void setAgentAddress(String agentAddress) {
+        this.agentAddress = agentAddress;
     }
 }
 

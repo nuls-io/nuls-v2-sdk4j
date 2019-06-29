@@ -17,6 +17,7 @@ import io.nuls.v2.model.dto.*;
 import io.nuls.v2.txdata.Agent;
 import io.nuls.v2.txdata.CancelDeposit;
 import io.nuls.v2.txdata.Deposit;
+import io.nuls.v2.txdata.StopAgent;
 import io.nuls.v2.util.CommonValidator;
 import io.nuls.v2.util.TxUtils;
 
@@ -245,6 +246,7 @@ public class TransactionService {
                 dto.setPrice(SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE);
             }
             CommonValidator.validateWithDrawDto(dto);
+
             Transaction tx = new Transaction(TxType.CANCEL_DEPOSIT);
             tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
 
@@ -261,14 +263,13 @@ public class TransactionService {
             map.put("hash", tx.getHash().toHex());
             map.put("txHex", HexUtil.encode(tx.serialize()));
             return new Result(true).setData(map);
+
         } catch (NulsException e) {
             return Result.getFailed(e.getErrorCode());
         } catch (IOException e) {
             return Result.getFailed(AccountErrorCode.DATA_PARSE_ERROR);
         }
-
     }
-
 
     private CoinData assemblyCoinData(CoinFromDto from, String hash, int txSize, BigInteger price) throws NulsException {
         List<CoinFrom> coinFroms = new ArrayList<>();
@@ -289,7 +290,40 @@ public class TransactionService {
         coinData.setFrom(coinFroms);
         coinData.setTo(coinTos);
         return coinData;
+    }
 
+    /**
+     * 创建注销共识节点交易
+     *
+     * @param dto 注销节点参数请求
+     * @return
+     */
+    public Result createStopConsensusTx(StopConsensusDto dto) {
+        validateChainId();
+
+        try {
+            CommonValidator.validateStopConsensusDto(dto);
+
+            Transaction tx = new Transaction(TxType.STOP_AGENT);
+            tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
+
+            StopAgent stopAgent = new StopAgent();
+            NulsHash nulsHash = NulsHash.fromHex(dto.getAgentHash());
+            stopAgent.setCreateTxHash(nulsHash);
+            tx.setTxData(stopAgent.serialize());
+
+
+        } catch (NulsException e) {
+            return Result.getFailed(e.getErrorCode());
+        } catch (IOException e) {
+            return Result.getFailed(AccountErrorCode.DATA_PARSE_ERROR);
+        }
+
+        return null;
+    }
+
+    private CoinData assemblyCoinData(String hash, int txSize, BigInteger price) throws NulsException {
+        return null;
     }
 }
 
