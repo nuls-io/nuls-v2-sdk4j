@@ -29,4 +29,9 @@ public class SDKContext {
      * NULS主网默认业务交易手续费单价
      */
     public static BigInteger NULS_DEFAULT_OTHER_TX_FEE_PRICE = new BigInteger("1000000");
+    /**
+     * 注销共识节点，保证金锁定时间
+     */
+    public static int stop_agent_lock_time = 3600;
+
 }
