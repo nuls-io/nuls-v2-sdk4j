@@ -20,6 +20,7 @@ import io.nuls.v2.model.dto.AccountDto;
 import io.nuls.v2.model.dto.SignDto;
 import io.nuls.v2.util.AccountTool;
 import io.nuls.v2.util.CommonValidator;
+import io.nuls.v2.util.ValidateUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -132,7 +133,7 @@ public class AccountService {
     public Result resetPasswordOffline(String address, String encryptedPriKey, String oldPassword, String newPassword) {
         validateChainId();
         try {
-            if (StringUtils.isBlank(address) || !AddressTool.validAddress(SDKContext.main_chain_id, address)) {
+            if (!AddressTool.validAddress(SDKContext.main_chain_id, address)) {
                 throw new NulsException(AccountErrorCode.ADDRESS_ERROR);
             }
             if (StringUtils.isBlank(encryptedPriKey)) {
@@ -212,5 +213,15 @@ public class AccountService {
         }
     }
 
-
+    public Result getAccountBalance(String address) {
+        validateChainId();
+        try {
+            if (!AddressTool.validAddress(SDKContext.main_chain_id, address)) {
+                throw new NulsException(AccountErrorCode.ADDRESS_ERROR);
+            }
+        return null;
+        } catch (NulsException e) {
+            return Result.getFailed(e.getErrorCode());
+        }
+    }
 }

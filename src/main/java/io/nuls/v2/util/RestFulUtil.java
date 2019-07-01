@@ -26,7 +26,7 @@ import java.util.Map.Entry;
  */
 public class RestFulUtil {
 
-    public static String baseUrl = "http://127.0.0.1:9898/";
+    public static String baseUrl = "http://127.0.0.1:9898/api/";
     //统一配置
     static final PoolingHttpClientConnectionManager connMgr;
     static final RequestConfig requestConfig;

@@ -1,5 +1,7 @@
 package io.nuls.v2;
 
+import io.nuls.v2.util.RestFulUtil;
+
 public class NulsSDKBootStrap {
 
     /**
@@ -11,5 +13,9 @@ public class NulsSDKBootStrap {
             throw new RuntimeException("[defaultChainId] is invalid");
         }
         SDKContext.main_chain_id = chainId;
+    }
+
+    public static void init(String httpUrl) {
+        RestFulUtil.baseUrl = httpUrl;
     }
 }
