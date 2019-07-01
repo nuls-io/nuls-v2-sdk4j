@@ -24,9 +24,9 @@ import java.util.Map.Entry;
  *
  * @author Administrator
  */
-public class HttpClientUtil {
+public class RestFulUtil {
 
-    public static final String BASEURL = "http://127.0.0.1:9898/";
+    public static String baseUrl = "http://127.0.0.1:9898/";
     //统一配置
     private static PoolingHttpClientConnectionManager connMgr;
     private static RequestConfig requestConfig;
@@ -73,7 +73,7 @@ public class HttpClientUtil {
 
         String resulrStr = null;
         StringBuffer parms = null;
-        url = BASEURL + url;
+        url = baseUrl + url;
         //创建HttpClient对象
         CloseableHttpClient httpClient = HttpClients.createDefault();
         //设置请求参数
@@ -123,7 +123,7 @@ public class HttpClientUtil {
     public static String sendPost(String url, Map<String, String> map) {
 
         String resultStr = null;
-        url = BASEURL + url;
+        url = baseUrl + url;
         //创建HttpClient对象
         CloseableHttpClient httpClient = HttpClients.createDefault();
         //创建请求方法实例，填充url
@@ -174,7 +174,7 @@ public class HttpClientUtil {
     public static String sendPut(String url, Map<String, String> map) {
 
         String resultStr = null;
-        url = url + BASEURL;
+        url = url + baseUrl;
         //新建httpClient对象
         CloseableHttpClient httpClient = HttpClients.createDefault();
         //创建请求方法实例并填充url
@@ -225,7 +225,7 @@ public class HttpClientUtil {
     public static String sendDelete(String url) {
 
         String resultStr = null;
-        url = url + BASEURL;
+        url = url + baseUrl;
         //创建httpClient对象
         CloseableHttpClient httpClient = HttpClients.createDefault();
         //创建方法实例
@@ -234,9 +234,6 @@ public class HttpClientUtil {
         //执行
         try {
             CloseableHttpResponse response = httpClient.execute(httpDelete);
-            //获取响应状态码
-            int statusCode = response.getStatusLine().getStatusCode();
-            System.out.println(statusCode);
             //获取响应内容
             HttpEntity entity = response.getEntity();
             resultStr = IOUtils.toString(entity.getContent(), "UTF-8");
