@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import static io.nuls.v2.util.RestFulUtil.connMgr;
 import static io.nuls.v2.util.RestFulUtil.requestConfig;
 
 /**
@@ -55,7 +56,7 @@ public class JsonRpcUtil {
             request.setMethod(method);
             request.setParams(params);
             //创建HttpClient对象
-            httpClient = HttpClients.createDefault();
+            httpClient = HttpClients.custom().setConnectionManager(connMgr).build();
             //创建请求方法实例，填充url
             HttpPost httpPost = new HttpPost(baseUrl);
             httpPost.setConfig(requestConfig);
