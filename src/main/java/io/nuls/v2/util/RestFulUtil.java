@@ -75,7 +75,8 @@ public class RestFulUtil {
         StringBuffer parms = null;
         url = baseUrl + url;
         //创建HttpClient对象
-        CloseableHttpClient httpClient = HttpClients.createDefault();
+        CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(connMgr).build();
+
         //设置请求参数
         if (null != map && !map.isEmpty()) {
             //遍历map
@@ -125,7 +126,7 @@ public class RestFulUtil {
         String resultStr = null;
         url = baseUrl + url;
         //创建HttpClient对象
-        CloseableHttpClient httpClient = HttpClients.createDefault();
+        CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(connMgr).build();
         //创建请求方法实例，填充url
         HttpPost httpPost = new HttpPost(url);
         httpPost.setConfig(requestConfig);
@@ -176,7 +177,7 @@ public class RestFulUtil {
         String resultStr = null;
         url = url + baseUrl;
         //新建httpClient对象
-        CloseableHttpClient httpClient = HttpClients.createDefault();
+        CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(connMgr).build();
         //创建请求方法实例并填充url
         HttpPut httpPut = new HttpPut(url);
         httpPut.setConfig(requestConfig);
@@ -227,7 +228,7 @@ public class RestFulUtil {
         String resultStr = null;
         url = url + baseUrl;
         //创建httpClient对象
-        CloseableHttpClient httpClient = HttpClients.createDefault();
+        CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(connMgr).build();
         //创建方法实例
         HttpDelete httpDelete = new HttpDelete(url);
         httpDelete.setConfig(requestConfig);
