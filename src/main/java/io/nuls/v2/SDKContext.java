@@ -33,5 +33,9 @@ public class SDKContext {
      * 注销共识节点，保证金锁定时间
      */
     public static int STOP_AGENT_LOCK_TIME = 3600;
+    /**
+     * 访问钱包的http接口url地址
+      */
+    public static String walletUrl = "http://127.0.0.1:9898";
 
 }

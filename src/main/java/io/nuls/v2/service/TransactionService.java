@@ -63,6 +63,23 @@ public class TransactionService {
         try {
             CommonValidator.checkTransferDto(transferDto);
 
+            for (CoinFromDto fromDto : transferDto.getInputs()) {
+                if (fromDto.getChainId() == 0) {
+                    fromDto.setChainId(SDKContext.main_chain_id);
+                }
+                if (fromDto.getAssetId() == 0) {
+                    fromDto.setAssetId(SDKContext.main_asset_id);
+                }
+            }
+            for (CoinToDto toDto : transferDto.getOutputs()) {
+                if (toDto.getChainId() == 0) {
+                    toDto.setChainId(SDKContext.main_chain_id);
+                }
+                if (toDto.getAssetId() == 0) {
+                    toDto.setAssetId(SDKContext.main_asset_id);
+                }
+            }
+
             Transaction tx = new Transaction(TxType.TRANSFER);
             tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
             tx.setRemark(StringUtils.bytes(transferDto.getRemark()));
@@ -150,6 +167,13 @@ public class TransactionService {
             }
             CommonValidator.validateConsensusDto(consensusDto);
 
+            if (consensusDto.getInput().getChainId() == 0) {
+                consensusDto.getInput().setChainId(SDKContext.main_chain_id);
+            }
+            if (consensusDto.getInput().getAssetId() == 0) {
+                consensusDto.getInput().setAssetId(SDKContext.main_asset_id);
+            }
+
             Transaction tx = new Transaction(TxType.REGISTER_AGENT);
             tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
 
@@ -187,6 +211,12 @@ public class TransactionService {
         validateChainId();
         try {
             CommonValidator.validateDepositDto(dto);
+            if (dto.getInput().getChainId() == 0) {
+                dto.getInput().setChainId(SDKContext.main_chain_id);
+            }
+            if (dto.getInput().getAssetId() == 0) {
+                dto.getInput().setAssetId(SDKContext.main_asset_id);
+            }
 
             Transaction tx = new Transaction(TxType.DEPOSIT);
             tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
@@ -245,6 +275,12 @@ public class TransactionService {
                 dto.setPrice(SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE);
             }
             CommonValidator.validateWithDrawDto(dto);
+            if (dto.getInput().getChainId() == 0) {
+                dto.getInput().setChainId(SDKContext.main_chain_id);
+            }
+            if (dto.getInput().getAssetId() == 0) {
+                dto.getInput().setAssetId(SDKContext.main_asset_id);
+            }
 
             Transaction tx = new Transaction(TxType.CANCEL_DEPOSIT);
             tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
@@ -314,6 +350,14 @@ public class TransactionService {
                 dto.setPrice(SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE);
             }
             CommonValidator.validateStopConsensusDto(dto);
+            for (StopDepositDto depositDto : dto.getDepositList()) {
+                if (depositDto.getInput().getChainId() == 0) {
+                    depositDto.getInput().setChainId(SDKContext.main_chain_id);
+                }
+                if (depositDto.getInput().getAssetId() == 0) {
+                    depositDto.getInput().setAssetId(SDKContext.main_asset_id);
+                }
+            }
 
             Transaction tx = new Transaction(TxType.STOP_AGENT);
             tx.setTime(NulsDateUtils.getCurrentTimeSeconds());

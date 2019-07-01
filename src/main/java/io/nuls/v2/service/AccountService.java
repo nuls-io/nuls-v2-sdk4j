@@ -2,7 +2,6 @@ package io.nuls.v2.service;
 
 import io.nuls.base.basic.AddressTool;
 import io.nuls.base.basic.NulsByteBuffer;
-import io.nuls.base.data.NulsHash;
 import io.nuls.base.data.Transaction;
 import io.nuls.base.signture.SignatureUtil;
 import io.nuls.core.basic.Result;
@@ -21,7 +20,6 @@ import io.nuls.v2.model.dto.AccountDto;
 import io.nuls.v2.model.dto.SignDto;
 import io.nuls.v2.util.AccountTool;
 import io.nuls.v2.util.CommonValidator;
-import org.checkerframework.checker.units.qual.A;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,6 +32,7 @@ import static io.nuls.v2.util.ValidateUtil.validateChainId;
 public class AccountService {
 
     private AccountService() {
+
     }
 
     private static AccountService instance = new AccountService();
