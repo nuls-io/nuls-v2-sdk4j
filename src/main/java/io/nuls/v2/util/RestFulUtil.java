@@ -28,8 +28,8 @@ public class RestFulUtil {
 
     public static String baseUrl = "http://127.0.0.1:9898/";
     //统一配置
-    private static PoolingHttpClientConnectionManager connMgr;
-    private static RequestConfig requestConfig;
+    static final PoolingHttpClientConnectionManager connMgr;
+    static final RequestConfig requestConfig;
     private static final int MAX_TIMEOUT = 7000;
 
     static {
