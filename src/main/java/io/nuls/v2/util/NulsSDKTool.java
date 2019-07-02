@@ -15,6 +15,18 @@ public class NulsSDKTool {
     private static TransactionService transactionService = TransactionService.getInstance();
 
     /**
+     * Create accounts
+     * 批量创建账户
+     *
+     * @param count    The number of accounts you want to create
+     * @param password The password of the account
+     * @return result
+     */
+    public static Result<List<String>> createAccount(int count, String password) {
+        return accountService.createAccount(count, password);
+    }
+
+    /**
      * Create encrypted off-line accounts
      * 批量创建离线账户
      *
@@ -24,6 +36,10 @@ public class NulsSDKTool {
      */
     public static Result<List<AccountDto>> createOffLineAccount(int count, String password) {
         return accountService.createOffLineAccount(count, password);
+    }
+
+    public static Result resetPassword(String address, String oldPassword, String newPassword) {
+        return accountService.resetPassword(address, oldPassword, newPassword);
     }
 
     /**
