@@ -1,34 +1,22 @@
 package io.nuls.v2.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.nuls.core.constant.CommonCodeConstanst;
 import io.nuls.core.log.Log;
 import io.nuls.core.parse.JSONUtils;
 import io.nuls.v2.model.dto.JsonRpcRequest;
-import io.nuls.v2.model.dto.RpcErrorCode;
 import io.nuls.v2.model.dto.RpcResult;
 import io.nuls.v2.model.dto.RpcResultError;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.message.BasicNameValuePair;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import static io.nuls.v2.util.RestFulUtil.connMgr;
 import static io.nuls.v2.util.RestFulUtil.requestConfig;

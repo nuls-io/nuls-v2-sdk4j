@@ -15,6 +15,7 @@ import org.apache.http.message.BasicNameValuePair;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -120,7 +121,7 @@ public class RestFulUtil {
      * @param map
      * @return
      */
-    public static String sendPost(String url, Map<String, String> map) {
+    public static String sendPost(String url, Map<String, Object> map) {
 
         String resultStr = null;
         url = baseUrl + url;
@@ -131,12 +132,14 @@ public class RestFulUtil {
         httpPost.setConfig(requestConfig);
         //设置请求参数（构造参数队列）
         List<NameValuePair> parmsForm = new ArrayList<NameValuePair>();
-        for (Entry<String, String> entry : map.entrySet()) {
-            parmsForm.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+        for (Entry<String, Object> entry : map.entrySet()) {
+            parmsForm.add(new BasicNameValuePair(entry.getKey(), entry.getValue().toString()));
         }
         UrlEncodedFormEntity entity;
         try {
             entity = new UrlEncodedFormEntity(parmsForm, "UTF-8");
+            entity.setContentEncoding("UTF-8");
+            entity.setContentType("application/json");//发送json需要设置contentType
             //为方法实例设置参数队列实体
             httpPost.setEntity(entity);
             //发送（执行）
@@ -253,8 +256,12 @@ public class RestFulUtil {
     }
 
     public static void main(String[] args) {
-        String url = "api/accountledger/balance/8CPcA7kaUfbmbNhT6pHGvBhhK1NSKfCrQjdSL";
-        String result = sendGet(url);
+        Map<String, Object> param = new HashMap<>();
+        param.put("count", "2");
+        param.put("password", "abcd1234");
+
+        String url = "account";
+        String result = sendPost(url, param);
         System.out.println(result);
     }
 

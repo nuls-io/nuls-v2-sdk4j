@@ -12,6 +12,8 @@ import java.util.concurrent.Executors;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.nuls.core.parse.JSONUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
@@ -34,6 +36,7 @@ import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -129,7 +132,7 @@ public class HttpClientUtil {
         HttpRequestRetryHandler httpRequestRetryHandler = new HttpRequestRetryHandler() {
             public boolean retryRequest(IOException exception,
                                         int executionCount, HttpContext context) {
-                if (executionCount >= 5) {// 如果已经重试了5次，就放弃
+                if (executionCount >= 3) {// 如果已经重试了3次，就放弃
                     return false;
                 }
                 if (exception instanceof NoHttpResponseException) {// 如果服务器丢掉了连接，那么就重试
@@ -169,22 +172,19 @@ public class HttpClientUtil {
         return httpClient;
     }
 
-    private static void setPostParams(HttpPost httpost,
-                                      Map<String, Object> params) {
-        List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-        Set<String> keySet = params.keySet();
-        for (String key : keySet) {
-            nvps.add(new BasicNameValuePair(key, params.get(key).toString()));
-        }
-        try {
-            httpost.setEntity(new UrlEncodedFormEntity(nvps, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+    private static void setPostParams(HttpPost httpPost,
+                                      Map<String, Object> params) throws Exception {
+
+        //设置请求参数
+        String json = JSONUtils.obj2json(params);
+        StringEntity entity = new StringEntity(json);
+        entity.setContentEncoding("UTF-8");
+        entity.setContentType("application/json");//发送json需要设置contentType
+        httpPost.setEntity(entity);
     }
 
     /**
-     * GET请求URL获取内容
+     * POST请求URL获取内容
      *
      * @param url
      * @return
@@ -192,20 +192,20 @@ public class HttpClientUtil {
      * @author SHANHY
      * @create 2015年12月18日
      */
-    public static String post(String url, Map<String, Object> params) throws IOException {
-        HttpPost httppost = new HttpPost(url);
-        config(httppost);
-        setPostParams(httppost, params);
+    public static String post(String url, Map<String, Object> params) throws Exception {
         CloseableHttpResponse response = null;
         try {
+            HttpPost httppost = new HttpPost(url);
+            config(httppost);
+            setPostParams(httppost, params);
             response = getHttpClient(url).execute(httppost,
                     HttpClientContext.create());
             HttpEntity entity = response.getEntity();
+
             String result = EntityUtils.toString(entity, "utf-8");
             EntityUtils.consume(entity);
             return result;
         } catch (Exception e) {
-//          e.printStackTrace();
             throw e;
         } finally {
             try {
@@ -313,7 +313,7 @@ public class HttpClientUtil {
         try {
             String result = HttpClientUtil.post("http://127.0.0.1:9898/api/account", param);
             System.out.println(result);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
