@@ -1,28 +1,9 @@
 package io.nuls.v2.util;
 
-import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.io.UnsupportedEncodingException;
-import java.net.UnknownHostException;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLHandshakeException;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.nuls.core.parse.JSONUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.NameValuePair;
-import org.apache.http.NoHttpResponseException;
+import org.apache.http.*;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -40,9 +21,17 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * HttpClient工具类
@@ -53,7 +42,7 @@ import org.apache.http.util.EntityUtils;
  */
 public class HttpClientUtil {
 
-    static final int timeOut = 10 * 1000;
+    private static final int timeOut = 10 * 1000;
 
     private static CloseableHttpClient httpClient = null;
 
@@ -174,7 +163,6 @@ public class HttpClientUtil {
 
     private static void setPostParams(HttpPost httpPost,
                                       Map<String, Object> params) throws Exception {
-
         //设置请求参数
         String json = JSONUtils.obj2json(params);
         StringEntity entity = new StringEntity(json);
@@ -205,8 +193,6 @@ public class HttpClientUtil {
             String result = EntityUtils.toString(entity, "utf-8");
             EntityUtils.consume(entity);
             return result;
-        } catch (Exception e) {
-            throw e;
         } finally {
             try {
                 if (response != null)
@@ -225,7 +211,7 @@ public class HttpClientUtil {
      * @author SHANHY
      * @create 2015年12月18日
      */
-    public static String get(String url) {
+    public static String get(String url) throws Exception {
         HttpGet httpget = new HttpGet(url);
         config(httpget);
         CloseableHttpResponse response = null;
@@ -236,8 +222,6 @@ public class HttpClientUtil {
             String result = EntityUtils.toString(entity, "utf-8");
             EntityUtils.consume(entity);
             return result;
-        } catch (IOException e) {
-            e.printStackTrace();
         } finally {
             try {
                 if (response != null)
@@ -246,7 +230,6 @@ public class HttpClientUtil {
                 e.printStackTrace();
             }
         }
-        return null;
     }
 
     public static void main(String[] args) {
@@ -317,23 +300,23 @@ public class HttpClientUtil {
             e.printStackTrace();
         }
     }
-
-    static class GetRunnable implements Runnable {
-        private CountDownLatch countDownLatch;
-        private String url;
-
-        public GetRunnable(String url, CountDownLatch countDownLatch) {
-            this.url = url;
-            this.countDownLatch = countDownLatch;
-        }
-
-        @Override
-        public void run() {
-            try {
-                System.out.println(HttpClientUtil.get(url));
-            } finally {
-                countDownLatch.countDown();
-            }
-        }
-    }
+//
+//    static class GetRunnable implements Runnable {
+//        private CountDownLatch countDownLatch;
+//        private String url;
+//
+//        public GetRunnable(String url, CountDownLatch countDownLatch) {
+//            this.url = url;
+//            this.countDownLatch = countDownLatch;
+//        }
+//
+//        @Override
+//        public void run() {
+//            try {
+//                System.out.println(HttpClientUtil.get(url));
+//            } finally {
+//                countDownLatch.countDown();
+//            }
+//        }
+//    }
 }
