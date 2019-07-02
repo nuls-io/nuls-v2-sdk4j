@@ -1,0 +1,400 @@
+/**
+ * MIT License
+ * <p>
+ * Copyright (c) 2017-2019 nuls.io
+ * <p>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * <p>
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * <p>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package io.nuls.v2.util;
+
+import io.nuls.base.RPCUtil;
+import io.nuls.base.basic.AddressTool;
+import io.nuls.base.basic.NulsByteBuffer;
+import io.nuls.base.basic.TransactionFeeCalculator;
+import io.nuls.base.data.*;
+import io.nuls.base.signture.P2PHKSignature;
+import io.nuls.base.signture.TransactionSignature;
+import io.nuls.core.basic.NulsData;
+import io.nuls.core.basic.Result;
+import io.nuls.core.basic.VarInt;
+import io.nuls.core.constant.CommonCodeConstanst;
+import io.nuls.core.constant.ErrorCode;
+import io.nuls.core.exception.NulsException;
+import io.nuls.core.log.Log;
+import io.nuls.core.model.LongUtils;
+import io.nuls.core.model.StringUtils;
+import io.nuls.core.rpc.model.message.MessageUtil;
+import io.nuls.core.rpc.model.message.Response;
+import io.nuls.v2.constant.Constant;
+import io.nuls.v2.error.ContractErrorCode;
+import io.nuls.v2.tx.CallContractTransaction;
+import io.nuls.v2.tx.CreateContractTransaction;
+import io.nuls.v2.tx.DeleteContractTransaction;
+import io.nuls.v2.txdata.CallContractData;
+import io.nuls.v2.txdata.ContractData;
+import io.nuls.v2.txdata.CreateContractData;
+import io.nuls.v2.txdata.DeleteContractData;
+
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+
+import static io.nuls.core.constant.TxType.*;
+import static io.nuls.core.model.StringUtils.isBlank;
+import static io.nuls.v2.constant.Constant.*;
+
+/**
+ * @author: PierreLuo
+ * @date: 2018/8/25
+ */
+public class ContractUtil {
+
+    public static String[][] twoDimensionalArray(Object[] args, String[] types) {
+        if (args == null) {
+            return null;
+        } else {
+            int length = args.length;
+            String[][] two = new String[length][];
+            Object arg;
+            for (int i = 0; i < length; i++) {
+                arg = args[i];
+                if (arg == null) {
+                    two[i] = new String[0];
+                    continue;
+                }
+                if (arg instanceof String) {
+                    String argStr = (String) arg;
+                    // 非String类型参数，若传参是空字符串，则赋值为空一维数组，避免数字类型转化异常 -> 空字符串转化为数字
+                    if (types != null && isBlank(argStr) && !STRING.equalsIgnoreCase(types[i])) {
+                        two[i] = new String[0];
+                    } else {
+                        two[i] = new String[]{argStr};
+                    }
+                } else if (arg.getClass().isArray()) {
+                    int len = Array.getLength(arg);
+                    String[] result = new String[len];
+                    for (int k = 0; k < len; k++) {
+                        result[k] = valueOf(Array.get(arg, k));
+                    }
+                    two[i] = result;
+                } else if (arg instanceof ArrayList) {
+                    ArrayList resultArg = (ArrayList) arg;
+                    int size = resultArg.size();
+                    String[] result = new String[size];
+                    for (int k = 0; k < size; k++) {
+                        result[k] = valueOf(resultArg.get(k));
+                    }
+                    two[i] = result;
+                } else {
+                    two[i] = new String[]{valueOf(arg)};
+                }
+            }
+            return two;
+        }
+    }
+
+    public static byte[] extractContractAddressFromTxData(Transaction tx) {
+        if (tx == null) {
+            return null;
+        }
+        int txType = tx.getType();
+        if (txType == CREATE_CONTRACT
+                || txType == CALL_CONTRACT
+                || txType == DELETE_CONTRACT) {
+            return extractContractAddressFromTxData(tx.getTxData());
+        }
+        return null;
+    }
+
+    private static byte[] extractContractAddressFromTxData(byte[] txData) {
+        if (txData == null) {
+            return null;
+        }
+        int length = txData.length;
+        if (length < Address.ADDRESS_LENGTH * 2) {
+            return null;
+        }
+        byte[] contractAddress = new byte[Address.ADDRESS_LENGTH];
+        System.arraycopy(txData, Address.ADDRESS_LENGTH, contractAddress, 0, Address.ADDRESS_LENGTH);
+        return contractAddress;
+    }
+
+
+    public static String[][] twoDimensionalArray(Object[] args) {
+        return twoDimensionalArray(args, null);
+    }
+
+    public static String valueOf(Object obj) {
+        return (obj == null) ? null : obj.toString();
+    }
+
+
+    public static boolean isContractTransaction(Transaction tx) {
+        if (tx == null) {
+            return false;
+        }
+        int txType = tx.getType();
+        if (txType == CREATE_CONTRACT
+                || txType == CALL_CONTRACT
+                || txType == DELETE_CONTRACT
+                || txType == CONTRACT_TRANSFER
+                || txType == CONTRACT_RETURN_GAS) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean isGasCostContractTransaction(Transaction tx) {
+        if (tx == null) {
+            return false;
+        }
+        int txType = tx.getType();
+        if (txType == CREATE_CONTRACT
+                || txType == CALL_CONTRACT) {
+            return true;
+        }
+        return false;
+    }
+
+
+    public static boolean isLockContract(long lastestHeight, long blockHeight) throws NulsException {
+        if (blockHeight > 0) {
+            long confirmCount = lastestHeight - blockHeight;
+            if (confirmCount < 7) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public static String bigInteger2String(BigInteger bigInteger) {
+        if (bigInteger == null) {
+            return null;
+        }
+        return bigInteger.toString();
+    }
+
+    public static String simplifyErrorMsg(String errorMsg) {
+        String resultMsg = "contract error - ";
+        if (isBlank(errorMsg)) {
+            return resultMsg;
+        }
+        if (errorMsg.contains("Exception:")) {
+            String[] msgs = errorMsg.split("Exception:", 2);
+            return resultMsg + msgs[1].trim();
+        }
+        return resultMsg + errorMsg;
+    }
+
+    public static Result checkVmResultAndReturn(String errorMessage, Result defaultResult) {
+        if (isBlank(errorMessage)) {
+            return defaultResult;
+        }
+        if (isNotEnoughGasError(errorMessage)) {
+            return Result.getFailed(ContractErrorCode.CONTRACT_GAS_LIMIT);
+        }
+        return defaultResult;
+    }
+
+    private static boolean isNotEnoughGasError(String errorMessage) {
+        if (errorMessage == null) {
+            return false;
+        }
+        if (errorMessage.contains(NOT_ENOUGH_GAS)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean isTerminatedContract(int status) {
+        return Constant.STOP == status;
+    }
+
+    public static boolean isTransferMethod(String method) {
+        return (NRC20_METHOD_TRANSFER.equals(method)
+                || NRC20_METHOD_TRANSFER_FROM.equals(method));
+    }
+
+    public static String argToString(String[][] args) {
+        if (args == null) {
+            return "";
+        }
+        String result = "";
+        for (String[] a : args) {
+            result += Arrays.toString(a) + "| ";
+        }
+        return result;
+    }
+
+
+    public static boolean isLegalContractAddress(int chainId, byte[] addressBytes) {
+        if (addressBytes == null) {
+            return false;
+        }
+        return AddressTool.validContractAddress(addressBytes, chainId);
+    }
+
+
+    public static Result getSuccess() {
+        return Result.getSuccess(ContractErrorCode.SUCCESS);
+    }
+
+    public static Result getFailed() {
+        return Result.getFailed(CommonCodeConstanst.FAILED);
+    }
+
+    public static String asString(byte[] bytes) {
+        return Base64.getEncoder().encodeToString(bytes);
+    }
+
+    public static byte[] asBytes(String string) {
+        return Base64.getDecoder().decode(string);
+    }
+
+    public static BigInteger minus(BigInteger a, BigInteger b) {
+        BigInteger result = a.subtract(b);
+        if (result.compareTo(BigInteger.ZERO) < 0) {
+            throw new RuntimeException("Negative number detected.");
+        }
+        return result;
+    }
+
+    public static int extractTxTypeFromTx(String txString) throws NulsException {
+        String txTypeHexString = txString.substring(0, 4);
+        NulsByteBuffer byteBuffer = new NulsByteBuffer(RPCUtil.decode(txTypeHexString));
+        return byteBuffer.readUint16();
+    }
+
+    public static String toString(String[][] a) {
+        if (a == null)
+            return "null";
+
+        int iMax = a.length - 1;
+        if (iMax == -1)
+            return "[]";
+
+        StringBuilder b = new StringBuilder();
+        b.append('[');
+        for (int i = 0; ; i++) {
+            b.append(Arrays.toString(a[i]));
+            if (i == iMax) {
+                b.append(']');
+                break;
+            }
+            b.append(", ");
+        }
+        return b.toString();
+    }
+
+    public static CreateContractTransaction newCreateTx(int chainId, int assetsId, BigInteger senderBalance, String nonce, CreateContractData createContractData, String remark) {
+        try {
+            CreateContractTransaction tx = new CreateContractTransaction();
+            if (StringUtils.isNotBlank(remark)) {
+                tx.setRemark(remark.getBytes(StandardCharsets.UTF_8));
+            }
+            tx.setTime(System.currentTimeMillis() / 1000);
+            // 计算CoinData
+            CoinData coinData = makeCoinData(chainId, assetsId, senderBalance, nonce, createContractData, tx.size(), calcSize(createContractData));
+            tx.setTxDataObj(createContractData);
+            tx.setCoinDataObj(coinData);
+            tx.serializeData();
+            return tx;
+        } catch (IOException e) {
+            Log.error(e);
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public static CallContractTransaction newCallTx(int chainId, int assetsId, BigInteger senderBalance, String nonce, CallContractData callContractData, String remark) {
+        try {
+            CallContractTransaction tx = new CallContractTransaction();
+            if (StringUtils.isNotBlank(remark)) {
+                tx.setRemark(remark.getBytes(StandardCharsets.UTF_8));
+            }
+            tx.setTime(System.currentTimeMillis() / 1000);
+            // 计算CoinData
+            CoinData coinData = makeCoinData(chainId, assetsId, senderBalance, nonce, callContractData, tx.size(), calcSize(callContractData));
+            tx.setTxDataObj(callContractData);
+            tx.setCoinDataObj(coinData);
+            tx.serializeData();
+            return tx;
+        } catch (IOException e) {
+            Log.error(e);
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public static DeleteContractTransaction newDeleteTx(int chainId, int assetsId, BigInteger senderBalance, String nonce, DeleteContractData deleteContractData, String remark) {
+        try {
+            DeleteContractTransaction tx = new DeleteContractTransaction();
+            if (StringUtils.isNotBlank(remark)) {
+                tx.setRemark(remark.getBytes(StandardCharsets.UTF_8));
+            }
+            tx.setTime(System.currentTimeMillis() / 1000);
+            // 计算CoinData
+            CoinData coinData = makeCoinData(chainId, assetsId, senderBalance, nonce, deleteContractData, tx.size(), calcSize(deleteContractData));
+            tx.setTxDataObj(deleteContractData);
+            tx.setCoinDataObj(coinData);
+            tx.serializeData();
+            return tx;
+        } catch (IOException e) {
+            Log.error(e);
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    private static CoinData makeCoinData(int chainId, int assetsId, BigInteger senderBalance, String nonce, ContractData contractData, int txSize, int txDataSize) {
+        CoinData coinData = new CoinData();
+        long gasUsed = contractData.getGasLimit();
+        BigInteger imputedValue = BigInteger.valueOf(LongUtils.mul(gasUsed, contractData.getPrice()));
+        // 总花费
+        BigInteger value = contractData.getValue();
+        BigInteger totalValue = imputedValue.add(value);
+
+        CoinFrom coinFrom = new CoinFrom(contractData.getSender(), chainId, assetsId, totalValue, RPCUtil.decode(nonce), (byte) 0);
+        coinData.addFrom(coinFrom);
+
+        if (value.compareTo(BigInteger.ZERO) > 0) {
+            CoinTo coinTo = new CoinTo(contractData.getContractAddress(), chainId, assetsId, value);
+            coinData.addTo(coinTo);
+        }
+
+        BigInteger fee = TransactionFeeCalculator.getNormalUnsignedTxFee(txSize + txDataSize + calcSize(coinData));
+        totalValue = totalValue.add(fee);
+        if (senderBalance.compareTo(totalValue) < 0) {
+            // Insufficient balance
+            throw new RuntimeException("Insufficient balance");
+        }
+        coinFrom.setAmount(totalValue);
+        return coinData;
+    }
+
+
+    private static int calcSize(NulsData nulsData) {
+        if (nulsData == null) {
+            return 0;
+        }
+        int size = nulsData.size();
+        // 计算tx.size()时，当coinData和txData为空时，计算了1个长度，若此时nulsData不为空，则要扣减这1个长度
+        return VarInt.sizeOf(size) + size - 1;
+    }
+}
