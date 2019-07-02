@@ -12,14 +12,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static io.nuls.v2.SDKContext.wallet_url;
+
 /**
  * JSON-RPC 请求工具
  * @author: PierreLuo
  * @date: 2019-07-01
  */
 public class JsonRpcUtil {
-
-    public static String baseUrl = "http://127.0.0.1:9898/jsonrpc";
 
     private static final String ID = "id";
     private static final String JSONRPC = "jsonrpc";
@@ -38,7 +38,7 @@ public class JsonRpcUtil {
             map.put(JSONRPC, JSONRPC_VERSION);
             map.put(METHOD, method);
             map.put(PARAMS, params);
-            String resultStr = HttpClientUtil.post(baseUrl, map);
+            String resultStr = HttpClientUtil.post(wallet_url + JSONRPC, map);
             rpcResult = JSONUtils.json2pojo(resultStr, RpcResult.class);
         } catch (Exception e) {
             Log.error(e);

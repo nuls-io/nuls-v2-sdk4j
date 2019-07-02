@@ -1,9 +1,13 @@
 package io.nuls.v2;
 
+import io.nuls.core.parse.I18nUtils;
+import io.nuls.v2.service.ContractService;
 import io.nuls.v2.util.RestFulUtil;
 
 public class NulsSDKBootStrap {
 
+    private static final String LANGUAGE = "en";
+    private static final String LANGUAGE_PATH =  "languages";
     /**
      * nuls sdk init
      *
@@ -14,6 +18,7 @@ public class NulsSDKBootStrap {
             throw new RuntimeException("[defaultChainId] is invalid");
         }
         SDKContext.main_chain_id = chainId;
+        I18nUtils.loadLanguage(ContractService.class, LANGUAGE_PATH, LANGUAGE);
     }
 
     public static void init(String httpUrl) {
