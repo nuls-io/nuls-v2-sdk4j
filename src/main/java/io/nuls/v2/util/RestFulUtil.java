@@ -76,7 +76,6 @@ public class RestFulUtil {
         url = baseUrl + url;
         //创建HttpClient对象
         CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(connMgr).build();
-
         //设置请求参数
         if (null != map && !map.isEmpty()) {
             //遍历map

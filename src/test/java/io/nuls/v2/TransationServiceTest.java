@@ -44,7 +44,7 @@ public class TransationServiceTest {
         from.setAmount(new BigInteger("10000000").add(fee));
         from.setChainId(SDKContext.main_chain_id);
         from.setAssetId(SDKContext.main_asset_id);
-        from.setNonce("0000000000000000");
+        from.setNonce("6db83fdd14f6f233");
         inputs.add(from);
 
         List<CoinToDto> outputs = new ArrayList<>();
@@ -59,7 +59,7 @@ public class TransationServiceTest {
         transferDto.setOutputs(outputs);
 
         Result result = NulsSDKTool.createTransferTx(transferDto);
-
+        //d3de15b1d1746732510610a102c2189da970df534ea9407c48d0b7838eeb5b8e
         System.out.println(result.getData());
     }
 
