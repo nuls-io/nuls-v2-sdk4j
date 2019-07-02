@@ -31,7 +31,6 @@ import java.io.InterruptedIOException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * HttpClient工具类
@@ -212,11 +211,24 @@ public class HttpClientUtil {
      * @create 2015年12月18日
      */
     public static String get(String url) throws Exception {
-        HttpGet httpget = new HttpGet(url);
-        config(httpget);
+        return get(url, null);
+    }
+
+    public static String get(String url, Map<String, Object> params) throws Exception {
+        StringBuffer buffer;
+        if (null != params && !params.isEmpty()) {
+            //遍历map
+            buffer = new StringBuffer("");
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                buffer.append("&" + entry.getKey() + "=" + entry.getValue());
+            }
+            url = url + buffer.toString();
+        }
+        HttpGet httpGet = new HttpGet(url);
+        config(httpGet);
         CloseableHttpResponse response = null;
         try {
-            response = getHttpClient(url).execute(httpget,
+            response = getHttpClient(url).execute(httpGet,
                     HttpClientContext.create());
             HttpEntity entity = response.getEntity();
             String result = EntityUtils.toString(entity, "utf-8");
@@ -289,12 +301,14 @@ public class HttpClientUtil {
 //        long end = System.currentTimeMillis();
 //        System.out.println("consume -> " + (end - start));
 
-//        String result = HttpClientUtil.get("http://127.0.0.1:9898/api/accountledger/balance/tNULSeBaMt7c7sybfvP7iAC2p9d1ickHZvH9Sc");
-        Map<String, Object> param = new HashMap<>();
-        param.put("count", 2);
-        param.put("password", "abcd1234");
+
         try {
-            String result = HttpClientUtil.post("http://127.0.0.1:9898/api/account", param);
+            String result = HttpClientUtil.get("http://127.0.0.1:9898/api/accountledger/balance/tNULSeBaMt7c7sybfvP7iAC2p9d1ickHZvH9Sc");
+            System.out.println(result);
+            Map<String, Object> param = new HashMap<>();
+            param.put("count", 2);
+            param.put("password", "abcd1234");
+            result = HttpClientUtil.post("http://127.0.0.1:9898/api/account", param);
             System.out.println(result);
         } catch (Exception e) {
             e.printStackTrace();

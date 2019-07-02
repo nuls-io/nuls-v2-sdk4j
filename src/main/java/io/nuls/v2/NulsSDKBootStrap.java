@@ -5,7 +5,8 @@ import io.nuls.v2.util.RestFulUtil;
 public class NulsSDKBootStrap {
 
     /**
-     *  nuls sdk init
+     * nuls sdk init
+     *
      * @param chainId 运行链的id
      */
     public static void init(int chainId) {
@@ -16,6 +17,11 @@ public class NulsSDKBootStrap {
     }
 
     public static void init(String httpUrl) {
-        RestFulUtil.baseUrl = httpUrl;
+        SDKContext.wallet_url = httpUrl;
+    }
+
+    public static void init(int chainId, String httpUrl) {
+        init(chainId);
+        init(httpUrl);
     }
 }

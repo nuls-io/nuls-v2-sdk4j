@@ -5,6 +5,7 @@ import io.nuls.base.basic.NulsByteBuffer;
 import io.nuls.base.data.Transaction;
 import io.nuls.base.signture.SignatureUtil;
 import io.nuls.core.basic.Result;
+import io.nuls.core.constant.ErrorCode;
 import io.nuls.core.crypto.AESEncrypt;
 import io.nuls.core.crypto.ECKey;
 import io.nuls.core.crypto.HexUtil;
@@ -17,10 +18,11 @@ import io.nuls.v2.SDKContext;
 import io.nuls.v2.error.AccountErrorCode;
 import io.nuls.v2.model.Account;
 import io.nuls.v2.model.dto.AccountDto;
+import io.nuls.v2.model.dto.RestFulResult;
 import io.nuls.v2.model.dto.SignDto;
 import io.nuls.v2.util.AccountTool;
 import io.nuls.v2.util.CommonValidator;
-import io.nuls.v2.util.ValidateUtil;
+import io.nuls.v2.util.RestFulUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -213,13 +215,27 @@ public class AccountService {
         }
     }
 
+    /**
+     * 获取账户余额
+     * @param address 地址
+     * @return result
+     */
     public Result getAccountBalance(String address) {
         validateChainId();
         try {
             if (!AddressTool.validAddress(SDKContext.main_chain_id, address)) {
                 throw new NulsException(AccountErrorCode.ADDRESS_ERROR);
             }
-        return null;
+            Result result;
+            RestFulResult restFulResult = RestFulUtil.get("api/accountledger/balance/" + address);
+            if (restFulResult.isSuccess()) {
+                result = new Result(true);
+                result.setData(restFulResult.getData());
+            } else {
+                ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+                result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+            }
+            return result;
         } catch (NulsException e) {
             return Result.getFailed(e.getErrorCode());
         }

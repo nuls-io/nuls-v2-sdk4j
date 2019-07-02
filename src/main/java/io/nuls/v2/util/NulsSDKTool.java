@@ -53,6 +53,16 @@ public class NulsSDKTool {
     }
 
     /**
+     * 获取账户余额
+     *
+     * @param address 地址
+     * @return result
+     */
+    public static Result getAccountBalance(String address) {
+        return accountService.getAccountBalance(address);
+    }
+
+    /**
      * sign the tx's digest
      *
      * @param signDtoList 签名请求参数

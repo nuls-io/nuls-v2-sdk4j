@@ -25,12 +25,9 @@ public class AccountServiceTest {
     static String password = "abcd1234";
 
 
-
-
-
     @Before
     public void before() {
-        NulsSDKBootStrap.init(100);
+        NulsSDKBootStrap.init(2,"http://127.0.0.1:9898/");
     }
 
     @Test
@@ -69,5 +66,11 @@ public class AccountServiceTest {
         Result result = NulsSDKTool.sign(signDtoList, txHex);
         Map map = (Map) result.getData();
         System.out.println(map);
+    }
+
+    @Test
+    public void testBalance() {
+        Result result = NulsSDKTool.getAccountBalance("tNULSeBaMshNPEnuqiDhMdSA4iNs6LMgjY6tcL");
+        System.out.println(result);
     }
 }
