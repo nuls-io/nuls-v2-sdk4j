@@ -28,19 +28,14 @@ import io.nuls.base.basic.AddressTool;
 import io.nuls.base.basic.NulsByteBuffer;
 import io.nuls.base.basic.TransactionFeeCalculator;
 import io.nuls.base.data.*;
-import io.nuls.base.signture.P2PHKSignature;
-import io.nuls.base.signture.TransactionSignature;
 import io.nuls.core.basic.NulsData;
 import io.nuls.core.basic.Result;
 import io.nuls.core.basic.VarInt;
 import io.nuls.core.constant.CommonCodeConstanst;
-import io.nuls.core.constant.ErrorCode;
 import io.nuls.core.exception.NulsException;
 import io.nuls.core.log.Log;
 import io.nuls.core.model.LongUtils;
 import io.nuls.core.model.StringUtils;
-import io.nuls.core.rpc.model.message.MessageUtil;
-import io.nuls.core.rpc.model.message.Response;
 import io.nuls.v2.constant.Constant;
 import io.nuls.v2.error.ContractErrorCode;
 import io.nuls.v2.tx.CallContractTransaction;
@@ -55,7 +50,9 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
 
 import static io.nuls.core.constant.TxType.*;
 import static io.nuls.core.model.StringUtils.isBlank;
@@ -255,7 +252,7 @@ public class ContractUtil {
 
 
     public static Result getSuccess() {
-        return Result.getSuccess(ContractErrorCode.SUCCESS);
+        return Result.getSuccess(CommonCodeConstanst.SUCCESS);
     }
 
     public static Result getFailed() {
