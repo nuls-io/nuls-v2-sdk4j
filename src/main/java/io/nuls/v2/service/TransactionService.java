@@ -93,9 +93,9 @@ public class TransactionService {
             map.put("txHex", HexUtil.encode(tx.serialize()));
             return new Result(true).setData(map);
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
         } catch (IOException e) {
-            return Result.getFailed(AccountErrorCode.DATA_PARSE_ERROR);
+            return Result.getFailed(AccountErrorCode.DATA_PARSE_ERROR).setMsg(AccountErrorCode.DATA_PARSE_ERROR.getMsg());
         }
     }
 
@@ -194,9 +194,9 @@ public class TransactionService {
             map.put("txHex", HexUtil.encode(tx.serialize()));
             return new Result(true).setData(map);
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
         } catch (IOException e) {
-            return Result.getFailed(AccountErrorCode.DATA_PARSE_ERROR);
+            return Result.getFailed(AccountErrorCode.DATA_PARSE_ERROR).setMsg(AccountErrorCode.DATA_PARSE_ERROR.getMsg());
         }
     }
 
@@ -235,9 +235,9 @@ public class TransactionService {
             map.put("txHex", HexUtil.encode(tx.serialize()));
             return new Result(true).setData(map);
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
         } catch (IOException e) {
-            return Result.getFailed(AccountErrorCode.DATA_PARSE_ERROR);
+            return Result.getFailed(AccountErrorCode.DATA_PARSE_ERROR).setMsg(AccountErrorCode.DATA_PARSE_ERROR.getMsg());
         }
     }
 
@@ -300,9 +300,9 @@ public class TransactionService {
             return new Result(true).setData(map);
 
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
         } catch (IOException e) {
-            return Result.getFailed(AccountErrorCode.DATA_PARSE_ERROR);
+            return Result.getFailed(AccountErrorCode.DATA_PARSE_ERROR).setMsg(AccountErrorCode.DATA_PARSE_ERROR.getMsg());
         }
     }
 
@@ -376,9 +376,9 @@ public class TransactionService {
             map.put("txHex", HexUtil.encode(tx.serialize()));
             return new Result(true).setData(map);
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
         } catch (IOException e) {
-            return Result.getFailed(AccountErrorCode.DATA_PARSE_ERROR);
+            return Result.getFailed(AccountErrorCode.DATA_PARSE_ERROR).setMsg(AccountErrorCode.DATA_PARSE_ERROR.getMsg());
         }
     }
 

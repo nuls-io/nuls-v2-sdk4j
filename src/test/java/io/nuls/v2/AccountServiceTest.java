@@ -27,7 +27,16 @@ public class AccountServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.init(2,"http://127.0.0.1:9898/");
+        NulsSDKBootStrap.init(9, "http://127.0.0.1:9898/");
+    }
+
+    @Test
+    public void testCreateAccount() {
+        int count = 1;
+        Result<List<String>> result = NulsSDKTool.createAccount(count, password);
+        for (String address : result.getData()) {
+            System.out.println(address);
+        }
     }
 
     @Test
@@ -46,6 +55,22 @@ public class AccountServiceTest {
     }
 
     @Test
+    public void testResetPassword() {
+        Result result = NulsSDKTool.resetPassword("GJbpb6GNSvkBNoNa3YH2skPLSEVvEYMfS99", password, "abcd4321");
+        System.out.println(result);
+
+    }
+
+    @Test
+    public void testRestPasswordOffline() {
+        //
+        String enPrikey = "3ce173a674c9b8ea218eb9c47fab069b3ca1f8150e8d22793729be5bd01084bcd17fd80060504ce62bcda792116fa30a";
+        Result result = NulsSDKTool.resetPasswordOffline("GJbpb666UcupYQfY2DgigShaMb2kRbbhitW", enPrikey, password, "abcd4321");
+        System.out.println(result);
+
+    }
+
+    @Test
     public void testGetPriKey() {
         Result result = NulsSDKTool.getPriKeyOffline(address, encryptedPrivateKey, password);
         Map map = (Map) result.getData();
@@ -59,6 +84,7 @@ public class AccountServiceTest {
         List<SignDto> signDtoList = new ArrayList<>();
         SignDto signDto = new SignDto();
         signDto.setAddress(address);
+//        signDto.setPriKey("dsfsdfsddf");
         signDto.setEncryptedPrivateKey(encryptedPrivateKey);
         signDto.setPassword(password);
         signDtoList.add(signDto);

@@ -4,10 +4,7 @@ import io.nuls.core.parse.JSONUtils;
 import org.apache.http.*;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
@@ -160,14 +157,22 @@ public class HttpClientUtil {
         return httpClient;
     }
 
-    private static void setPostParams(HttpPost httpPost,
-                                      Map<String, Object> params) throws Exception {
+    private static void setPostParams(HttpPost httpPost, Map<String, Object> params) throws Exception {
         //设置请求参数
         String json = JSONUtils.obj2json(params);
         StringEntity entity = new StringEntity(json);
         entity.setContentEncoding("UTF-8");
         entity.setContentType("application/json");//发送json需要设置contentType
         httpPost.setEntity(entity);
+    }
+
+    private static void setPutParams(HttpPut httpPut, Map<String, Object> params) throws Exception {
+        //设置请求参数
+        String json = JSONUtils.obj2json(params);
+        StringEntity entity = new StringEntity(json);
+        entity.setContentEncoding("UTF-8");
+        entity.setContentType("application/json");//发送json需要设置contentType
+        httpPut.setEntity(entity);
     }
 
     /**
@@ -186,6 +191,38 @@ public class HttpClientUtil {
             config(httppost);
             setPostParams(httppost, params);
             response = getHttpClient(url).execute(httppost,
+                    HttpClientContext.create());
+            HttpEntity entity = response.getEntity();
+
+            String result = EntityUtils.toString(entity, "utf-8");
+            EntityUtils.consume(entity);
+            return result;
+        } finally {
+            try {
+                if (response != null)
+                    response.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * PUT请求URL获取内容
+     *
+     * @param url
+     * @return
+     * @throws IOException
+     * @author SHANHY
+     * @create 2015年12月18日
+     */
+    public static String put(String url, Map<String, Object> params) throws Exception {
+        CloseableHttpResponse response = null;
+        try {
+            HttpPut httpPut = new HttpPut(url);
+            config(httpPut);
+            setPutParams(httpPut, params);
+            response = getHttpClient(url).execute(httpPut,
                     HttpClientContext.create());
             HttpEntity entity = response.getEntity();
 

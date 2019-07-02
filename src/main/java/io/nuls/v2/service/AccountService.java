@@ -45,6 +45,43 @@ public class AccountService {
     }
 
     /**
+     * Create accounts
+     * 批量创建账户
+     *
+     * @param count    The number of accounts you want to create
+     * @param password The password of the account
+     * @return result
+     */
+    public Result<List<String>> createAccount(int count, String password) {
+        validateChainId();
+        try {
+            if (!FormatValidUtils.validPassword(password)) {
+                throw new NulsException(AccountErrorCode.PASSWORD_FORMAT_WRONG);
+            }
+            if (count < 1) {
+                count = 1;
+            }
+            Map<String, Object> params = new HashMap<>();
+            params.put("count", count);
+            params.put("password", password);
+            RestFulResult restFulResult = RestFulUtil.post("api/account", params);
+            Result<List<String>> result;
+            if (restFulResult.isSuccess()) {
+                result = new Result(true);
+                Map<String, Object> dataMap = (Map<String, Object>) restFulResult.getData();
+
+                result.setData((List<String>) dataMap.get("list"));
+            } else {
+                ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+                result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+            }
+            return result;
+        } catch (NulsException e) {
+            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
+        }
+    }
+
+    /**
      * Create encrypted off-line accounts
      * 批量创建离线账户
      *
@@ -59,6 +96,9 @@ public class AccountService {
         try {
             if (!FormatValidUtils.validPassword(password)) {
                 throw new NulsException(AccountErrorCode.PASSWORD_FORMAT_WRONG);
+            }
+            if (count < 1) {
+                count = 1;
             }
             for (int i = 0; i < count; i++) {
                 //create account
@@ -79,10 +119,11 @@ public class AccountService {
                 list.add(accountDto);
             }
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
         }
         return Result.getSuccess(list);
     }
+
 
     /**
      * get unencrypted private-key
@@ -117,9 +158,38 @@ public class AccountService {
             map.put("priKey", HexUtil.encode(account.getPriKey()));
             return Result.getSuccess(map);
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
         } catch (CryptoException e) {
-            return Result.getFailed(AccountErrorCode.PASSWORD_IS_WRONG);
+            return Result.getFailed(AccountErrorCode.PASSWORD_IS_WRONG).setMsg(AccountErrorCode.PASSWORD_IS_WRONG.getMsg());
+        }
+    }
+
+
+    public Result resetPassword(String address, String oldPassword, String newPassword) {
+        validateChainId();
+        try {
+            if (!AddressTool.validAddress(SDKContext.main_chain_id, address)) {
+                throw new NulsException(AccountErrorCode.ADDRESS_ERROR);
+            }
+            if (!FormatValidUtils.validPassword(oldPassword) || !FormatValidUtils.validPassword(newPassword)) {
+                throw new NulsException(AccountErrorCode.PASSWORD_FORMAT_WRONG);
+            }
+            Map<String, Object> params = new HashMap<>();
+            params.put("password", oldPassword);
+            params.put("newPassword", newPassword);
+
+            Result result;
+            RestFulResult restFulResult = RestFulUtil.put("api/account/password/" + address, params);
+            if (restFulResult.isSuccess()) {
+                result = new Result(true);
+                result.setData(restFulResult.getData());
+            } else {
+                ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+                result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+            }
+            return result;
+        } catch (NulsException e) {
+            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
         }
     }
 
@@ -157,9 +227,10 @@ public class AccountService {
             map.put("newEncryptedPriKey", HexUtil.encode(account.getEncryptedPriKey()));
             return Result.getSuccess(map);
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
         } catch (CryptoException e) {
-            return Result.getFailed(AccountErrorCode.PASSWORD_IS_WRONG);
+
+            return Result.getFailed(AccountErrorCode.PASSWORD_IS_WRONG).setMsg(AccountErrorCode.PASSWORD_IS_WRONG.getMsg());
         }
     }
 
@@ -209,14 +280,15 @@ public class AccountService {
             map.put("txHex", HexUtil.encode(tx.serialize()));
             return Result.getSuccess(map);
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
         } catch (IOException e) {
-            return Result.getFailed(AccountErrorCode.SERIALIZE_ERROR);
+            return Result.getFailed(AccountErrorCode.SERIALIZE_ERROR).setMsg(AccountErrorCode.SERIALIZE_ERROR.getMsg());
         }
     }
 
     /**
      * 获取账户余额
+     *
      * @param address 地址
      * @return result
      */
@@ -237,7 +309,7 @@ public class AccountService {
             }
             return result;
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
         }
     }
 }

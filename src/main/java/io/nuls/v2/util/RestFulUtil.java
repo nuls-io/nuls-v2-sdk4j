@@ -22,7 +22,7 @@ public class RestFulUtil {
      * @param url
      * @return
      */
-    public static RestFulResult get(String url) {
+    public static RestFulResult<Map<String, Object>> get(String url) {
         return get(url, null);
     }
 
@@ -47,14 +47,34 @@ public class RestFulUtil {
 
     /**
      * 发送post请求
+     *
      * @param url
      * @param params
      * @return
      */
-    public static RestFulResult post(String url, Map<String, Object> params) {
+    public static RestFulResult<Map<String, Object>> post(String url, Map<String, Object> params) {
         try {
             url = SDKContext.wallet_url + url;
             String resultStr = HttpClientUtil.post(url, params);
+            RestFulResult<Map<String, Object>> result = toResult(resultStr);
+            return result;
+        } catch (Exception e) {
+            Log.error(e);
+            return RestFulResult.failed(CommonCodeConstanst.DATA_ERROR.getCode(), e.getMessage(), null);
+        }
+    }
+
+    /**
+     * 发送put请求
+     *
+     * @param url
+     * @param params
+     * @return
+     */
+    public static RestFulResult<Map<String, Object>> put(String url, Map<String, Object> params) {
+        try {
+            url = SDKContext.wallet_url + url;
+            String resultStr = HttpClientUtil.put(url, params);
             RestFulResult<Map<String, Object>> result = toResult(resultStr);
             return result;
         } catch (Exception e) {
@@ -276,6 +296,7 @@ public class RestFulUtil {
 //    }
 
     public static void main(String[] args) {
-        RestFulResult result = get("http://127.0.0.1:9898/api/accountledger/balance/dsf/6NULSeBaMt7c7sybfvP7iAC2p9d1ickHZvH9Sc");
+        RestFulResult result = get("api/accountledger/balance/tNULSeBaMt7c7sybfvP7iAC2p9d1ickHZvH9Sc");
+        System.out.println(result.getData());
     }
 }
