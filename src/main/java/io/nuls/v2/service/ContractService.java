@@ -10,6 +10,8 @@ import io.nuls.core.model.FormatValidUtils;
 import io.nuls.core.model.StringUtils;
 import io.nuls.core.rpc.model.*;
 import io.nuls.v2.SDKContext;
+import io.nuls.v2.constant.Constant;
+import io.nuls.v2.error.ContractErrorCode;
 import io.nuls.v2.model.annotation.Api;
 import io.nuls.v2.model.annotation.ApiOperation;
 import io.nuls.v2.model.annotation.ApiType;
@@ -336,6 +338,38 @@ public class ContractService {
         }
         ContractConstructorInfoDto dto = new ContractConstructorInfoDto(rpcResult.getResult());
         return getSuccess().setData(dto);
+    }
+
+    @ApiOperation(description = "离线组装token转账交易")
+    @Parameters(value = {
+        @Parameter(parameterName = "fromAddress", parameterType = "String", parameterDes = "转出者账户地址"),
+        @Parameter(parameterName = "toAddress", parameterType = "String", parameterDes = "转入地址"),
+        @Parameter(parameterName = "contractAddress", parameterType = "String", parameterDes = "token合约地址"),
+        @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的token资产金额"),
+        @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+        @Key(name = "hash", description = "交易hash"),
+        @Key(name = "txHex", description = "交易序列化字符串")
+    }))
+    public Result<Map> tokenTransfer(String fromAddress, String toAddress, String contractAddress, BigInteger amount, String remark) {
+        int chainId = SDKContext.main_chain_id;
+        if (amount == null || amount.compareTo(BigInteger.ZERO) <= 0) {
+            return Result.getFailed(ContractErrorCode.PARAMETER_ERROR);
+        }
+
+        if (!AddressTool.validAddress(chainId, fromAddress)) {
+            return Result.getFailed(ADDRESS_ERROR);
+        }
+
+        if (!AddressTool.validAddress(chainId, toAddress)) {
+            return Result.getFailed(ADDRESS_ERROR);
+        }
+
+        if (!AddressTool.validAddress(chainId, contractAddress)) {
+            return Result.getFailed(ADDRESS_ERROR);
+        }
+        return this.callTxOffline(fromAddress, null, contractAddress, Constant.NRC20_METHOD_TRANSFER, null, new Object[]{toAddress, amount.toString()}, remark);
     }
 
 }
