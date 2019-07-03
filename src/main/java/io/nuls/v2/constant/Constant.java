@@ -14,6 +14,9 @@ public interface Constant {
     String NOT_ENOUGH_GAS = "not enough gas";
     String CONTRACT_CONSTRUCTOR = "<init>";
 
+    String BALANCE_TRIGGER_METHOD_NAME = "_payable";
+    String BALANCE_TRIGGER_METHOD_DESC = "() return void";
+
     long MAX_GASLIMIT = 10000000;
     long CONTRACT_MINIMUM_PRICE = 25;
 

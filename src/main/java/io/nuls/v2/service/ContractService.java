@@ -57,7 +57,7 @@ public class ContractService {
         return instance;
     }
 
-    @ApiOperation(description = "离线组装发布合约的交易")
+    @ApiOperation(description = "离线组装 - 发布合约的交易")
     @Parameters(value = {
         @Parameter(parameterName = "sender", parameterType = "String", parameterDes = "交易创建者账户地址"),
         @Parameter(parameterName = "alias", parameterType = "String", parameterDes = "合约别名"),
@@ -160,7 +160,7 @@ public class ContractService {
     }
 
 
-    @ApiOperation(description = "离线组装调用合约的交易")
+    @ApiOperation(description = "离线组装 - 调用合约的交易")
     @Parameters(value = {
         @Parameter(parameterName = "sender", parameterType = "String", parameterDes = "交易创建者账户地址"),
         @Parameter(parameterName = "value", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "调用者向合约地址转入的主网资产金额，没有此业务时填BigInteger.ZERO"),
@@ -266,7 +266,7 @@ public class ContractService {
     }
 
 
-    @ApiOperation(description = "离线组装删除合约的交易")
+    @ApiOperation(description = "离线组装 - 删除合约的交易")
     @Parameters(value = {
         @Parameter(parameterName = "sender", parameterType = "String", parameterDes = "交易创建者账户地址"),
         @Parameter(parameterName = "contractAddress", parameterType = "String", parameterDes = "合约地址"),
@@ -340,7 +340,7 @@ public class ContractService {
         return getSuccess().setData(dto);
     }
 
-    @ApiOperation(description = "离线组装token转账交易")
+    @ApiOperation(description = "离线组装 - token转账交易")
     @Parameters(value = {
         @Parameter(parameterName = "fromAddress", parameterType = "String", parameterDes = "转出者账户地址"),
         @Parameter(parameterName = "toAddress", parameterType = "String", parameterDes = "转入地址"),
@@ -370,6 +370,34 @@ public class ContractService {
             return Result.getFailed(ADDRESS_ERROR);
         }
         return this.callTxOffline(fromAddress, null, contractAddress, Constant.NRC20_METHOD_TRANSFER, null, new Object[]{toAddress, amount.toString()}, remark);
+    }
+
+    @ApiOperation(description = "离线组装 - 从账户地址向合约地址转账(主链资产)的合约交易")
+    @Parameters(value = {
+        @Parameter(parameterName = "fromAddress", parameterType = "String", parameterDes = "转出者账户地址"),
+        @Parameter(parameterName = "toAddress", parameterType = "String", parameterDes = "转入的合约地址"),
+        @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的主链资产金额"),
+        @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+        @Key(name = "hash", description = "交易hash"),
+        @Key(name = "txHex", description = "交易序列化字符串")
+    }))
+    public Result<Map> tokenToContract(String fromAddress, String toAddress, BigInteger amount, String remark) {
+        int chainId = SDKContext.main_chain_id;
+        if (amount == null || amount.compareTo(BigInteger.ZERO) <= 0) {
+            return Result.getFailed(ContractErrorCode.PARAMETER_ERROR);
+        }
+
+        if (!AddressTool.validAddress(chainId, fromAddress)) {
+            return Result.getFailed(ADDRESS_ERROR);
+        }
+
+        if (!AddressTool.validAddress(chainId, toAddress)) {
+            return Result.getFailed(ADDRESS_ERROR);
+        }
+
+        return this.callTxOffline(fromAddress, amount, toAddress, Constant.BALANCE_TRIGGER_METHOD_NAME, Constant.BALANCE_TRIGGER_METHOD_DESC, null, remark);
     }
 
 }
