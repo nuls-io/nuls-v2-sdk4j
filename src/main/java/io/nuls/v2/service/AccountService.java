@@ -23,6 +23,7 @@ import io.nuls.v2.model.dto.SignDto;
 import io.nuls.v2.util.AccountTool;
 import io.nuls.v2.util.CommonValidator;
 import io.nuls.v2.util.RestFulUtil;
+import io.nuls.v2.util.ValidateUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -300,6 +301,35 @@ public class AccountService {
             }
             Result result;
             RestFulResult restFulResult = RestFulUtil.get("api/accountledger/balance/" + address);
+            if (restFulResult.isSuccess()) {
+                result = new Result(true);
+                result.setData(restFulResult.getData());
+            } else {
+                ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+                result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+            }
+            return result;
+        } catch (NulsException e) {
+            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
+        }
+    }
+
+    public Result importPrikey(String priKey, String password) {
+        validateChainId();
+        try {
+            if (StringUtils.isBlank(priKey)) {
+                throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "priKey[" + priKey + "] is invalid");
+            }
+            if (!FormatValidUtils.validPassword(password)) {
+                throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "password[" + password + "] is invalid");
+            }
+            Map<String, Object> params = new HashMap<>();
+            params.put("priKey", priKey);
+            params.put("password", password);
+            params.put("overwrite", true);
+
+            Result result;
+            RestFulResult restFulResult = RestFulUtil.post("/account/import/pri", params);
             if (restFulResult.isSuccess()) {
                 result = new Result(true);
                 result.setData(restFulResult.getData());
