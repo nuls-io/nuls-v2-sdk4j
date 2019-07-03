@@ -4,6 +4,7 @@ import io.nuls.base.basic.AddressTool;
 import io.nuls.base.data.*;
 import io.nuls.base.signture.P2PHKSignature;
 import io.nuls.core.basic.Result;
+import io.nuls.core.constant.ErrorCode;
 import io.nuls.core.constant.TxType;
 import io.nuls.core.crypto.HexUtil;
 import io.nuls.core.exception.NulsException;
@@ -18,12 +19,14 @@ import io.nuls.v2.txdata.CancelDeposit;
 import io.nuls.v2.txdata.Deposit;
 import io.nuls.v2.txdata.StopAgent;
 import io.nuls.v2.util.CommonValidator;
+import io.nuls.v2.util.JsonRpcUtil;
 import io.nuls.v2.util.TxUtils;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
 
+import static io.nuls.v2.util.ContractUtil.getSuccess;
 import static io.nuls.v2.util.ValidateUtil.validateChainId;
 
 public class TransactionService {
@@ -93,7 +96,7 @@ public class TransactionService {
             map.put("txHex", HexUtil.encode(tx.serialize()));
             return new Result(true).setData(map);
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
         } catch (IOException e) {
             return Result.getFailed(AccountErrorCode.DATA_PARSE_ERROR).setMsg(AccountErrorCode.DATA_PARSE_ERROR.getMsg());
         }
@@ -194,7 +197,7 @@ public class TransactionService {
             map.put("txHex", HexUtil.encode(tx.serialize()));
             return new Result(true).setData(map);
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
         } catch (IOException e) {
             return Result.getFailed(AccountErrorCode.DATA_PARSE_ERROR).setMsg(AccountErrorCode.DATA_PARSE_ERROR.getMsg());
         }
@@ -235,7 +238,7 @@ public class TransactionService {
             map.put("txHex", HexUtil.encode(tx.serialize()));
             return new Result(true).setData(map);
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
         } catch (IOException e) {
             return Result.getFailed(AccountErrorCode.DATA_PARSE_ERROR).setMsg(AccountErrorCode.DATA_PARSE_ERROR.getMsg());
         }
@@ -300,7 +303,7 @@ public class TransactionService {
             return new Result(true).setData(map);
 
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
         } catch (IOException e) {
             return Result.getFailed(AccountErrorCode.DATA_PARSE_ERROR).setMsg(AccountErrorCode.DATA_PARSE_ERROR.getMsg());
         }
@@ -376,7 +379,7 @@ public class TransactionService {
             map.put("txHex", HexUtil.encode(tx.serialize()));
             return new Result(true).setData(map);
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
         } catch (IOException e) {
             return Result.getFailed(AccountErrorCode.DATA_PARSE_ERROR).setMsg(AccountErrorCode.DATA_PARSE_ERROR.getMsg());
         }
@@ -441,6 +444,22 @@ public class TransactionService {
         coinData.setFrom(coinFromList);
         coinData.setTo(coinToList);
         return coinData;
+    }
+
+    /**
+     * 广播交易
+     * @param chainId
+     * @param txHex
+     * @return
+     */
+    public Result broadcaseTx(int chainId, String txHex) {
+        RpcResult<Map> balanceResult = JsonRpcUtil.request("broadcastTx", List.of(chainId, txHex));
+        RpcResultError rpcResultError = balanceResult.getError();
+        if (rpcResultError != null) {
+            return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());
+        }
+        Map result = balanceResult.getResult();
+        return getSuccess().setData(result);
     }
 }
 
