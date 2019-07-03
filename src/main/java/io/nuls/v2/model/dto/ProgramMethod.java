@@ -28,7 +28,9 @@ import io.nuls.core.rpc.model.ApiModel;
 import io.nuls.core.rpc.model.ApiModelProperty;
 import io.nuls.core.rpc.model.TypeDescriptor;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 @ApiModel(name = "合约方法详情")
 public class ProgramMethod {
@@ -49,6 +51,24 @@ public class ProgramMethod {
     private boolean payable;
 
     public ProgramMethod() {
+    }
+
+    public ProgramMethod(Map result) {
+        this.name = (String) result.get("name");
+        this.desc = (String) result.get("desc");
+        this.returnArg = (String) result.get("returnArg");
+        this.view = (boolean) result.get("view");
+        this.event = (boolean) result.get("event");
+        this.payable = (boolean) result.get("payable");
+        List<Map> args = (List<Map>) result.get("args");
+        this.args = new LinkedList<>();
+        if(args == null || args.isEmpty()) {
+            return;
+        }
+        for(Map arg : args) {
+            this.args.add(new ProgramMethodArg(arg));
+        }
+
     }
 
     public String getName() {

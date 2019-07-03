@@ -27,6 +27,8 @@ package io.nuls.v2.model.dto;
 import io.nuls.core.rpc.model.ApiModel;
 import io.nuls.core.rpc.model.ApiModelProperty;
 
+import java.util.Map;
+
 /**
  * @author: PierreLuo
  * @date: 2018/8/15
@@ -37,6 +39,14 @@ public class ContractConstructorInfoDto {
     private ProgramMethod constructor;
     @ApiModelProperty(description = "是否是NRC20合约")
     private boolean isNrc20;
+
+    public ContractConstructorInfoDto() {
+    }
+
+    public ContractConstructorInfoDto(Map result) {
+        this.isNrc20 = (boolean) result.get("nrc20");
+        this.constructor = new ProgramMethod((Map) result.get("constructor"));
+    }
 
     public ProgramMethod getConstructor() {
         return constructor;
