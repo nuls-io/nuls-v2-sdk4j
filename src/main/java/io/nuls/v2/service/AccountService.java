@@ -77,7 +77,7 @@ public class AccountService {
             }
             return result;
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
         }
     }
 
@@ -119,7 +119,7 @@ public class AccountService {
                 list.add(accountDto);
             }
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
         }
         return Result.getSuccess(list);
     }
@@ -158,7 +158,7 @@ public class AccountService {
             map.put("priKey", HexUtil.encode(account.getPriKey()));
             return Result.getSuccess(map);
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
         } catch (CryptoException e) {
             return Result.getFailed(AccountErrorCode.PASSWORD_IS_WRONG).setMsg(AccountErrorCode.PASSWORD_IS_WRONG.getMsg());
         }
@@ -189,7 +189,7 @@ public class AccountService {
             }
             return result;
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
         }
     }
 
@@ -227,7 +227,7 @@ public class AccountService {
             map.put("newEncryptedPriKey", HexUtil.encode(account.getEncryptedPriKey()));
             return Result.getSuccess(map);
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
         } catch (CryptoException e) {
 
             return Result.getFailed(AccountErrorCode.PASSWORD_IS_WRONG).setMsg(AccountErrorCode.PASSWORD_IS_WRONG.getMsg());
@@ -280,7 +280,7 @@ public class AccountService {
             map.put("txHex", HexUtil.encode(tx.serialize()));
             return Result.getSuccess(map);
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
         } catch (IOException e) {
             return Result.getFailed(AccountErrorCode.SERIALIZE_ERROR).setMsg(AccountErrorCode.SERIALIZE_ERROR.getMsg());
         }
@@ -309,7 +309,7 @@ public class AccountService {
             }
             return result;
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
         }
     }
 }
