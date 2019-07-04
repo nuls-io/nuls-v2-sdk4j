@@ -299,7 +299,7 @@ public class NulsSDKTool {
         @Key(name = "txHex", description = "交易序列化字符串"),
         @Key(name = "contractAddress", description = "生成的合约地址")
     }))
-    public Result<Map> createTxOffline(String sender, String alias, String contractCode, Object[] args, String remark) {
+    public static Result<Map> createTxOffline(String sender, String alias, String contractCode, Object[] args, String remark) {
         return contractService.createTxOffline(sender, alias, contractCode, args, remark);
     }
 
@@ -317,7 +317,7 @@ public class NulsSDKTool {
         @Key(name = "hash", description = "交易hash"),
         @Key(name = "txHex", description = "交易序列化字符串")
     }))
-    public Result<Map> callTxOffline(String sender, BigInteger value, String contractAddress, String methodName, String methodDesc, Object[] args, String remark) {
+    public static Result<Map> callTxOffline(String sender, BigInteger value, String contractAddress, String methodName, String methodDesc, Object[] args, String remark) {
         return contractService.callTxOffline(sender, value, contractAddress, methodName, methodDesc, args, remark);
     }
 
@@ -331,7 +331,7 @@ public class NulsSDKTool {
         @Key(name = "hash", description = "交易hash"),
         @Key(name = "txHex", description = "交易序列化字符串")
     }))
-    public Result<Map> deleteTxOffline(String sender, String contractAddress, String remark) {
+    public static Result<Map> deleteTxOffline(String sender, String contractAddress, String remark) {
         return contractService.deleteTxOffline(sender, contractAddress, remark);
     }
 
@@ -347,7 +347,7 @@ public class NulsSDKTool {
         @Key(name = "hash", description = "交易hash"),
         @Key(name = "txHex", description = "交易序列化字符串")
     }))
-    public Result<Map> tokenTransfer(String fromAddress, String toAddress, String contractAddress, BigInteger amount, String remark) {
+    public static Result<Map> tokenTransfer(String fromAddress, String toAddress, String contractAddress, BigInteger amount, String remark) {
         return contractService.tokenTransfer(fromAddress, toAddress, contractAddress, amount, remark);
     }
 
@@ -362,7 +362,7 @@ public class NulsSDKTool {
         @Key(name = "hash", description = "交易hash"),
         @Key(name = "txHex", description = "交易序列化字符串")
     }))
-    public Result<Map> tokenToContract(String fromAddress, String toAddress, BigInteger amount, String remark) {
+    public static Result<Map> tokenToContract(String fromAddress, String toAddress, BigInteger amount, String remark) {
         return contractService.tokenToContract(fromAddress, toAddress, amount, remark);
     }
 
@@ -371,7 +371,7 @@ public class NulsSDKTool {
         @Parameter(parameterName = "contractCode", parameterType = "String", parameterDes = "智能合约代码(字节码的Hex编码字符串)")
     })
     @ResponseData(name = "返回值", description = "合约构造函数详情", responseType = @TypeDescriptor(value = ContractConstructorInfoDto.class))
-    public Result<ContractConstructorInfoDto> getConstructor(String contractCode) {
+    public static Result<ContractConstructorInfoDto> getConstructor(String contractCode) {
         return contractService.getConstructor(contractCode);
     }
 }

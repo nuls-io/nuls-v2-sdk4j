@@ -341,7 +341,7 @@ public class ContractService {
     @ApiOperation(description = "离线组装 - token转账交易")
     @Parameters(value = {
             @Parameter(parameterName = "fromAddress", parameterType = "String", parameterDes = "转出者账户地址"),
-            @Parameter(parameterName = "toAddress", parameterType = "String", parameterDes = "转入地址"),
+            @Parameter(parameterName = "toAddress", parameterType = "String", parameterDes = "转入者账户地址"),
             @Parameter(parameterName = "contractAddress", parameterType = "String", parameterDes = "token合约地址"),
             @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的token资产金额"),
             @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
