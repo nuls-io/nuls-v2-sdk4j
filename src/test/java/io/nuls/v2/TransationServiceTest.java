@@ -1,6 +1,7 @@
 package io.nuls.v2;
 
 import io.nuls.core.basic.Result;
+import io.nuls.core.parse.JSONUtils;
 import io.nuls.v2.model.dto.*;
 import io.nuls.v2.util.NulsSDKTool;
 import org.checkerframework.checker.units.qual.A;
@@ -10,6 +11,7 @@ import org.junit.Test;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class TransationServiceTest {
 
@@ -176,5 +178,14 @@ public class TransationServiceTest {
 
         //txHex：090081fd165d0020584ae3c9af9a42c4e68fcde0736fce670a913262346ed10f827dfaef75714ebdfd5c01031764000115423f8fc2f9f62496cb98d43e3347bd7996327d6400010000204aa9d101000000000000000000000000000000000000000000000000000008827dfaef75714ebdff1764000115423f8fc2f9f62496cb98d43e3347bd7996327d6400010000d0ed902e000000000000000000000000000000000000000000000000000000086db83fdd14f6f233ff1764000115423f8fc2f9f62496cb98d43e3347bd7996327d6400010000d0ed902e0000000000000000000000000000000000000000000000000000000863b6e201aa9af5f0ff021764000115423f8fc2f9f62496cb98d43e3347bd7996327d64000100609948a9d1010000000000000000000000000000000000000000000000000000990b175d000000001764000115423f8fc2f9f62496cb98d43e3347bd7996327d6400010000a0db215d000000000000000000000000000000000000000000000000000000000000000000000000
         //txHash：d86502a23ab0e18ab78a43fce3fc302dc70d93467bc52922eb96ecf00d630f58
+    }
+
+    @Test
+    public void testGetTx() {
+        String hash  = "526d8e25bb7843518b7722a97f01b6d2fb2c46afc60121e869788659d202de92";
+        Result result = NulsSDKTool.getTx(hash);
+        Map<String,Object> map = (Map<String, Object>) result.getData();
+
+        TransactionDto tx = JSONUtils.map2pojo(map, TransactionDto.class);
     }
 }

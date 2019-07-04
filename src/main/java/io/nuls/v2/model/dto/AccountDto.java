@@ -10,7 +10,7 @@ public class AccountDto {
     private String address;
     @ApiModelProperty(description = "公钥")
     private String pubKey;
-    @ApiModelProperty(description = "原始私钥")
+    @ApiModelProperty(description = "明文私钥")
     private String prikey;
     @ApiModelProperty(description = "加密后的私钥")
     private String encryptedPrivateKey;

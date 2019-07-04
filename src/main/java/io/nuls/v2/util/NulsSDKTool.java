@@ -49,7 +49,7 @@ public class NulsSDKTool {
     @ApiOperation(description = "重置密码")
     @Parameters(value = {
             @Parameter(parameterName = "address", parameterType = "String", parameterDes = "账户地址"),
-            @Parameter(parameterName = "oldPassword", parameterType = "String", parameterDes = "原始密码"),
+            @Parameter(parameterName = "oldPassword", parameterType = "String", parameterDes = "原密码"),
             @Parameter(parameterName = "newPassword", parameterType = "String", parameterDes = "新密码")
     })
     @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
@@ -63,7 +63,7 @@ public class NulsSDKTool {
     @Parameters(value = {
             @Parameter(parameterName = "address", parameterType = "String", parameterDes = "账户地址"),
             @Parameter(parameterName = "encryptedPriKey", parameterType = "String", parameterDes = "加密后的私钥"),
-            @Parameter(parameterName = "oldPassword", parameterType = "String", parameterDes = "原始密码"),
+            @Parameter(parameterName = "oldPassword", parameterType = "String", parameterDes = "原密码"),
             @Parameter(parameterName = "newPassword", parameterType = "String", parameterDes = "新密码")
     })
     @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
@@ -75,7 +75,7 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "根据私钥导入账户")
     @Parameters({
-            @Parameter(parameterName = "priKey", parameterType = "String", parameterDes = "账户原始私钥"),
+            @Parameter(parameterName = "priKey", parameterType = "String", parameterDes = "账户明文私钥"),
             @Parameter(parameterName = "password", parameterType = "String", parameterDes = "密码")
     })
     @ResponseData(name = "返回值", description = "返回账户地址", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
@@ -97,14 +97,14 @@ public class NulsSDKTool {
         return accountService.getPriKey(address, password);
     }
 
-    @ApiOperation(description = "离线获取账户原始私钥")
+    @ApiOperation(description = "离线获取账户明文私钥")
     @Parameters({
             @Parameter(parameterName = "address", parameterType = "String", parameterDes = "账户地址"),
             @Parameter(parameterName = "encryptedPriKey", parameterType = "String", parameterDes = "加密后的私钥"),
             @Parameter(parameterName = "password", parameterType = "String", parameterDes = "密码")
     })
     @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
-            @Key(name = "value", description = "原始私钥")
+            @Key(name = "value", description = "明文私钥")
     }))
     public static Result getPriKeyOffline(String address, String encryptedPriKey, String password) {
         return accountService.getPriKeyOffline(address, encryptedPriKey, password);
@@ -151,122 +151,153 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "摘要签名")
     @Parameters({
-            @Parameter(parameterName = "摘要签名", parameterDes = "摘要签名表单", requestType = @TypeDescriptor(value = SignDto.class))
+            @Parameter(parameterName = "signDtoList", parameterDes = "摘要签名表单", requestType = @TypeDescriptor(value = SignDto.class)),
+            @Parameter(parameterName = "txHex", parameterType = "String", parameterDes = "交易序列化16进制字符串")
     })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "签名后的交易16进制字符串")
+    }))
     public static Result sign(List<SignDto> signDtoList, String txHex) {
         return accountService.sign(signDtoList, txHex);
     }
 
-    /**
-     * 明文私钥签名交易(单签)
-     *
-     * @param txHex
-     * @param address
-     * @param privateKey
-     * @return
-     */
+    @ApiOperation(description = "明文私钥摘要签名")
+    @Parameters({
+            @Parameter(parameterName = "txHex", parameterType = "String", parameterDes = "交易序列化16进制字符串"),
+            @Parameter(parameterName = "address", parameterType = "String", parameterDes = "账户地址"),
+            @Parameter(parameterName = "privateKey", parameterType = "String", parameterDes = "账户明文私钥")
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "签名后的交易16进制字符串")
+    }))
     public static Result sign(String txHex, String address, String privateKey) {
         return transactionService.signTx(txHex, address, privateKey);
     }
 
-    /**
-     * 密文私钥签名交易(单签)
-     *
-     * @param txHex
-     * @param address
-     * @param encryptedPrivateKey
-     * @param password
-     * @return
-     */
+    @ApiOperation(description = "密文私钥摘要签名")
+    @Parameters({
+            @Parameter(parameterName = "txHex", parameterType = "String", parameterDes = "交易序列化16进制字符串"),
+            @Parameter(parameterName = "address", parameterType = "String", parameterDes = "账户地址"),
+            @Parameter(parameterName = "encryptedPrivateKey", parameterType = "String", parameterDes = "账户密文私钥"),
+            @Parameter(parameterName = "password", parameterType = "String", parameterDes = "密码")
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "签名后的交易16进制字符串")
+    }))
     public static Result sign(String txHex, String address, String encryptedPrivateKey, String password) {
         return transactionService.signTx(txHex, address, encryptedPrivateKey, password);
     }
 
-    /**
-     * 创建转账交易(离线)
-     * create transfer transaction(off-line)
-     *
-     * @param transferDto 转账请求参数
-     * @return
-     */
+    @ApiOperation(description = "离线组装转账交易")
+    @Parameters({
+            @Parameter(parameterName = "transferDto", parameterDes = "转账交易表单", requestType = @TypeDescriptor(value = TransferDto.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化16进制字符串")
+    }))
     public static Result createTransferTx(TransferDto transferDto) {
         return transactionService.createTransferTx(transferDto);
     }
 
-    /**
-     * 计算转账交易手续费
-     * Calculate transfer transaction fee
-     *
-     * @param dto 请求参数
-     * @return result
-     */
+    @ApiOperation(description = "计算创建转账交易所需手续费")
+    @Parameters({
+            @Parameter(parameterName = "TransferTxFeeDto", parameterDes = "转账交易手续费", requestType = @TypeDescriptor(value = TransferTxFeeDto.class))
+    })
+    @ResponseData(name = "返回值", description = "手续费金额", responseType = @TypeDescriptor(value = BigInteger.class))
     public static BigInteger calcTransferTxFee(TransferTxFeeDto dto) {
         return transactionService.calcTransferTxFee(dto);
     }
 
-    /**
-     * 组装创建共识节点交易
-     * Assemble to create consensus node transactions
-     *
-     * @param consensusDto 创建共识节点请求参数
-     * @return result
-     */
+    @ApiOperation(description = "离线组装创建共识节点交易")
+    @Parameters({
+            @Parameter(parameterName = "consensusDto", parameterDes = "创建节点交易表单", requestType = @TypeDescriptor(value = ConsensusDto.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化16进制字符串")
+    }))
     public static Result createConsensusTx(ConsensusDto consensusDto) {
         return transactionService.createConsensusTx(consensusDto);
     }
 
-    /**
-     * Create a proxy consensus transaction
-     * 创建委托共识交易
-     *
-     * @param dto 委托共识请求参数
-     * @return
-     */
-    public static Result createDepositTx(DepositDto dto) {
-        return transactionService.createDepositTx(dto);
+    @ApiOperation(description = "离线组装委托共识交易")
+    @Parameters({
+            @Parameter(parameterName = "depositDto", parameterDes = "委托共识交易表单", requestType = @TypeDescriptor(value = DepositDto.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化16进制字符串")
+    }))
+    public static Result createDepositTx(DepositDto depositDto) {
+        return transactionService.createDepositTx(depositDto);
     }
 
-    /**
-     * 创建取消委托交易
-     *
-     * @param dto 取消委托交易参数
-     * @return result
-     */
-    public static Result createWithdrawDepositTx(WithDrawDto dto) {
-        return transactionService.createWithdrawDepositTx(dto);
+    @ApiOperation(description = "离线组装退出委托共识交易")
+    @Parameters({
+            @Parameter(parameterName = "withDrawDto", parameterDes = "退出委托交易表单", requestType = @TypeDescriptor(value = WithDrawDto.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化16进制字符串")
+    }))
+    public static Result createWithdrawDepositTx(WithDrawDto withDrawDto) {
+        return transactionService.createWithdrawDepositTx(withDrawDto);
     }
 
-    /**
-     * 创建注销共识节点交易
-     *
-     * @param dto 注销节点参数请求
-     * @return result
-     */
-    public static Result createStopConsensusTx(StopConsensusDto dto) {
-        return transactionService.createStopConsensusTx(dto);
+    @ApiOperation(description = "离线组装注销共识节点交易")
+    @Parameters({
+            @Parameter(parameterName = "stopConsensusDto", parameterDes = "注销共识节点交易表单", requestType = @TypeDescriptor(value = StopConsensusDto.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化16进制字符串")
+    }))
+    public static Result createStopConsensusTx(StopConsensusDto stopConsensusDto) {
+        return transactionService.createStopConsensusTx(stopConsensusDto);
     }
 
-    /**
-     * 发送转账交易
-     *
-     * @param transferForm 转账交易参数
-     * @return result
-     */
+    @ApiOperation(description = "转账")
+    @Parameters({
+            @Parameter(parameterName = "transferForm", parameterDes = "转账交易表单", requestType = @TypeDescriptor(value = TransferForm.class))
+    })
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "value", description = "交易hash")
+    }))
     public static Result transfer(TransferForm transferForm) {
         return transactionService.transfer(transferForm);
     }
 
+    @ApiOperation(description = "根据hash获取交易，只查已确认交易")
+    @Parameters({
+            @Parameter(parameterName = "hash", parameterDes = "交易hash")
+    })
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = TransactionDto.class))
     public static Result getTx(String txHash) {
         return transactionService.getTx(txHash);
     }
 
+    @ApiOperation(description = "根据区块高度查询区块头")
+    @Parameters({
+            @Parameter(parameterName = "height", requestType = @TypeDescriptor(value = Long.class), parameterDes = "区块高度")
+    })
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = BlockHeaderDto.class))
     public static Result getBlockHeader(long height) {
         return blockService.getBlockHeader(height);
     }
 
+    @ApiOperation(description = "根据区块hash查询区块头")
+    @Parameters({
+            @Parameter(parameterName = "hash", parameterDes = "区块hash")
+    })
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = BlockHeaderDto.class))
     public static Result getBlockHeader(String hash) {
         return blockService.getBlockHeader(hash);
     }
+
 
     public static Result getBlock(long height) {
         return blockService.getBlock(height);
