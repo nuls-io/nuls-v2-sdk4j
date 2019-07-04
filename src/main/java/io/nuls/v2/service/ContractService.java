@@ -68,7 +68,7 @@ public class ContractService {
             @Key(name = "txHex", description = "交易序列化字符串"),
             @Key(name = "contractAddress", description = "生成的合约地址")
     }))
-    public Result<Map> createTxOffline(String sender, String alias, String contractCode, Object[] args, String remark) {
+    public Result<Map> createContractTx(String sender, String alias, String contractCode, Object[] args, String remark) {
         int chainId = SDKContext.main_chain_id;
         if (!AddressTool.validAddress(chainId, sender)) {
             return Result.getFailed(ADDRESS_ERROR);
@@ -172,7 +172,7 @@ public class ContractService {
             @Key(name = "hash", description = "交易hash"),
             @Key(name = "txHex", description = "交易序列化字符串")
     }))
-    public Result<Map> callTxOffline(String sender, BigInteger value, String contractAddress,
+    public Result<Map> callContractTxOffline(String sender, BigInteger value, String contractAddress,
                                      String methodName, String methodDesc, Object[] args, String remark) {
         int chainId = SDKContext.main_chain_id;
         if (!AddressTool.validAddress(chainId, sender)) {
@@ -274,7 +274,7 @@ public class ContractService {
             @Key(name = "hash", description = "交易hash"),
             @Key(name = "txHex", description = "交易序列化字符串")
     }))
-    public Result<Map> deleteTxOffline(String sender, String contractAddress, String remark) {
+    public Result<Map> deleteContractTxOffline(String sender, String contractAddress, String remark) {
         int chainId = SDKContext.main_chain_id;
         if (!AddressTool.validAddress(chainId, sender)) {
             return Result.getFailed(ADDRESS_ERROR);
@@ -367,7 +367,7 @@ public class ContractService {
         if (!AddressTool.validAddress(chainId, contractAddress)) {
             return Result.getFailed(ADDRESS_ERROR);
         }
-        return this.callTxOffline(fromAddress, null, contractAddress, Constant.NRC20_METHOD_TRANSFER, null, new Object[]{toAddress, amount.toString()}, remark);
+        return this.callContractTxOffline(fromAddress, null, contractAddress, Constant.NRC20_METHOD_TRANSFER, null, new Object[]{toAddress, amount.toString()}, remark);
     }
 
     @ApiOperation(description = "离线组装 - 从账户地址向合约地址转账(主链资产)的合约交易")
@@ -395,7 +395,7 @@ public class ContractService {
             return Result.getFailed(ADDRESS_ERROR);
         }
 
-        return this.callTxOffline(fromAddress, amount, toAddress, Constant.BALANCE_TRIGGER_METHOD_NAME, Constant.BALANCE_TRIGGER_METHOD_DESC, null, remark);
+        return this.callContractTxOffline(fromAddress, amount, toAddress, Constant.BALANCE_TRIGGER_METHOD_NAME, Constant.BALANCE_TRIGGER_METHOD_DESC, null, remark);
     }
 
     public Result createContract(ContractCreateForm form) {

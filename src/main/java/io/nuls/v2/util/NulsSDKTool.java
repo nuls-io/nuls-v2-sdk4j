@@ -298,35 +298,76 @@ public class NulsSDKTool {
         return blockService.getBlockHeader(hash);
     }
 
-
+    @ApiOperation(description = "根据区块高度查询区块，包含区块打包的所有交易信息，此接口返回数据量较多，谨慎调用")
+    @Parameters({
+            @Parameter(parameterName = "height", requestType = @TypeDescriptor(value = Long.class), parameterDes = "区块高度")
+    })
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = BlockHeaderDto.class))
     public static Result getBlock(long height) {
         return blockService.getBlock(height);
     }
 
+    @ApiOperation(description = "根据区块hash查询区块，包含区块打包的所有交易信息，此接口返回数据量较多，谨慎调用")
+    @Parameters({
+            @Parameter(parameterName = "hash", parameterDes = "区块hash")
+    })
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = BlockHeaderDto.class))
     public static Result getBlock(String hash) {
         return blockService.getBlock(hash);
     }
 
+    @ApiOperation(description = "查询最新区块头信息")
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = BlockHeaderDto.class))
     public static Result getBestBlockHeader() {
         return blockService.getBestBlockHeader();
     }
 
+    @ApiOperation(description = "查询最新区块")
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = BlockDto.class))
     public static Result getBestBlock() {
         return blockService.getBestBlock();
     }
 
+    @ApiOperation(description = " 创建共识节点")
+    @Parameters({
+            @Parameter(parameterName = "创建共识(代理)节点", parameterDes = "创建共识(代理)节点表单", requestType = @TypeDescriptor(value = CreateAgentForm.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "value", description = "交易hash")
+    }))
     public static Result createAgent(CreateAgentForm form) {
         return consensusService.createAgent(form);
     }
 
+    @ApiOperation(description = "注销共识节点")
+    @Parameters({
+            @Parameter(parameterName = "注销共识节点", parameterDes = "注销共识节点表单", requestType = @TypeDescriptor(value = StopAgentForm.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "value", description = "交易hash")
+    }))
     public static Result stopAgent(StopAgentForm form) {
         return consensusService.stopAgent(form);
     }
 
+    @ApiOperation(description = "deposit nuls to a bank! 申请参与共识")
+    @Parameters({
+            @Parameter(parameterName = "申请参与共识", parameterDes = "申请参与共识表单", requestType = @TypeDescriptor(value = DepositForm.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "value", description = "交易hash")
+    }))
     public static Result depositToAgent(DepositForm form) {
         return consensusService.depositToAgent(form);
     }
 
+    @ApiOperation(description = "退出共识")
+    @Parameters({
+            @Parameter(parameterName = "退出共识", parameterDes = "退出共识表单", requestType = @TypeDescriptor(value = WithdrawForm.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "value", description = "交易hash")
+    }))
     public static Result withdraw(WithdrawForm form) {
         return consensusService.withdraw(form);
     }
@@ -344,8 +385,8 @@ public class NulsSDKTool {
             @Key(name = "txHex", description = "交易序列化字符串"),
             @Key(name = "contractAddress", description = "生成的合约地址")
     }))
-    public static Result<Map> createTxOffline(String sender, String alias, String contractCode, Object[] args, String remark) {
-        return contractService.createTxOffline(sender, alias, contractCode, args, remark);
+    public static Result<Map> createContractTx(String sender, String alias, String contractCode, Object[] args, String remark) {
+        return contractService.createContractTx(sender, alias, contractCode, args, remark);
     }
 
     @ApiOperation(description = "离线组装 - 调用合约的交易")
@@ -362,8 +403,8 @@ public class NulsSDKTool {
             @Key(name = "hash", description = "交易hash"),
             @Key(name = "txHex", description = "交易序列化字符串")
     }))
-    public static Result<Map> callTxOffline(String sender, BigInteger value, String contractAddress, String methodName, String methodDesc, Object[] args, String remark) {
-        return contractService.callTxOffline(sender, value, contractAddress, methodName, methodDesc, args, remark);
+    public static Result<Map> callContractTxOffline(String sender, BigInteger value, String contractAddress, String methodName, String methodDesc, Object[] args, String remark) {
+        return contractService.callContractTxOffline(sender, value, contractAddress, methodName, methodDesc, args, remark);
     }
 
     @ApiOperation(description = "离线组装 - 删除合约的交易")
@@ -376,8 +417,8 @@ public class NulsSDKTool {
             @Key(name = "hash", description = "交易hash"),
             @Key(name = "txHex", description = "交易序列化字符串")
     }))
-    public static Result<Map> deleteTxOffline(String sender, String contractAddress, String remark) {
-        return contractService.deleteTxOffline(sender, contractAddress, remark);
+    public static Result<Map> deleteContractTxOffline(String sender, String contractAddress, String remark) {
+        return contractService.deleteContractTxOffline(sender, contractAddress, remark);
     }
 
     @ApiOperation(description = "离线组装 - token转账交易")
