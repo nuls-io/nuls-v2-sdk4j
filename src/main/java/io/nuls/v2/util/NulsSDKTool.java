@@ -1,11 +1,14 @@
 package io.nuls.v2.util;
 
 import io.nuls.core.basic.Result;
+import io.nuls.core.rpc.model.*;
+import io.nuls.v2.model.annotation.ApiOperation;
 import io.nuls.v2.model.dto.*;
 import io.nuls.v2.service.*;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 
 public class NulsSDKTool {
 
@@ -16,6 +19,8 @@ public class NulsSDKTool {
     private static BlockService blockService = BlockService.getInstance();
 
     private static ConsensusService consensusService = ConsensusService.getInstance();
+
+    private static ContractService contractService = ContractService.getInstance();
 
     /**
      * Create accounts
@@ -281,4 +286,92 @@ public class NulsSDKTool {
         return consensusService.withdraw(form);
     }
 
+    @ApiOperation(description = "离线组装 - 发布合约的交易")
+    @Parameters(value = {
+        @Parameter(parameterName = "sender", parameterType = "String", parameterDes = "交易创建者账户地址"),
+        @Parameter(parameterName = "alias", parameterType = "String", parameterDes = "合约别名"),
+        @Parameter(parameterName = "contractCode", parameterType = "String", parameterDes = "智能合约代码(字节码的Hex编码字符串)"),
+        @Parameter(parameterName = "args", requestType = @TypeDescriptor(value = Object[].class), parameterDes = "参数列表", canNull = true),
+        @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+        @Key(name = "hash", description = "交易hash"),
+        @Key(name = "txHex", description = "交易序列化字符串"),
+        @Key(name = "contractAddress", description = "生成的合约地址")
+    }))
+    public Result<Map> createTxOffline(String sender, String alias, String contractCode, Object[] args, String remark) {
+        return contractService.createTxOffline(sender, alias, contractCode, args, remark);
+    }
+
+    @ApiOperation(description = "离线组装 - 调用合约的交易")
+    @Parameters(value = {
+        @Parameter(parameterName = "sender", parameterType = "String", parameterDes = "交易创建者账户地址"),
+        @Parameter(parameterName = "value", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "调用者向合约地址转入的主网资产金额，没有此业务时填BigInteger.ZERO"),
+        @Parameter(parameterName = "contractAddress", parameterType = "String", parameterDes = "合约地址"),
+        @Parameter(parameterName = "methodName", parameterType = "String", parameterDes = "合约方法"),
+        @Parameter(parameterName = "methodDesc", parameterType = "String", parameterDes = "合约方法描述，若合约内方法没有重载，则此参数可以为空", canNull = true),
+        @Parameter(parameterName = "args", requestType = @TypeDescriptor(value = Object[].class), parameterDes = "参数列表", canNull = true),
+        @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+        @Key(name = "hash", description = "交易hash"),
+        @Key(name = "txHex", description = "交易序列化字符串")
+    }))
+    public Result<Map> callTxOffline(String sender, BigInteger value, String contractAddress, String methodName, String methodDesc, Object[] args, String remark) {
+        return contractService.callTxOffline(sender, value, contractAddress, methodName, methodDesc, args, remark);
+    }
+
+    @ApiOperation(description = "离线组装 - 删除合约的交易")
+    @Parameters(value = {
+        @Parameter(parameterName = "sender", parameterType = "String", parameterDes = "交易创建者账户地址"),
+        @Parameter(parameterName = "contractAddress", parameterType = "String", parameterDes = "合约地址"),
+        @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+        @Key(name = "hash", description = "交易hash"),
+        @Key(name = "txHex", description = "交易序列化字符串")
+    }))
+    public Result<Map> deleteTxOffline(String sender, String contractAddress, String remark) {
+        return contractService.deleteTxOffline(sender, contractAddress, remark);
+    }
+
+    @ApiOperation(description = "离线组装 - token转账交易")
+    @Parameters(value = {
+        @Parameter(parameterName = "fromAddress", parameterType = "String", parameterDes = "转出者账户地址"),
+        @Parameter(parameterName = "toAddress", parameterType = "String", parameterDes = "转入地址"),
+        @Parameter(parameterName = "contractAddress", parameterType = "String", parameterDes = "token合约地址"),
+        @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的token资产金额"),
+        @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+        @Key(name = "hash", description = "交易hash"),
+        @Key(name = "txHex", description = "交易序列化字符串")
+    }))
+    public Result<Map> tokenTransfer(String fromAddress, String toAddress, String contractAddress, BigInteger amount, String remark) {
+        return contractService.tokenTransfer(fromAddress, toAddress, contractAddress, amount, remark);
+    }
+
+    @ApiOperation(description = "离线组装 - 从账户地址向合约地址转账(主链资产)的合约交易")
+    @Parameters(value = {
+        @Parameter(parameterName = "fromAddress", parameterType = "String", parameterDes = "转出者账户地址"),
+        @Parameter(parameterName = "toAddress", parameterType = "String", parameterDes = "转入的合约地址"),
+        @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的主链资产金额"),
+        @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+        @Key(name = "hash", description = "交易hash"),
+        @Key(name = "txHex", description = "交易序列化字符串")
+    }))
+    public Result<Map> tokenToContract(String fromAddress, String toAddress, BigInteger amount, String remark) {
+        return contractService.tokenToContract(fromAddress, toAddress, amount, remark);
+    }
+
+    @ApiOperation(description = "根据合约代码获取合约构造函数详情")
+    @Parameters(description = "参数", value = {
+        @Parameter(parameterName = "contractCode", parameterType = "String", parameterDes = "智能合约代码(字节码的Hex编码字符串)")
+    })
+    @ResponseData(name = "返回值", description = "合约构造函数详情", responseType = @TypeDescriptor(value = ContractConstructorInfoDto.class))
+    public Result<ContractConstructorInfoDto> getConstructor(String contractCode) {
+        return contractService.getConstructor(contractCode);
+    }
 }

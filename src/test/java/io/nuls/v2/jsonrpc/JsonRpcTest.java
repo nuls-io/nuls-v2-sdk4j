@@ -23,6 +23,8 @@
  */
 package io.nuls.v2.jsonrpc;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.nuls.core.parse.JSONUtils;
 import io.nuls.v2.model.dto.RpcResult;
 import io.nuls.v2.util.JsonRpcUtil;
 import org.junit.Test;
@@ -37,11 +39,11 @@ import java.util.List;
 public class JsonRpcTest {
 
     @Test
-    public void test() {
+    public void test() throws JsonProcessingException {
         List<Object> params = new LinkedList<>();
-        params.add(1);
-        params.add(123123L);
-        RpcResult getHeaderByHeight = JsonRpcUtil.request("getHeaderByHeight", params);
-        System.out.println(getHeaderByHeight.toString());
+        params.add(2);
+        params.add("tNULSeBaN9n5FJ3EYXENEuYwC2ZmnRE1agJffz");
+        RpcResult result = JsonRpcUtil.request("getContract", params);
+        System.out.println(JSONUtils.obj2PrettyJson(result));
     }
 }
