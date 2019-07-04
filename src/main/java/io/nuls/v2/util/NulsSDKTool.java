@@ -141,6 +141,31 @@ public class NulsSDKTool {
     }
 
     /**
+     * 明文私钥签名交易(单签)
+     *
+     * @param txHex
+     * @param address
+     * @param privateKey
+     * @return
+     */
+    public static Result sign(String txHex, String address, String privateKey) {
+        return transactionService.signTx(txHex, address, privateKey);
+    }
+
+    /**
+     * 密文私钥签名交易(单签)
+     *
+     * @param txHex
+     * @param address
+     * @param encryptedPrivateKey
+     * @param password
+     * @return
+     */
+    public static Result sign(String txHex, String address, String encryptedPrivateKey, String password) {
+        return transactionService.signTx(txHex, address, encryptedPrivateKey, password);
+    }
+
+    /**
      * 创建转账交易(离线)
      * create transfer transaction(off-line)
      *

@@ -27,6 +27,8 @@ package io.nuls.v2.model.dto;
 import io.nuls.core.rpc.model.ApiModel;
 import io.nuls.core.rpc.model.ApiModelProperty;
 
+import java.util.Map;
+
 @ApiModel(name = "合约方法参数详情")
 public class ProgramMethodArg {
 
@@ -38,6 +40,12 @@ public class ProgramMethodArg {
     private boolean required;
 
     public ProgramMethodArg() {
+    }
+
+    public ProgramMethodArg(Map result) {
+        this.type = (String) result.get("type");
+        this.name = (String) result.get("name");
+        this.required = (boolean) result.get("required");
     }
 
     public ProgramMethodArg(String type, String name, boolean required) {

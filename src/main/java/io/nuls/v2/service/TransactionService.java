@@ -20,6 +20,7 @@ import io.nuls.v2.txdata.Deposit;
 import io.nuls.v2.txdata.StopAgent;
 import io.nuls.v2.util.CommonValidator;
 import io.nuls.v2.util.JsonRpcUtil;
+import io.nuls.v2.util.NulsSDKTool;
 import io.nuls.v2.util.TxUtils;
 
 import java.io.IOException;
@@ -443,6 +444,37 @@ public class TransactionService {
         coinData.setFrom(coinFromList);
         coinData.setTo(coinToList);
         return coinData;
+    }
+
+    /**
+     * 密文私钥签名交易(单签)
+     * @param chainId
+     * @param txHex
+     * @return
+     */
+    public Result signTx(String txHex, String address, String encryptedPrivateKey, String password) {
+        List<SignDto> signDtoList = new ArrayList<>();
+        SignDto signDto = new SignDto();
+        signDto.setAddress(address);
+        signDto.setEncryptedPrivateKey(encryptedPrivateKey);
+        signDto.setPassword(password);
+        signDtoList.add(signDto);
+        return NulsSDKTool.sign(signDtoList, txHex);
+    }
+
+    /**
+     * 明文私钥签名交易(单签)
+     * @param chainId
+     * @param txHex
+     * @return
+     */
+    public Result signTx(String txHex, String address, String privateKey) {
+        List<SignDto> signDtoList = new ArrayList<>();
+        SignDto signDto = new SignDto();
+        signDto.setAddress(address);
+        signDto.setPriKey(privateKey);
+        signDtoList.add(signDto);
+        return NulsSDKTool.sign(signDtoList, txHex);
     }
 
     /**

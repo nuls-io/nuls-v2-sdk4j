@@ -8,9 +8,10 @@ import io.nuls.core.constant.ErrorCode;
 import io.nuls.core.crypto.HexUtil;
 import io.nuls.core.model.FormatValidUtils;
 import io.nuls.core.model.StringUtils;
-import io.nuls.core.parse.MapUtils;
 import io.nuls.core.rpc.model.*;
 import io.nuls.v2.SDKContext;
+import io.nuls.v2.constant.Constant;
+import io.nuls.v2.error.ContractErrorCode;
 import io.nuls.v2.model.annotation.Api;
 import io.nuls.v2.model.annotation.ApiOperation;
 import io.nuls.v2.model.annotation.ApiType;
@@ -27,6 +28,7 @@ import io.nuls.v2.util.AccountTool;
 import io.nuls.v2.util.ContractUtil;
 import io.nuls.v2.util.JsonRpcUtil;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +39,7 @@ import static io.nuls.v2.constant.Constant.CONTRACT_MINIMUM_PRICE;
 import static io.nuls.v2.constant.Constant.MAX_GASLIMIT;
 import static io.nuls.v2.error.AccountErrorCode.ADDRESS_ERROR;
 import static io.nuls.v2.error.ContractErrorCode.CONTRACT_ALIAS_FORMAT_ERROR;
+import static io.nuls.v2.util.ContractUtil.getFailed;
 import static io.nuls.v2.util.ContractUtil.getSuccess;
 
 /**
@@ -54,7 +57,7 @@ public class ContractService {
         return instance;
     }
 
-    @ApiOperation(description = "离线组装发布合约的交易")
+    @ApiOperation(description = "离线组装 - 发布合约的交易")
     @Parameters(value = {
         @Parameter(parameterName = "sender", parameterType = "String", parameterDes = "交易创建者账户地址"),
         @Parameter(parameterName = "alias", parameterType = "String", parameterDes = "合约别名"),
@@ -63,8 +66,8 @@ public class ContractService {
         @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
     })
     @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
-        @Key(name = "tx", valueType = CreateContractTransaction.class, description = "交易对象"),
-        @Key(name = "txHash", description = "发布合约的交易hash"),
+        @Key(name = "hash", description = "交易hash"),
+        @Key(name = "txHex", description = "交易序列化字符串"),
         @Key(name = "contractAddress", description = "生成的合约地址")
     }))
     public Result<Map> createTxOffline(String sender, String alias, String contractCode, Object[] args, String remark) {
@@ -83,7 +86,7 @@ public class ContractService {
         Map map = (Map) validateResult.getResult();
         boolean success = (boolean) map.get("success");
         if (!success) {
-            return Result.getFailed(CommonCodeConstanst.DATA_ERROR).setMsg((String) map.get("msg"));
+            return Result.getFailed(ErrorCode.init((String) map.get("code"))).setMsg((String) map.get("msg"));
         }
 
         // 预估发布合约需要的GAS
@@ -129,6 +132,7 @@ public class ContractService {
         createContractData.setGasLimit(gasLimit);
         createContractData.setPrice(CONTRACT_MINIMUM_PRICE);
         createContractData.setCode(contractCodeBytes);
+        createContractData.setAlias(alias);
         if (finalArgs != null) {
             createContractData.setArgsCount((byte) finalArgs.length);
             createContractData.setArgs(finalArgs);
@@ -144,17 +148,19 @@ public class ContractService {
         String nonce = result.get("nonce").toString();
         // 生成交易
         CreateContractTransaction tx = ContractUtil.newCreateTx(chainId, assetId, senderBalance, nonce, createContractData, remark);
-        Map<String, Object> resultMap = new HashMap<>(8);
-        String txHash = tx.getHash().toHex();
-        String contractAddressStr = AddressTool.getStringAddressByBytes(contractAddressBytes);
-        resultMap.put("tx", tx);
-        resultMap.put("txHash", txHash);
-        resultMap.put("contractAddress", contractAddressStr);
-        return getSuccess().setData(resultMap);
+        try {
+            Map<String, Object> resultMap = new HashMap<>(4);
+            resultMap.put("hash", tx.getHash().toHex());
+            resultMap.put("txHex", HexUtil.encode(tx.serialize()));
+            resultMap.put("contractAddress", AddressTool.getStringAddressByBytes(contractAddressBytes));
+            return getSuccess().setData(resultMap);
+        } catch (IOException e) {
+            return getFailed().setMsg(e.getMessage());
+        }
     }
 
 
-    @ApiOperation(description = "离线组装调用合约的交易")
+    @ApiOperation(description = "离线组装 - 调用合约的交易")
     @Parameters(value = {
         @Parameter(parameterName = "sender", parameterType = "String", parameterDes = "交易创建者账户地址"),
         @Parameter(parameterName = "value", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "调用者向合约地址转入的主网资产金额，没有此业务时填BigInteger.ZERO"),
@@ -165,8 +171,8 @@ public class ContractService {
         @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
     })
     @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
-        @Key(name = "tx", valueType = CallContractTransaction.class, description = "交易对象"),
-        @Key(name = "txHash", description = "调用合约的交易hash")
+        @Key(name = "hash", description = "交易hash"),
+        @Key(name = "txHex", description = "交易序列化字符串")
     }))
     public Result<Map> callTxOffline(String sender, BigInteger value, String contractAddress,
                                      String methodName, String methodDesc, Object[] args, String remark) {
@@ -192,7 +198,7 @@ public class ContractService {
         Map map = (Map) validateResult.getResult();
         boolean success = (boolean) map.get("success");
         if (!success) {
-            return Result.getFailed(CommonCodeConstanst.DATA_ERROR).setMsg((String) map.get("msg"));
+            return Result.getFailed(ErrorCode.init((String) map.get("code"))).setMsg((String) map.get("msg"));
         }
 
         // 估算调用合约需要的GAS
@@ -249,23 +255,26 @@ public class ContractService {
 
         // 生成交易
         CallContractTransaction tx = ContractUtil.newCallTx(chainId, assetId, senderBalance, nonce, callContractData, remark);
-        Map<String, Object> resultMap = new HashMap<>(4);
-        String txHash = tx.getHash().toHex();
-        resultMap.put("tx", tx);
-        resultMap.put("txHash", txHash);
-        return getSuccess().setData(resultMap);
+        try {
+            Map<String, Object> resultMap = new HashMap<>(4);
+            resultMap.put("hash", tx.getHash().toHex());
+            resultMap.put("txHex", HexUtil.encode(tx.serialize()));
+            return getSuccess().setData(resultMap);
+        } catch (IOException e) {
+            return getFailed().setMsg(e.getMessage());
+        }
     }
 
 
-    @ApiOperation(description = "离线组装删除合约的交易")
+    @ApiOperation(description = "离线组装 - 删除合约的交易")
     @Parameters(value = {
         @Parameter(parameterName = "sender", parameterType = "String", parameterDes = "交易创建者账户地址"),
         @Parameter(parameterName = "contractAddress", parameterType = "String", parameterDes = "合约地址"),
         @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
     })
     @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
-        @Key(name = "tx", valueType = DeleteContractTransaction.class, description = "交易对象"),
-        @Key(name = "txHash", description = "交易hash")
+        @Key(name = "hash", description = "交易hash"),
+        @Key(name = "txHex", description = "交易序列化字符串")
     }))
     public Result<Map> deleteTxOffline(String sender, String contractAddress, String remark) {
         int chainId = SDKContext.main_chain_id;
@@ -280,7 +289,7 @@ public class ContractService {
         Map map = (Map) validateResult.getResult();
         boolean success = (boolean) map.get("success");
         if (!success) {
-            return Result.getFailed(CommonCodeConstanst.DATA_ERROR).setMsg((String) map.get("msg"));
+            return Result.getFailed(ErrorCode.init((String) map.get("code"))).setMsg((String) map.get("msg"));
         }
 
         // 组装交易的txData
@@ -304,12 +313,14 @@ public class ContractService {
 
         // 生成交易
         DeleteContractTransaction tx = ContractUtil.newDeleteTx(chainId, assetId, senderBalance, nonce, deleteContractData, remark);
-        Map<String, Object> resultMap = new HashMap<>(4);
-        String txHash = tx.getHash().toHex();
-        resultMap.put("tx", tx);
-        resultMap.put("txHash", txHash);
-
-        return getSuccess().setData(resultMap);
+        try {
+            Map<String, Object> resultMap = new HashMap<>(4);
+            resultMap.put("hash", tx.getHash().toHex());
+            resultMap.put("txHex", HexUtil.encode(tx.serialize()));
+            return getSuccess().setData(resultMap);
+        } catch (IOException e) {
+            return getFailed().setMsg(e.getMessage());
+        }
     }
 
 
@@ -325,7 +336,68 @@ public class ContractService {
         if (rpcResultError != null) {
             return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());
         }
-        return getSuccess().setData(MapUtils.mapToBean(rpcResult.getResult(), new ContractConstructorInfoDto()));
+        ContractConstructorInfoDto dto = new ContractConstructorInfoDto(rpcResult.getResult());
+        return getSuccess().setData(dto);
+    }
+
+    @ApiOperation(description = "离线组装 - token转账交易")
+    @Parameters(value = {
+        @Parameter(parameterName = "fromAddress", parameterType = "String", parameterDes = "转出者账户地址"),
+        @Parameter(parameterName = "toAddress", parameterType = "String", parameterDes = "转入地址"),
+        @Parameter(parameterName = "contractAddress", parameterType = "String", parameterDes = "token合约地址"),
+        @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的token资产金额"),
+        @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+        @Key(name = "hash", description = "交易hash"),
+        @Key(name = "txHex", description = "交易序列化字符串")
+    }))
+    public Result<Map> tokenTransfer(String fromAddress, String toAddress, String contractAddress, BigInteger amount, String remark) {
+        int chainId = SDKContext.main_chain_id;
+        if (amount == null || amount.compareTo(BigInteger.ZERO) <= 0) {
+            return Result.getFailed(ContractErrorCode.PARAMETER_ERROR);
+        }
+
+        if (!AddressTool.validAddress(chainId, fromAddress)) {
+            return Result.getFailed(ADDRESS_ERROR);
+        }
+
+        if (!AddressTool.validAddress(chainId, toAddress)) {
+            return Result.getFailed(ADDRESS_ERROR);
+        }
+
+        if (!AddressTool.validAddress(chainId, contractAddress)) {
+            return Result.getFailed(ADDRESS_ERROR);
+        }
+        return this.callTxOffline(fromAddress, null, contractAddress, Constant.NRC20_METHOD_TRANSFER, null, new Object[]{toAddress, amount.toString()}, remark);
+    }
+
+    @ApiOperation(description = "离线组装 - 从账户地址向合约地址转账(主链资产)的合约交易")
+    @Parameters(value = {
+        @Parameter(parameterName = "fromAddress", parameterType = "String", parameterDes = "转出者账户地址"),
+        @Parameter(parameterName = "toAddress", parameterType = "String", parameterDes = "转入的合约地址"),
+        @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的主链资产金额"),
+        @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+        @Key(name = "hash", description = "交易hash"),
+        @Key(name = "txHex", description = "交易序列化字符串")
+    }))
+    public Result<Map> tokenToContract(String fromAddress, String toAddress, BigInteger amount, String remark) {
+        int chainId = SDKContext.main_chain_id;
+        if (amount == null || amount.compareTo(BigInteger.ZERO) <= 0) {
+            return Result.getFailed(ContractErrorCode.PARAMETER_ERROR);
+        }
+
+        if (!AddressTool.validAddress(chainId, fromAddress)) {
+            return Result.getFailed(ADDRESS_ERROR);
+        }
+
+        if (!AddressTool.validAddress(chainId, toAddress)) {
+            return Result.getFailed(ADDRESS_ERROR);
+        }
+
+        return this.callTxOffline(fromAddress, amount, toAddress, Constant.BALANCE_TRIGGER_METHOD_NAME, Constant.BALANCE_TRIGGER_METHOD_DESC, null, remark);
     }
 
 }
