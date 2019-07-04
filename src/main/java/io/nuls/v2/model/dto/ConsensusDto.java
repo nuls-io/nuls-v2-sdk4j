@@ -1,37 +1,29 @@
 package io.nuls.v2.model.dto;
 
+import io.nuls.core.rpc.model.ApiModel;
+import io.nuls.core.rpc.model.ApiModelProperty;
+
 import java.math.BigInteger;
 
+@ApiModel(name = "创建共识交易表单")
 public class ConsensusDto {
 
-    /**
-     * 节点地址
-     */
+    @ApiModelProperty(description = "节点创建地址")
     private String agentAddress;
 
-    /**
-     * 打包出块地址
-     */
+    @ApiModelProperty(description = "节点出块地址")
     private String packingAddress;
 
-    /**
-     * 获取奖励地址
-     */
+    @ApiModelProperty(description = "获取共识奖励地址")
     private String rewardAddress;
 
-    /**
-     * 佣金比例 单位%
-     */
+    @ApiModelProperty(description = "节点佣金比例")
     private int commissionRate;
 
-    /**
-     * 创建节点保证金
-     */
+    @ApiModelProperty(description = "创建节点保证金")
     private BigInteger deposit;
 
-    /**
-     * 交易输入
-     */
+    @ApiModelProperty(description = "交易输入信息")
     private CoinFromDto input;
 
     public String getAgentAddress() {

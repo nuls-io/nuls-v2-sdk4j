@@ -1,6 +1,10 @@
 package io.nuls.v2.model.dto;
 
+import io.nuls.core.rpc.model.ApiModel;
+
+@ApiModel
 public class SignDto {
+
 
     private String address;
 

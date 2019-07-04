@@ -122,13 +122,7 @@ public class AccountService {
         return Result.getSuccess(list);
     }
 
-    /**
-     * 获取账户私钥
-     *
-     * @param address
-     * @param password
-     * @return
-     */
+
     public Result getPriKey(String address, String password) {
         validateChainId();
         try {

@@ -1,18 +1,22 @@
 package io.nuls.v2.model.dto;
 
+import io.nuls.core.rpc.model.ApiModel;
+import io.nuls.core.rpc.model.ApiModelProperty;
+
 import java.math.BigInteger;
 
+@ApiModel
 public class TransferForm {
 
-    //转账人地址
+    @ApiModelProperty(description = "转账地址")
     private String address;
-    //接收者地址
+    @ApiModelProperty(description = "接收者地址")
     private String toAddress;
-    //密码
+    @ApiModelProperty(description = "密码")
     private String password;
-    //转账金额
+    @ApiModelProperty(description = "转账金额")
     private BigInteger amount;
-    //交易备注
+    @ApiModelProperty(description = "交易备注")
     private String remark;
 
     public String getAddress() {

@@ -1,27 +1,24 @@
 package io.nuls.v2.model.dto;
 
+import io.nuls.core.rpc.model.ApiModel;
+import io.nuls.core.rpc.model.ApiModelProperty;
+import io.nuls.core.rpc.model.TypeDescriptor;
+
 import java.math.BigInteger;
 import java.util.List;
 
+@ApiModel
 public class StopConsensusDto {
 
-    /**
-     * 创建节点的交易hash
-     */
+    @ApiModelProperty(description = "创建节点的交易hash")
     private String agentHash;
-    /**
-     * 节点地址
-     */
+    @ApiModelProperty(description = "节点地址")
     private String agentAddress;
-    /**
-     * 创建节点时的保证金
-     */
+    @ApiModelProperty(description = "创建节点的保证金")
     private BigInteger deposit;
-    /**
-     * 手续费单价
-     */
+    @ApiModelProperty(description = "手续费单价" ,required = false)
     private BigInteger price;
-
+    @ApiModelProperty(description = "停止委托列表", type = @TypeDescriptor(value = List.class, collectionElement = StopDepositDto.class))
     private List<StopDepositDto> depositList;
 
     public String getAgentHash() {
