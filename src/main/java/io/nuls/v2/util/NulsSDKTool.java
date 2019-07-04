@@ -13,8 +13,6 @@ public class NulsSDKTool {
 
     private static TransactionService transactionService = TransactionService.getInstance();
 
-    private static AccountTxService accountTxService = AccountTxService.getInstance();
-
     private static BlockService blockService = BlockService.getInstance();
 
     private static ConsensusService consensusService = ConsensusService.getInstance();
@@ -236,12 +234,11 @@ public class NulsSDKTool {
      * @return result
      */
     public static Result transfer(TransferForm transferForm) {
-        return accountTxService.transfer(transferForm);
+        return transactionService.transfer(transferForm);
     }
 
-
     public static Result getTx(String txHash) {
-        return accountTxService.getTx(txHash);
+        return transactionService.getTx(txHash);
     }
 
     public static Result getBlockHeader(long height) {
@@ -272,5 +269,16 @@ public class NulsSDKTool {
         return consensusService.createAgent(form);
     }
 
+    public static Result stopAgent(StopAgentForm form) {
+        return consensusService.stopAgent(form);
+    }
+
+    public static Result depositToAgent(DepositForm form) {
+        return consensusService.depositToAgent(form);
+    }
+
+    public static Result withdraw(WithdrawForm form) {
+        return consensusService.withdraw(form);
+    }
 
 }

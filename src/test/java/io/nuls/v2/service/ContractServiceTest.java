@@ -20,6 +20,7 @@ public class ContractServiceTest {
 
     ContractService contractService;
     TransactionService transactionService;
+
     @Before
     public void before() {
         contractService = ContractService.getInstance();
@@ -47,10 +48,10 @@ public class ContractServiceTest {
 
         Assert.assertEquals("hash不一致", hash, _hash);
         String signedTxHex = (String) resultData.get("txHex");
-        Result<Map> broadcaseTx = transactionService.broadcaseTx(SDKContext.main_chain_id, signedTxHex);
+        Result<Map> broadcastTx = transactionService.broadcastTx(signedTxHex);
 
-        Assert.assertTrue(JSONUtils.obj2PrettyJson(broadcaseTx), broadcaseTx.isSuccess());
-        Map data = broadcaseTx.getData();
+        Assert.assertTrue(JSONUtils.obj2PrettyJson(broadcastTx), broadcastTx.isSuccess());
+        Map data = broadcastTx.getData();
         String hash1 = (String) data.get("hash");
 
         Assert.assertEquals("hash不一致", hash, hash1);
@@ -77,7 +78,7 @@ public class ContractServiceTest {
 
         Assert.assertEquals("hash不一致", hash, _hash);
         String signedTxHex = (String) resultData.get("txHex");
-        Result<Map> broadcaseTx = transactionService.broadcaseTx(SDKContext.main_chain_id, signedTxHex);
+        Result<Map> broadcaseTx = transactionService.broadcastTx(signedTxHex);
 
         Assert.assertTrue(JSONUtils.obj2PrettyJson(broadcaseTx), broadcaseTx.isSuccess());
         Map data = broadcaseTx.getData();
@@ -105,7 +106,7 @@ public class ContractServiceTest {
 
         Assert.assertEquals("hash不一致", hash, _hash);
         String signedTxHex = (String) resultData.get("txHex");
-        Result<Map> broadcaseTx = transactionService.broadcaseTx(SDKContext.main_chain_id, signedTxHex);
+        Result<Map> broadcaseTx = transactionService.broadcastTx(signedTxHex);
 
         Assert.assertTrue(JSONUtils.obj2PrettyJson(broadcaseTx), broadcaseTx.isSuccess());
         Map data = broadcaseTx.getData();

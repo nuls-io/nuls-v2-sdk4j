@@ -57,7 +57,7 @@ public class ConsensusService {
             CommonValidator.validateStopAgentForm(form);
 
             Map<String, Object> map = new HashMap<>();
-            map.put("agentAddress", form.getAgentAddress());
+            map.put("address", form.getAgentAddress());
             map.put("password", form.getPassword());
 
             RestFulResult restFulResult = RestFulUtil.post("api/consensus/agent/stop", map);

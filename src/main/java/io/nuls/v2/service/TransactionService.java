@@ -18,10 +18,7 @@ import io.nuls.v2.txdata.Agent;
 import io.nuls.v2.txdata.CancelDeposit;
 import io.nuls.v2.txdata.Deposit;
 import io.nuls.v2.txdata.StopAgent;
-import io.nuls.v2.util.CommonValidator;
-import io.nuls.v2.util.JsonRpcUtil;
-import io.nuls.v2.util.NulsSDKTool;
-import io.nuls.v2.util.TxUtils;
+import io.nuls.v2.util.*;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -39,6 +36,39 @@ public class TransactionService {
 
     public static TransactionService getInstance() {
         return instance;
+    }
+
+    public Result getTx(String txHash) {
+        validateChainId();
+        RestFulResult restFulResult = RestFulUtil.get("api/accountledger/tx/" + txHash);
+        Result result;
+        if (restFulResult.isSuccess()) {
+            result = Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
+    }
+
+    public Result transfer(TransferForm transferForm) {
+        validateChainId();
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("address", transferForm.getAddress());
+        params.put("toAddress", transferForm.getToAddress());
+        params.put("password", transferForm.getPassword());
+        params.put("amount", transferForm.getAmount());
+        params.put("remark", transferForm.getRemark());
+        RestFulResult restFulResult = RestFulUtil.post("api/accountledger/transfer", params);
+        Result result;
+        if (restFulResult.isSuccess()) {
+            result = Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
     }
 
     /**
@@ -448,7 +478,7 @@ public class TransactionService {
 
     /**
      * 密文私钥签名交易(单签)
-     * @param chainId
+     * @param address
      * @param txHex
      * @return
      */
@@ -464,7 +494,7 @@ public class TransactionService {
 
     /**
      * 明文私钥签名交易(单签)
-     * @param chainId
+     * @param address
      * @param txHex
      * @return
      */
@@ -479,12 +509,11 @@ public class TransactionService {
 
     /**
      * 广播交易
-     * @param chainId
      * @param txHex
      * @return
      */
-    public Result broadcaseTx(int chainId, String txHex) {
-        RpcResult<Map> balanceResult = JsonRpcUtil.request("broadcastTx", List.of(chainId, txHex));
+    public Result broadcastTx(String txHex) {
+        RpcResult<Map> balanceResult = JsonRpcUtil.request("broadcastTx", List.of(SDKContext.main_chain_id, txHex));
         RpcResultError rpcResultError = balanceResult.getError();
         if (rpcResultError != null) {
             return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());

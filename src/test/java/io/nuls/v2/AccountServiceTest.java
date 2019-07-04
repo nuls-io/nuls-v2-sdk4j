@@ -18,16 +18,16 @@ import java.util.Map;
  */
 public class AccountServiceTest {
 
-    static String address = "8CPcA7kaUfbmbNhT6pHGvBhhK1NSKfCrQjdSL";
+    static String address = "tNULSeBaMkm6c3ShAFMzfDX8RKdapZdUcseSw8";
     static String pubKey = "03ac18d40eb3131f934441f81c631b3898097b606a84893da1559de61fe3d3cfe9";
     static String priKey = "6df381435098e47b685cdc00fa1d7c66fa2ba9cc441179c6dd1a5686153fb0ee";
     static String encryptedPrivateKey = "0c8e925d27660dbd04104455c001efe7a5d4cba8fc484d06506c8ff4baa653be2d69e31c971243e2185782cabbbe265a";
-    static String password = "abcd1234";
+    static String password = "Nuls123546";
 
 
     @Before
     public void before() {
-        NulsSDKBootStrap.init(9, "http://127.0.0.1:9898/");
+        NulsSDKBootStrap.init(2, "http://127.0.0.1:9898/");
     }
 
     @Test
@@ -78,7 +78,7 @@ public class AccountServiceTest {
 
     @Test
     public void testGetPriKey() {
-        Result result = NulsSDKTool.getPriKey("GJbpb656PMFKnYVH9eLgvgtfD3VWbG86iqB", password);
+        Result result = NulsSDKTool.getPriKey(address, password);
         Map map = (Map) result.getData();
         System.out.println(map);
     }
