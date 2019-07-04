@@ -67,15 +67,44 @@ public class AccountServiceTest {
         String enPrikey = "3ce173a674c9b8ea218eb9c47fab069b3ca1f8150e8d22793729be5bd01084bcd17fd80060504ce62bcda792116fa30a";
         Result result = NulsSDKTool.resetPasswordOffline("GJbpb666UcupYQfY2DgigShaMb2kRbbhitW", enPrikey, password, "abcd4321");
         System.out.println(result);
+    }
 
+    @Test
+    public void testImportPriKey() {
+        Result result = NulsSDKTool.importPriKey("57b65cefbfcf73ec000158f3e6a98cfcac0ff36b70d68171955b87522360ddbf", password);
+        System.out.println(result.getData());
+        System.out.println(result);
     }
 
     @Test
     public void testGetPriKey() {
+        Result result = NulsSDKTool.getPriKey("GJbpb656PMFKnYVH9eLgvgtfD3VWbG86iqB", password);
+        Map map = (Map) result.getData();
+        System.out.println(map);
+    }
+
+    @Test
+    public void testGetPriKeyOffline() {
         Result result = NulsSDKTool.getPriKeyOffline(address, encryptedPrivateKey, password);
         Map map = (Map) result.getData();
         System.out.println(map);
     }
+
+    @Test
+    public void importKeystore() {
+        String keyStore = "{\"address\":\"GJbpb61kDNUMipDrRrPeqRRdidDY9SuXeED\",\"pubKey\":\"03370c185231a54a2a9d5bf399c7d4df54f8a47fd3ac09e601ec7e9f5945c5767f\",\"prikey\":\"\",\"encryptedPrivateKey\":\"102aaff2a1e80dda9d97a333d9a23aadad15cfe84d303f85dc835217e5defc61ca94a8f09af9e8feb5787c71a7f704e4\"}";
+        Result result = NulsSDKTool.importKeystore(keyStore, password);
+        System.out.println(result.getData());
+    }
+
+    @Test
+    public void testExportKeystore() {
+        String address = "GJbpb61kDNUMipDrRrPeqRRdidDY9SuXeED";
+        String filePath = "D:";
+        Result result = NulsSDKTool.exportKeyStore(address, password, filePath);
+        System.out.println(result.getData());
+    }
+
 
     @Test
     public void testSign() {
@@ -99,4 +128,5 @@ public class AccountServiceTest {
         Result result = NulsSDKTool.getAccountBalance("tNULSeBaMshNPEnuqiDhMdSA4iNs6LMgjY6tcL");
         System.out.println(result);
     }
+
 }

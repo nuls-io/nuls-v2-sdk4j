@@ -23,7 +23,6 @@ import io.nuls.v2.model.dto.SignDto;
 import io.nuls.v2.util.AccountTool;
 import io.nuls.v2.util.CommonValidator;
 import io.nuls.v2.util.RestFulUtil;
-import io.nuls.v2.util.ValidateUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -68,10 +67,8 @@ public class AccountService {
             RestFulResult restFulResult = RestFulUtil.post("api/account", params);
             Result<List<String>> result;
             if (restFulResult.isSuccess()) {
-                result = new Result(true);
                 Map<String, Object> dataMap = (Map<String, Object>) restFulResult.getData();
-
-                result.setData((List<String>) dataMap.get("list"));
+                result = Result.getSuccess((dataMap.get("list")));
             } else {
                 ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
                 result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
@@ -111,10 +108,10 @@ public class AccountService {
                 accountDto.setAddress(account.getAddress().toString());
                 accountDto.setPubKey(HexUtil.encode(account.getPubKey()));
                 if (account.isEncrypted()) {
-                    accountDto.setPriKey("");
+                    accountDto.setPrikey("");
                     accountDto.setEncryptedPrivateKey(HexUtil.encode(account.getEncryptedPriKey()));
                 } else {
-                    accountDto.setPriKey(HexUtil.encode(account.getPriKey()));
+                    accountDto.setPrikey(HexUtil.encode(account.getPriKey()));
                     accountDto.setEncryptedPrivateKey("");
                 }
                 list.add(accountDto);
@@ -125,6 +122,38 @@ public class AccountService {
         return Result.getSuccess(list);
     }
 
+    /**
+     * 获取账户私钥
+     *
+     * @param address
+     * @param password
+     * @return
+     */
+    public Result getPriKey(String address, String password) {
+        validateChainId();
+        try {
+            if (!AddressTool.validAddress(SDKContext.main_chain_id, address)) {
+                throw new NulsException(AccountErrorCode.ADDRESS_ERROR);
+            }
+            if (!FormatValidUtils.validPassword(password)) {
+                throw new NulsException(AccountErrorCode.PASSWORD_FORMAT_WRONG);
+            }
+            Map<String, Object> params = new HashMap<>();
+            params.put("password", password);
+
+            Result result;
+            RestFulResult restFulResult = RestFulUtil.post("api/account/prikey/" + address, params);
+            if (restFulResult.isSuccess()) {
+                result = Result.getSuccess(restFulResult.getData());
+            } else {
+                ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+                result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+            }
+            return result;
+        } catch (NulsException e) {
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
+        }
+    }
 
     /**
      * get unencrypted private-key
@@ -138,7 +167,7 @@ public class AccountService {
     public Result getPriKeyOffline(String address, String encryptedPriKey, String password) {
         validateChainId();
         try {
-            if (StringUtils.isBlank(address) || !AddressTool.validAddress(SDKContext.main_chain_id, address)) {
+            if (!AddressTool.validAddress(SDKContext.main_chain_id, address)) {
                 throw new NulsException(AccountErrorCode.ADDRESS_ERROR);
             }
             if (StringUtils.isBlank(encryptedPriKey)) {
@@ -165,6 +194,63 @@ public class AccountService {
         }
     }
 
+    public Result importKeystore(String keyStore, String password) {
+        validateChainId();
+        try {
+            if (StringUtils.isBlank(keyStore)) {
+                throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "[keyStore] is invalid");
+            }
+            if (!FormatValidUtils.validPassword(password)) {
+                throw new NulsException(AccountErrorCode.PASSWORD_FORMAT_WRONG);
+            }
+            Map<String, Object> params = new HashMap<>();
+            params.put("keystoreString", keyStore);
+            params.put("password", password);
+            params.put("overwrite", true);
+            RestFulResult restFulResult = RestFulUtil.post("api/account/import/keystore/string", params);
+            Result result;
+            if (restFulResult.isSuccess()) {
+                result = Result.getSuccess(restFulResult.getData());
+            } else {
+                ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+                result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+            }
+            return result;
+        } catch (NulsException e) {
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
+        }
+    }
+
+
+    public Result exportKeyStore(String address, String password, String filePath) {
+        validateChainId();
+        try {
+            if (!AddressTool.validAddress(SDKContext.main_chain_id, address)) {
+                throw new NulsException(AccountErrorCode.ADDRESS_ERROR);
+            }
+            if (StringUtils.isBlank(filePath)) {
+                throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "filePath is invalid");
+            }
+            if (!FormatValidUtils.validPassword(password)) {
+                throw new NulsException(AccountErrorCode.PASSWORD_FORMAT_WRONG);
+            }
+            Map<String, Object> params = new HashMap<>();
+            params.put("password", password);
+            params.put("path", filePath);
+
+            RestFulResult restFulResult = RestFulUtil.post("api/account/export/" + address, params);
+            Result result;
+            if (restFulResult.isSuccess()) {
+                result = Result.getSuccess(restFulResult.getData());
+            } else {
+                ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+                result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+            }
+            return result;
+        } catch (NulsException e) {
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
+        }
+    }
 
     public Result resetPassword(String address, String oldPassword, String newPassword) {
         validateChainId();
@@ -182,8 +268,7 @@ public class AccountService {
             Result result;
             RestFulResult restFulResult = RestFulUtil.put("api/account/password/" + address, params);
             if (restFulResult.isSuccess()) {
-                result = new Result(true);
-                result.setData(restFulResult.getData());
+                result = Result.getSuccess(restFulResult.getData());
             } else {
                 ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
                 result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
@@ -230,7 +315,6 @@ public class AccountService {
         } catch (NulsException e) {
             return Result.getFailed(e.getErrorCode()).setMsg(e.format());
         } catch (CryptoException e) {
-
             return Result.getFailed(AccountErrorCode.PASSWORD_IS_WRONG).setMsg(AccountErrorCode.PASSWORD_IS_WRONG.getMsg());
         }
     }
@@ -302,8 +386,7 @@ public class AccountService {
             Result result;
             RestFulResult restFulResult = RestFulUtil.get("api/accountledger/balance/" + address);
             if (restFulResult.isSuccess()) {
-                result = new Result(true);
-                result.setData(restFulResult.getData());
+                result = Result.getSuccess(restFulResult.getData());
             } else {
                 ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
                 result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
@@ -314,7 +397,14 @@ public class AccountService {
         }
     }
 
-    public Result importPrikey(String priKey, String password) {
+    /**
+     * 导入私钥
+     *
+     * @param priKey   私钥
+     * @param password 导入私钥后，给私钥设置的密码
+     * @return result
+     */
+    public Result importPriKey(String priKey, String password) {
         validateChainId();
         try {
             if (StringUtils.isBlank(priKey)) {
@@ -329,17 +419,16 @@ public class AccountService {
             params.put("overwrite", true);
 
             Result result;
-            RestFulResult restFulResult = RestFulUtil.post("/account/import/pri", params);
+            RestFulResult restFulResult = RestFulUtil.post("api/account/import/pri", params);
             if (restFulResult.isSuccess()) {
-                result = new Result(true);
-                result.setData(restFulResult.getData());
+                result = Result.getSuccess(restFulResult.getData());
             } else {
                 ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
                 result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
             }
             return result;
         } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode()).setMsg(e.getErrorCode().getMsg());
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
         }
     }
 }

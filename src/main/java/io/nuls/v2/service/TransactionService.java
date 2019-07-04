@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
 
-import static io.nuls.v2.util.ContractUtil.getSuccess;
 import static io.nuls.v2.util.ValidateUtil.validateChainId;
 
 public class TransactionService {
@@ -94,7 +93,7 @@ public class TransactionService {
             Map<String, Object> map = new HashMap<>();
             map.put("hash", tx.getHash().toHex());
             map.put("txHex", HexUtil.encode(tx.serialize()));
-            return new Result(true).setData(map);
+            return Result.getSuccess(map);
         } catch (NulsException e) {
             return Result.getFailed(e.getErrorCode()).setMsg(e.format());
         } catch (IOException e) {
@@ -195,7 +194,7 @@ public class TransactionService {
             Map<String, Object> map = new HashMap<>();
             map.put("hash", tx.getHash().toHex());
             map.put("txHex", HexUtil.encode(tx.serialize()));
-            return new Result(true).setData(map);
+            return Result.getSuccess(map);
         } catch (NulsException e) {
             return Result.getFailed(e.getErrorCode()).setMsg(e.format());
         } catch (IOException e) {
@@ -236,7 +235,7 @@ public class TransactionService {
             Map<String, Object> map = new HashMap<>();
             map.put("hash", tx.getHash().toHex());
             map.put("txHex", HexUtil.encode(tx.serialize()));
-            return new Result(true).setData(map);
+            return Result.getSuccess(map);
         } catch (NulsException e) {
             return Result.getFailed(e.getErrorCode()).setMsg(e.format());
         } catch (IOException e) {
@@ -300,7 +299,7 @@ public class TransactionService {
             Map<String, Object> map = new HashMap<>();
             map.put("hash", tx.getHash().toHex());
             map.put("txHex", HexUtil.encode(tx.serialize()));
-            return new Result(true).setData(map);
+            return Result.getSuccess(map);
 
         } catch (NulsException e) {
             return Result.getFailed(e.getErrorCode()).setMsg(e.format());
@@ -377,7 +376,7 @@ public class TransactionService {
             Map<String, Object> map = new HashMap<>();
             map.put("hash", tx.getHash().toHex());
             map.put("txHex", HexUtil.encode(tx.serialize()));
-            return new Result(true).setData(map);
+            return Result.getSuccess(map);
         } catch (NulsException e) {
             return Result.getFailed(e.getErrorCode()).setMsg(e.format());
         } catch (IOException e) {
@@ -459,7 +458,7 @@ public class TransactionService {
             return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());
         }
         Map result = balanceResult.getResult();
-        return getSuccess().setData(result);
+        return Result.getSuccess(result);
     }
 }
 

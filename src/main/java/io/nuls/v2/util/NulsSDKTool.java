@@ -2,8 +2,7 @@ package io.nuls.v2.util;
 
 import io.nuls.core.basic.Result;
 import io.nuls.v2.model.dto.*;
-import io.nuls.v2.service.AccountService;
-import io.nuls.v2.service.TransactionService;
+import io.nuls.v2.service.*;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -13,6 +12,12 @@ public class NulsSDKTool {
     private static AccountService accountService = AccountService.getInstance();
 
     private static TransactionService transactionService = TransactionService.getInstance();
+
+    private static AccountTxService accountTxService = AccountTxService.getInstance();
+
+    private static BlockService blockService = BlockService.getInstance();
+
+    private static ConsensusService consensusService = ConsensusService.getInstance();
 
     /**
      * Create accounts
@@ -56,8 +61,32 @@ public class NulsSDKTool {
     }
 
     /**
+     * 导入私钥
+     *
+     * @param priKey   私钥
+     * @param password 导入私钥后，给私钥设置的密码
+     * @return result
+     */
+    public static Result importPriKey(String priKey, String password) {
+        return accountService.importPriKey(priKey, password);
+    }
+
+    /**
      * get unencrypted private-key
-     * 获取原始私钥
+     * 获取钱包账户原始私钥
+     *
+     * @param address  账户地址
+     * @param password 密码
+     * @return Result
+     */
+    public static Result getPriKey(String address, String password) {
+        return accountService.getPriKey(address, password);
+    }
+
+
+    /**
+     * get off-line address unencrypted private-key
+     * 获取离线账户原始私钥
      *
      * @param address         账户地址
      * @param encryptedPriKey 账户加密后的私钥
@@ -66,6 +95,29 @@ public class NulsSDKTool {
      */
     public static Result getPriKeyOffline(String address, String encryptedPriKey, String password) {
         return accountService.getPriKeyOffline(address, encryptedPriKey, password);
+    }
+
+    /**
+     * 导入keystore到钱包
+     *
+     * @param keyStore keyStore json字符串
+     * @param password 密码
+     * @return result
+     */
+    public static Result importKeystore(String keyStore, String password) {
+        return accountService.importKeystore(keyStore, password);
+    }
+
+    /**
+     * 导出keystore
+     *
+     * @param address  地址
+     * @param password 密码
+     * @param filePath 导出文件路径
+     * @return result
+     */
+    public static Result exportKeyStore(String address, String password, String filePath) {
+        return accountService.exportKeyStore(address, password, filePath);
     }
 
     /**
@@ -151,4 +203,49 @@ public class NulsSDKTool {
     public static Result createStopConsensusTx(StopConsensusDto dto) {
         return transactionService.createStopConsensusTx(dto);
     }
+
+    /**
+     * 发送转账交易
+     *
+     * @param transferForm 转账交易参数
+     * @return result
+     */
+    public static Result transfer(TransferForm transferForm) {
+        return accountTxService.transfer(transferForm);
+    }
+
+
+    public static Result getTx(String txHash) {
+        return accountTxService.getTx(txHash);
+    }
+
+    public static Result getBlockHeader(long height) {
+        return blockService.getBlockHeader(height);
+    }
+
+    public static Result getBlockHeader(String hash) {
+        return blockService.getBlockHeader(hash);
+    }
+
+    public static Result getBlock(long height) {
+        return blockService.getBlock(height);
+    }
+
+    public static Result getBlock(String hash) {
+        return blockService.getBlock(hash);
+    }
+
+    public static Result getBestBlockHeader() {
+        return blockService.getBestBlockHeader();
+    }
+
+    public static Result getBestBlock() {
+        return blockService.getBestBlock();
+    }
+
+    public static Result createAgent(CreateAgentForm form) {
+        return consensusService.createAgent(form);
+    }
+
+
 }

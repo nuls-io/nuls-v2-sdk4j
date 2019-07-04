@@ -6,7 +6,7 @@ public class AccountDto {
 
     private String pubKey;
 
-    private String priKey;
+    private String prikey;
 
     private String encryptedPrivateKey;
 
@@ -26,12 +26,12 @@ public class AccountDto {
         this.pubKey = pubKey;
     }
 
-    public String getPriKey() {
-        return priKey;
+    public String getPrikey() {
+        return prikey;
     }
 
-    public void setPriKey(String priKey) {
-        this.priKey = priKey;
+    public void setPrikey(String priKey) {
+        this.prikey = priKey;
     }
 
     public String getEncryptedPrivateKey() {
