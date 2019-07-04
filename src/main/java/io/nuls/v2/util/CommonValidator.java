@@ -2,6 +2,7 @@ package io.nuls.v2.util;
 
 import io.nuls.base.basic.AddressTool;
 import io.nuls.core.exception.NulsException;
+import io.nuls.core.model.FormatValidUtils;
 import io.nuls.core.model.StringUtils;
 import io.nuls.v2.SDKContext;
 import io.nuls.v2.error.AccountErrorCode;
@@ -127,13 +128,69 @@ public class CommonValidator {
         validateLockCoinFrom(dto.getInput());
     }
 
-
     public static void validateStopConsensusDto(StopConsensusDto dto) throws NulsException {
         if (!ValidateUtil.validHash(dto.getAgentHash())) {
             throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "agentHash is invalid");
         }
         if (!AddressTool.validAddress(SDKContext.main_chain_id, dto.getAgentAddress())) {
             throw new NulsException(AccountErrorCode.ADDRESS_ERROR, "agentAddress is invalid");
+        }
+    }
+
+    public static void validateCreateAgentForm(CreateAgentForm form) throws NulsException {
+        if (!AddressTool.validAddress(SDKContext.main_chain_id, form.getAgentAddress())) {
+            throw new NulsException(AccountErrorCode.ADDRESS_ERROR, "agentAddress is invalid");
+        }
+        if (!AddressTool.validAddress(SDKContext.main_chain_id, form.getPackingAddress())) {
+            throw new NulsException(AccountErrorCode.ADDRESS_ERROR, "packingAddress is invalid");
+        }
+        if (!AddressTool.validAddress(SDKContext.main_chain_id, form.getRewardAddress())) {
+            throw new NulsException(AccountErrorCode.ADDRESS_ERROR, "rewardAddress is invalid");
+        }
+        if (!ValidateUtil.validateCommissionRate(form.getCommissionRate())) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "commission is invalid");
+        }
+        if (!ValidateUtil.validateBigInteger(form.getDeposit())) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "deposit is invalid");
+        }
+        if (!FormatValidUtils.validPassword(form.getPassword())) {
+            throw new NulsException(AccountErrorCode.PASSWORD_IS_WRONG, "password is invalid");
+        }
+    }
+
+    public static void validateStopAgentForm(StopAgentForm form) throws NulsException {
+        if (!AddressTool.validAddress(SDKContext.main_chain_id, form.getAgentAddress())) {
+            throw new NulsException(AccountErrorCode.ADDRESS_ERROR, "agentAddress is invalid");
+        }
+        if (!FormatValidUtils.validPassword(form.getPassword())) {
+            throw new NulsException(AccountErrorCode.PASSWORD_IS_WRONG, "password is invalid");
+        }
+    }
+
+    public static void validateDepositForm(DepositForm form) throws NulsException {
+        if (!AddressTool.validAddress(SDKContext.main_chain_id, form.getAddress())) {
+            throw new NulsException(AccountErrorCode.ADDRESS_ERROR, "address is invalid");
+        }
+        if (!ValidateUtil.validHash(form.getAgentHash())) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "agentHash is invalid");
+        }
+        if (!ValidateUtil.validateBigInteger(form.getDeposit())) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "deposit is invalid");
+        }
+        if (!FormatValidUtils.validPassword(form.getPassword())) {
+            throw new NulsException(AccountErrorCode.PASSWORD_IS_WRONG, "password is invalid");
+        }
+    }
+
+    public static void validateWithDrawForm(WithdrawForm form) throws NulsException {
+        if (!AddressTool.validAddress(SDKContext.main_chain_id, form.getAddress())) {
+            throw new NulsException(AccountErrorCode.ADDRESS_ERROR, "address is invalid");
+        }
+        if (!ValidateUtil.validHash(form.getTxHash())) {
+            throw new NulsException(AccountErrorCode.PASSWORD_IS_WRONG, "agentHash is invalid");
+        }
+        if (!FormatValidUtils.validPassword(form.getPassword())) {
+            throw new NulsException(AccountErrorCode.PASSWORD_IS_WRONG, "password is invalid");
         }
     }
 }

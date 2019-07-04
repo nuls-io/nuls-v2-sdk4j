@@ -54,7 +54,6 @@ public class ValidateUtil {
         }
     }
 
-
     public static boolean validateNonce(String nonce) {
         if (StringUtils.isBlank(nonce)) {
             return false;
