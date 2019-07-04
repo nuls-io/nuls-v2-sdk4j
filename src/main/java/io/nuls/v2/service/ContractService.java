@@ -48,8 +48,6 @@ import static io.nuls.v2.util.ValidateUtil.validateChainId;
  */
 @Api(type = ApiType.SDK)
 public class ContractService {
-    private ContractService() {
-    }
 
     private static ContractService instance = new ContractService();
 
