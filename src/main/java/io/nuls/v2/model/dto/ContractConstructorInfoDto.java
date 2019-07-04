@@ -38,13 +38,13 @@ public class ContractConstructorInfoDto {
     @ApiModelProperty(description = "合约构造函数详情")
     private ProgramMethod constructor;
     @ApiModelProperty(description = "是否是NRC20合约")
-    private boolean isNrc20;
+    private boolean nrc20;
 
     public ContractConstructorInfoDto() {
     }
 
     public ContractConstructorInfoDto(Map result) {
-        this.isNrc20 = (boolean) result.get("nrc20");
+        this.nrc20 = (boolean) result.get("nrc20");
         this.constructor = new ProgramMethod((Map) result.get("constructor"));
     }
 
@@ -56,11 +56,4 @@ public class ContractConstructorInfoDto {
         this.constructor = constructor;
     }
 
-    public boolean isNrc20() {
-        return isNrc20;
-    }
-
-    public void setNrc20(boolean nrc20) {
-        isNrc20 = nrc20;
-    }
 }
