@@ -1,13 +1,18 @@
 package io.nuls.v2.model.dto;
 
+import io.nuls.core.rpc.model.ApiModel;
+import io.nuls.core.rpc.model.ApiModelProperty;
+
+@ApiModel
 public class DepositForm {
 
+    @ApiModelProperty(description = "账户地址")
     private String address;
-
+    @ApiModelProperty(description = "共识节点hash")
     private String agentHash;
-
+    @ApiModelProperty(description = "委托金")
     private String deposit;
-
+    @ApiModelProperty(description = "密码")
     private String password;
 
     public String getAddress() {

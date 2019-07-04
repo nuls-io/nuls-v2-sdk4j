@@ -1,18 +1,22 @@
 package io.nuls.v2.model.dto;
 
+import io.nuls.core.rpc.model.ApiModel;
+import io.nuls.core.rpc.model.ApiModelProperty;
+
+@ApiModel
 public class CreateAgentForm {
 
-    //节点地址
+    @ApiModelProperty(description = "节点地址")
     private String agentAddress;
-    //节点出块地址
+    @ApiModelProperty(description = "节点出块地址")
     private String packingAddress;
-    //奖励地址
+    @ApiModelProperty(description = "获取奖励地址")
     private String rewardAddress;
-    //佣金比例
+    @ApiModelProperty(description = "佣金比例")
     private int commissionRate;
-    //抵押金额
+    @ApiModelProperty(description = "保证金")
     private String deposit;
-    //密码
+    @ApiModelProperty(description = "密码")
     private String password;
 
     public String getAgentAddress() {

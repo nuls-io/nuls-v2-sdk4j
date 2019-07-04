@@ -1,17 +1,21 @@
 package io.nuls.v2.model.dto;
 
+import io.nuls.core.rpc.model.ApiModel;
+import io.nuls.core.rpc.model.ApiModelProperty;
+
 import java.math.BigInteger;
 
+@ApiModel
 public class TransferTxFeeDto {
-
+    @ApiModelProperty(description = "转账地址数量")
     private int addressCount;
-
+    @ApiModelProperty(description = "转账输入长度")
     private int fromLength;
-
+    @ApiModelProperty(description = "转账输出长度")
     private int toLength;
-
+    @ApiModelProperty(description = "交易备注")
     private String remark;
-
+    @ApiModelProperty(description = "手续费单价" ,required = false)
     private BigInteger price;
 
     public int getAddressCount() {

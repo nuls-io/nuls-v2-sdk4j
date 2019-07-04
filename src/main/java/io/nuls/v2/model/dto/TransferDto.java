@@ -1,22 +1,21 @@
 package io.nuls.v2.model.dto;
 
+import io.nuls.core.rpc.model.ApiModel;
+import io.nuls.core.rpc.model.ApiModelProperty;
+import io.nuls.core.rpc.model.TypeDescriptor;
+
 import java.util.List;
 
+@ApiModel
 public class TransferDto {
 
-    /**
-     * 交易输入
-     */
+    @ApiModelProperty(description = "转账交易输入列表", type = @TypeDescriptor(value = List.class, collectionElement = CoinFromDto.class))
     private List<CoinFromDto> inputs;
 
-    /**
-     * 交易输出
-     */
+    @ApiModelProperty(description = "转账交易输出列表", type = @TypeDescriptor(value = List.class, collectionElement = CoinToDto.class))
     private List<CoinToDto> outputs;
 
-    /**
-     * 交易备注
-     */
+    @ApiModelProperty(description = "交易备注")
     private String remark;
 
     public List<CoinFromDto> getInputs() {

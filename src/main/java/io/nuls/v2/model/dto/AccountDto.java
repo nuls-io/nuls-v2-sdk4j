@@ -1,13 +1,18 @@
 package io.nuls.v2.model.dto;
 
+import io.nuls.core.rpc.model.ApiModel;
+import io.nuls.core.rpc.model.ApiModelProperty;
+
+@ApiModel(name = "账户keystore")
 public class AccountDto {
 
+    @ApiModelProperty(description = "账户地址")
     private String address;
-
+    @ApiModelProperty(description = "公钥")
     private String pubKey;
-
+    @ApiModelProperty(description = "原始私钥")
     private String prikey;
-
+    @ApiModelProperty(description = "加密后的私钥")
     private String encryptedPrivateKey;
 
     public String getAddress() {

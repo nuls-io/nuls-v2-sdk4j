@@ -35,6 +35,7 @@ import java.util.Map;
  */
 @ApiModel
 public class ContractConstructorInfoDto {
+
     @ApiModelProperty(description = "合约构造函数详情")
     private ProgramMethod constructor;
     @ApiModelProperty(description = "是否是NRC20合约")
@@ -56,4 +57,11 @@ public class ContractConstructorInfoDto {
         this.constructor = constructor;
     }
 
+    public boolean isNrc20() {
+        return nrc20;
+    }
+
+    public void setNrc20() {
+        this.nrc20 = nrc20;
+    }
 }
