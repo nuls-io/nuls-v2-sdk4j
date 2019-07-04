@@ -15,9 +15,7 @@ import io.nuls.v2.error.ContractErrorCode;
 import io.nuls.v2.model.annotation.Api;
 import io.nuls.v2.model.annotation.ApiOperation;
 import io.nuls.v2.model.annotation.ApiType;
-import io.nuls.v2.model.dto.ContractConstructorInfoDto;
-import io.nuls.v2.model.dto.RpcResult;
-import io.nuls.v2.model.dto.RpcResultError;
+import io.nuls.v2.model.dto.*;
 import io.nuls.v2.tx.CallContractTransaction;
 import io.nuls.v2.tx.CreateContractTransaction;
 import io.nuls.v2.tx.DeleteContractTransaction;
@@ -27,6 +25,7 @@ import io.nuls.v2.txdata.DeleteContractData;
 import io.nuls.v2.util.AccountTool;
 import io.nuls.v2.util.ContractUtil;
 import io.nuls.v2.util.JsonRpcUtil;
+import io.nuls.v2.util.RestFulUtil;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -41,6 +40,7 @@ import static io.nuls.v2.error.AccountErrorCode.ADDRESS_ERROR;
 import static io.nuls.v2.error.ContractErrorCode.CONTRACT_ALIAS_FORMAT_ERROR;
 import static io.nuls.v2.util.ContractUtil.getFailed;
 import static io.nuls.v2.util.ContractUtil.getSuccess;
+import static io.nuls.v2.util.ValidateUtil.validateChainId;
 
 /**
  * @author: PierreLuo
@@ -59,16 +59,16 @@ public class ContractService {
 
     @ApiOperation(description = "离线组装 - 发布合约的交易")
     @Parameters(value = {
-        @Parameter(parameterName = "sender", parameterType = "String", parameterDes = "交易创建者账户地址"),
-        @Parameter(parameterName = "alias", parameterType = "String", parameterDes = "合约别名"),
-        @Parameter(parameterName = "contractCode", parameterType = "String", parameterDes = "智能合约代码(字节码的Hex编码字符串)"),
-        @Parameter(parameterName = "args", requestType = @TypeDescriptor(value = Object[].class), parameterDes = "参数列表", canNull = true),
-        @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
+            @Parameter(parameterName = "sender", parameterType = "String", parameterDes = "交易创建者账户地址"),
+            @Parameter(parameterName = "alias", parameterType = "String", parameterDes = "合约别名"),
+            @Parameter(parameterName = "contractCode", parameterType = "String", parameterDes = "智能合约代码(字节码的Hex编码字符串)"),
+            @Parameter(parameterName = "args", requestType = @TypeDescriptor(value = Object[].class), parameterDes = "参数列表", canNull = true),
+            @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
     })
     @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
-        @Key(name = "hash", description = "交易hash"),
-        @Key(name = "txHex", description = "交易序列化字符串"),
-        @Key(name = "contractAddress", description = "生成的合约地址")
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化字符串"),
+            @Key(name = "contractAddress", description = "生成的合约地址")
     }))
     public Result<Map> createTxOffline(String sender, String alias, String contractCode, Object[] args, String remark) {
         int chainId = SDKContext.main_chain_id;
@@ -162,17 +162,17 @@ public class ContractService {
 
     @ApiOperation(description = "离线组装 - 调用合约的交易")
     @Parameters(value = {
-        @Parameter(parameterName = "sender", parameterType = "String", parameterDes = "交易创建者账户地址"),
-        @Parameter(parameterName = "value", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "调用者向合约地址转入的主网资产金额，没有此业务时填BigInteger.ZERO"),
-        @Parameter(parameterName = "contractAddress", parameterType = "String", parameterDes = "合约地址"),
-        @Parameter(parameterName = "methodName", parameterType = "String", parameterDes = "合约方法"),
-        @Parameter(parameterName = "methodDesc", parameterType = "String", parameterDes = "合约方法描述，若合约内方法没有重载，则此参数可以为空", canNull = true),
-        @Parameter(parameterName = "args", requestType = @TypeDescriptor(value = Object[].class), parameterDes = "参数列表", canNull = true),
-        @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
+            @Parameter(parameterName = "sender", parameterType = "String", parameterDes = "交易创建者账户地址"),
+            @Parameter(parameterName = "value", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "调用者向合约地址转入的主网资产金额，没有此业务时填BigInteger.ZERO"),
+            @Parameter(parameterName = "contractAddress", parameterType = "String", parameterDes = "合约地址"),
+            @Parameter(parameterName = "methodName", parameterType = "String", parameterDes = "合约方法"),
+            @Parameter(parameterName = "methodDesc", parameterType = "String", parameterDes = "合约方法描述，若合约内方法没有重载，则此参数可以为空", canNull = true),
+            @Parameter(parameterName = "args", requestType = @TypeDescriptor(value = Object[].class), parameterDes = "参数列表", canNull = true),
+            @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
     })
     @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
-        @Key(name = "hash", description = "交易hash"),
-        @Key(name = "txHex", description = "交易序列化字符串")
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化字符串")
     }))
     public Result<Map> callTxOffline(String sender, BigInteger value, String contractAddress,
                                      String methodName, String methodDesc, Object[] args, String remark) {
@@ -188,7 +188,7 @@ public class ContractService {
         if (StringUtils.isBlank(methodName)) {
             return Result.getFailed(NULL_PARAMETER);
         }
-        if(value == null) {
+        if (value == null) {
             value = BigInteger.ZERO;
         }
 
@@ -268,13 +268,13 @@ public class ContractService {
 
     @ApiOperation(description = "离线组装 - 删除合约的交易")
     @Parameters(value = {
-        @Parameter(parameterName = "sender", parameterType = "String", parameterDes = "交易创建者账户地址"),
-        @Parameter(parameterName = "contractAddress", parameterType = "String", parameterDes = "合约地址"),
-        @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
+            @Parameter(parameterName = "sender", parameterType = "String", parameterDes = "交易创建者账户地址"),
+            @Parameter(parameterName = "contractAddress", parameterType = "String", parameterDes = "合约地址"),
+            @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
     })
     @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
-        @Key(name = "hash", description = "交易hash"),
-        @Key(name = "txHex", description = "交易序列化字符串")
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化字符串")
     }))
     public Result<Map> deleteTxOffline(String sender, String contractAddress, String remark) {
         int chainId = SDKContext.main_chain_id;
@@ -326,7 +326,7 @@ public class ContractService {
 
     @ApiOperation(description = "根据合约代码获取合约构造函数详情")
     @Parameters(description = "参数", value = {
-        @Parameter(parameterName = "contractCode", parameterType = "String", parameterDes = "智能合约代码(字节码的Hex编码字符串)")
+            @Parameter(parameterName = "contractCode", parameterType = "String", parameterDes = "智能合约代码(字节码的Hex编码字符串)")
     })
     @ResponseData(name = "返回值", description = "合约构造函数详情", responseType = @TypeDescriptor(value = ContractConstructorInfoDto.class))
     public Result<ContractConstructorInfoDto> getConstructor(String contractCode) {
@@ -342,15 +342,15 @@ public class ContractService {
 
     @ApiOperation(description = "离线组装 - token转账交易")
     @Parameters(value = {
-        @Parameter(parameterName = "fromAddress", parameterType = "String", parameterDes = "转出者账户地址"),
-        @Parameter(parameterName = "toAddress", parameterType = "String", parameterDes = "转入地址"),
-        @Parameter(parameterName = "contractAddress", parameterType = "String", parameterDes = "token合约地址"),
-        @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的token资产金额"),
-        @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
+            @Parameter(parameterName = "fromAddress", parameterType = "String", parameterDes = "转出者账户地址"),
+            @Parameter(parameterName = "toAddress", parameterType = "String", parameterDes = "转入地址"),
+            @Parameter(parameterName = "contractAddress", parameterType = "String", parameterDes = "token合约地址"),
+            @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的token资产金额"),
+            @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
     })
     @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
-        @Key(name = "hash", description = "交易hash"),
-        @Key(name = "txHex", description = "交易序列化字符串")
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化字符串")
     }))
     public Result<Map> tokenTransfer(String fromAddress, String toAddress, String contractAddress, BigInteger amount, String remark) {
         int chainId = SDKContext.main_chain_id;
@@ -374,14 +374,14 @@ public class ContractService {
 
     @ApiOperation(description = "离线组装 - 从账户地址向合约地址转账(主链资产)的合约交易")
     @Parameters(value = {
-        @Parameter(parameterName = "fromAddress", parameterType = "String", parameterDes = "转出者账户地址"),
-        @Parameter(parameterName = "toAddress", parameterType = "String", parameterDes = "转入的合约地址"),
-        @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的主链资产金额"),
-        @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
+            @Parameter(parameterName = "fromAddress", parameterType = "String", parameterDes = "转出者账户地址"),
+            @Parameter(parameterName = "toAddress", parameterType = "String", parameterDes = "转入的合约地址"),
+            @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的主链资产金额"),
+            @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
     })
     @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
-        @Key(name = "hash", description = "交易hash"),
-        @Key(name = "txHex", description = "交易序列化字符串")
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化字符串")
     }))
     public Result<Map> tokenToContract(String fromAddress, String toAddress, BigInteger amount, String remark) {
         int chainId = SDKContext.main_chain_id;
@@ -398,6 +398,116 @@ public class ContractService {
         }
 
         return this.callTxOffline(fromAddress, amount, toAddress, Constant.BALANCE_TRIGGER_METHOD_NAME, Constant.BALANCE_TRIGGER_METHOD_DESC, null, remark);
+    }
+
+    public Result createContract(ContractCreateForm form) {
+        validateChainId();
+        if (form == null || form.getGasLimit() < 0 || form.getPrice() < 0) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR);
+        }
+        Map<String, Object> params = new HashMap<>();
+        params.put("sender", form.getSender());
+        params.put("gasLimit", form.getGasLimit());
+        params.put("price", form.getPrice());
+        params.put("password", form.getPassword());
+        params.put("remark", form.getRemark());
+        params.put("chainId", SDKContext.main_chain_id);
+        params.put("alias", form.getAlias());
+        params.put("args", form.getArgs());
+        params.put("contractCode", form.getContractCode());
+
+        RestFulResult restFulResult = RestFulUtil.post("api/contract/create", params);
+        Result result;
+        if (restFulResult.isSuccess()) {
+            result = io.nuls.core.basic.Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = io.nuls.core.basic.Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
+    }
+
+    public Result callContract(ContractCallForm form) {
+        if (form == null || form.getGasLimit() < 0 || form.getPrice() < 0) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR);
+        }
+        Map<String, Object> params = new HashMap<>();
+        params.put("chainId", SDKContext.main_chain_id);
+        params.put("sender", form.getSender());
+        params.put("gasLimit", form.getGasLimit());
+        params.put("price", form.getPrice());
+        params.put("password", form.getPassword());
+        params.put("remark", form.getRemark());
+        params.put("contractAddress", form.getContractAddress());
+        params.put("value", form.getValue());
+        params.put("methodName", form.getMethodName());
+        params.put("methodDesc", form.getMethodDesc());
+        params.put("args", form.getArgs());
+
+        RestFulResult restFulResult = RestFulUtil.post("api/contract/call", params);
+        Result result;
+        if (restFulResult.isSuccess()) {
+            result = io.nuls.core.basic.Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = io.nuls.core.basic.Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
+    }
+
+    public Result deleteContract(ContractDeleteForm form) {
+        if (form == null) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR);
+        }
+        Map<String, Object> params = new HashMap<>();
+        params.put("chainId", SDKContext.main_chain_id);
+        params.put("sender", form.getSender());
+        params.put("contractAddress", form.getContractAddress());
+        params.put("password", form.getPassword());
+        params.put("remark", form.getRemark());
+
+        RestFulResult restFulResult = RestFulUtil.post("api/contract/delete", params);
+        Result result;
+        if (restFulResult.isSuccess()) {
+            result = io.nuls.core.basic.Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = io.nuls.core.basic.Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
+    }
+
+    public Result getTokenBalance(String contractAddress, String address) {
+        if (address == null) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("[address] is invalid");
+        }
+        if (contractAddress == null) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("[contractAddress] is invalid");
+        }
+        RestFulResult restFulResult = RestFulUtil.get("api/contract/balance/token/" + contractAddress + "/" + address);
+        Result result;
+        if (restFulResult.isSuccess()) {
+            result = io.nuls.core.basic.Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = io.nuls.core.basic.Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
+    }
+
+    public Result getContractInfo(String contractAddress) {
+        if (contractAddress == null) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("[contractAddress] is invalid");
+        }
+        RestFulResult restFulResult = RestFulUtil.get("api/contract/info/" + contractAddress);
+        Result result;
+        if (restFulResult.isSuccess()) {
+            result = io.nuls.core.basic.Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = io.nuls.core.basic.Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
     }
 
 }
