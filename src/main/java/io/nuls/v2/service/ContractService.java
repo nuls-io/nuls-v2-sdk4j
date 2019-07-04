@@ -2,6 +2,7 @@ package io.nuls.v2.service;
 
 import io.nuls.base.basic.AddressTool;
 import io.nuls.base.data.Address;
+import io.nuls.base.data.Transaction;
 import io.nuls.core.basic.Result;
 import io.nuls.core.constant.CommonCodeConstanst;
 import io.nuls.core.constant.ErrorCode;
@@ -71,13 +72,13 @@ public class ContractService {
     public Result<Map> createTxOffline(String sender, String alias, String contractCode, Object[] args, String remark) {
         int chainId = SDKContext.main_chain_id;
         if (!AddressTool.validAddress(chainId, sender)) {
-            return Result.getFailed(ADDRESS_ERROR);
+            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("sender [%s] is invalid", sender));
         }
         if (!FormatValidUtils.validAlias(alias)) {
-            return Result.getFailed(CONTRACT_ALIAS_FORMAT_ERROR);
+            return Result.getFailed(CONTRACT_ALIAS_FORMAT_ERROR).setMsg(String.format("alias [%s] is invalid", alias));
         }
         if (StringUtils.isBlank(contractCode)) {
-            return Result.getFailed(CommonCodeConstanst.NULL_PARAMETER);
+            return Result.getFailed(CommonCodeConstanst.NULL_PARAMETER).setMsg("contractCode is empty");
         }
         // 验证发布合约的合法性
         RpcResult validateResult = JsonRpcUtil.request("validateContractCreate", List.of(chainId, sender, MAX_GASLIMIT, CONTRACT_MINIMUM_PRICE, contractCode, args));
@@ -145,7 +146,7 @@ public class ContractService {
         BigInteger senderBalance = new BigInteger(result.get("balance").toString());
         String nonce = result.get("nonce").toString();
         // 生成交易
-        CreateContractTransaction tx = ContractUtil.newCreateTx(chainId, assetId, senderBalance, nonce, createContractData, remark);
+        Transaction tx = ContractUtil.newCreateTx(chainId, assetId, senderBalance, nonce, createContractData, remark);
         try {
             Map<String, Object> resultMap = new HashMap<>(4);
             resultMap.put("hash", tx.getHash().toHex());
@@ -176,15 +177,15 @@ public class ContractService {
                                      String methodName, String methodDesc, Object[] args, String remark) {
         int chainId = SDKContext.main_chain_id;
         if (!AddressTool.validAddress(chainId, sender)) {
-            return Result.getFailed(ADDRESS_ERROR);
+            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("sender [%s] is invalid", sender));
         }
 
         if (!AddressTool.validAddress(chainId, contractAddress)) {
-            return Result.getFailed(ADDRESS_ERROR);
+            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("contractAddress [%s] is invalid", contractAddress));
         }
 
         if (StringUtils.isBlank(methodName)) {
-            return Result.getFailed(NULL_PARAMETER);
+            return Result.getFailed(NULL_PARAMETER).setMsg("methodName is empty");
         }
         if (value == null) {
             value = BigInteger.ZERO;
@@ -252,7 +253,7 @@ public class ContractService {
         String nonce = result.get("nonce").toString();
 
         // 生成交易
-        CallContractTransaction tx = ContractUtil.newCallTx(chainId, assetId, senderBalance, nonce, callContractData, remark);
+        Transaction tx = ContractUtil.newCallTx(chainId, assetId, senderBalance, nonce, callContractData, remark);
         try {
             Map<String, Object> resultMap = new HashMap<>(4);
             resultMap.put("hash", tx.getHash().toHex());
@@ -277,10 +278,10 @@ public class ContractService {
     public Result<Map> deleteTxOffline(String sender, String contractAddress, String remark) {
         int chainId = SDKContext.main_chain_id;
         if (!AddressTool.validAddress(chainId, sender)) {
-            return Result.getFailed(ADDRESS_ERROR);
+            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("sender [%s] is invalid", sender));
         }
         if (!AddressTool.validAddress(chainId, contractAddress)) {
-            return Result.getFailed(ADDRESS_ERROR);
+            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("contractAddress [%s] is invalid", contractAddress));
         }
         // 验证删除合约的合法性
         RpcResult validateResult = JsonRpcUtil.request("validateContractDelete", List.of(chainId, sender, contractAddress));
@@ -310,7 +311,7 @@ public class ContractService {
         String nonce = result.get("nonce").toString();
 
         // 生成交易
-        DeleteContractTransaction tx = ContractUtil.newDeleteTx(chainId, assetId, senderBalance, nonce, deleteContractData, remark);
+        Transaction tx = ContractUtil.newDeleteTx(chainId, assetId, senderBalance, nonce, deleteContractData, remark);
         try {
             Map<String, Object> resultMap = new HashMap<>(4);
             resultMap.put("hash", tx.getHash().toHex());
@@ -328,6 +329,9 @@ public class ContractService {
     })
     @ResponseData(name = "返回值", description = "合约构造函数详情", responseType = @TypeDescriptor(value = ContractConstructorInfoDto.class))
     public Result<ContractConstructorInfoDto> getConstructor(String contractCode) {
+        if (StringUtils.isBlank(contractCode)) {
+            return Result.getFailed(CommonCodeConstanst.NULL_PARAMETER).setMsg("contractCode is empty");
+        }
         int chainId = SDKContext.main_chain_id;
         RpcResult<Map> rpcResult = JsonRpcUtil.request("getContractConstructor", List.of(chainId, contractCode));
         RpcResultError rpcResultError = rpcResult.getError();
@@ -353,19 +357,19 @@ public class ContractService {
     public Result<Map> tokenTransfer(String fromAddress, String toAddress, String contractAddress, BigInteger amount, String remark) {
         int chainId = SDKContext.main_chain_id;
         if (amount == null || amount.compareTo(BigInteger.ZERO) <= 0) {
-            return Result.getFailed(ContractErrorCode.PARAMETER_ERROR);
+            return Result.getFailed(ContractErrorCode.PARAMETER_ERROR).setMsg(String.format("amount [%s] is invalid", amount));
         }
 
         if (!AddressTool.validAddress(chainId, fromAddress)) {
-            return Result.getFailed(ADDRESS_ERROR);
+            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("fromAddress [%s] is invalid", fromAddress));
         }
 
         if (!AddressTool.validAddress(chainId, toAddress)) {
-            return Result.getFailed(ADDRESS_ERROR);
+            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("toAddress [%s] is invalid", toAddress));
         }
 
         if (!AddressTool.validAddress(chainId, contractAddress)) {
-            return Result.getFailed(ADDRESS_ERROR);
+            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("contractAddress [%s] is invalid", contractAddress));
         }
         return this.callTxOffline(fromAddress, null, contractAddress, Constant.NRC20_METHOD_TRANSFER, null, new Object[]{toAddress, amount.toString()}, remark);
     }
@@ -384,15 +388,15 @@ public class ContractService {
     public Result<Map> tokenToContract(String fromAddress, String toAddress, BigInteger amount, String remark) {
         int chainId = SDKContext.main_chain_id;
         if (amount == null || amount.compareTo(BigInteger.ZERO) <= 0) {
-            return Result.getFailed(ContractErrorCode.PARAMETER_ERROR);
+            return Result.getFailed(ContractErrorCode.PARAMETER_ERROR).setMsg(String.format("amount [%s] is invalid", amount));
         }
 
         if (!AddressTool.validAddress(chainId, fromAddress)) {
-            return Result.getFailed(ADDRESS_ERROR);
+            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("fromAddress [%s] is invalid", fromAddress));
         }
 
         if (!AddressTool.validAddress(chainId, toAddress)) {
-            return Result.getFailed(ADDRESS_ERROR);
+            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("toAddress [%s] is invalid", toAddress));
         }
 
         return this.callTxOffline(fromAddress, amount, toAddress, Constant.BALANCE_TRIGGER_METHOD_NAME, Constant.BALANCE_TRIGGER_METHOD_DESC, null, remark);
@@ -400,8 +404,14 @@ public class ContractService {
 
     public Result createContract(ContractCreateForm form) {
         validateChainId();
-        if (form == null || form.getGasLimit() < 0 || form.getPrice() < 0) {
-            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR);
+        if (form == null) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("form data is empty");
+        }
+        if (form.getGasLimit() < 0) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg(String.format("gasLimit [%s] is invalid", form.getGasLimit()));
+        }
+        if (form.getPrice() < 0) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg(String.format("price [%s] is invalid", form.getPrice()));
         }
         Map<String, Object> params = new HashMap<>();
         params.put("sender", form.getSender());
@@ -426,8 +436,14 @@ public class ContractService {
     }
 
     public Result callContract(ContractCallForm form) {
-        if (form == null || form.getGasLimit() < 0 || form.getPrice() < 0) {
-            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR);
+        if (form == null) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("form data is empty");
+        }
+        if (form.getGasLimit() < 0) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg(String.format("gasLimit [%s] is invalid", form.getGasLimit()));
+        }
+        if (form.getPrice() < 0) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg(String.format("price [%s] is invalid", form.getPrice()));
         }
         Map<String, Object> params = new HashMap<>();
         params.put("chainId", SDKContext.main_chain_id);
@@ -455,7 +471,7 @@ public class ContractService {
 
     public Result deleteContract(ContractDeleteForm form) {
         if (form == null) {
-            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR);
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("form data is empty");
         }
         Map<String, Object> params = new HashMap<>();
         params.put("chainId", SDKContext.main_chain_id);
