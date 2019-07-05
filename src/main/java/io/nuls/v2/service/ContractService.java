@@ -69,7 +69,7 @@ public class ContractService {
             @Key(name = "txHex", description = "交易序列化字符串"),
             @Key(name = "contractAddress", description = "生成的合约地址")
     }))
-    public Result<Map> createContractTx(String sender, String alias, String contractCode, Object[] args, String remark) {
+    public Result<Map> createContractTxOffline(String sender, String alias, String contractCode, Object[] args, String remark) {
         int chainId = SDKContext.main_chain_id;
         if (!AddressTool.validAddress(chainId, sender)) {
             return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("sender [%s] is invalid", sender));
@@ -354,7 +354,7 @@ public class ContractService {
             @Key(name = "hash", description = "交易hash"),
             @Key(name = "txHex", description = "交易序列化字符串")
     }))
-    public Result<Map> tokenTransfer(String fromAddress, String toAddress, String contractAddress, BigInteger amount, String remark) {
+    public Result<Map> tokenTransferTxOffline(String fromAddress, String toAddress, String contractAddress, BigInteger amount, String remark) {
         int chainId = SDKContext.main_chain_id;
         if (amount == null || amount.compareTo(BigInteger.ZERO) <= 0) {
             return Result.getFailed(ContractErrorCode.PARAMETER_ERROR).setMsg(String.format("amount [%s] is invalid", amount));
@@ -385,7 +385,7 @@ public class ContractService {
             @Key(name = "hash", description = "交易hash"),
             @Key(name = "txHex", description = "交易序列化字符串")
     }))
-    public Result<Map> tokenToContract(String fromAddress, String toAddress, BigInteger amount, String remark) {
+    public Result<Map> transferToContractTxOffline(String fromAddress, String toAddress, BigInteger amount, String remark) {
         int chainId = SDKContext.main_chain_id;
         if (amount == null || amount.compareTo(BigInteger.ZERO) <= 0) {
             return Result.getFailed(ContractErrorCode.PARAMETER_ERROR).setMsg(String.format("amount [%s] is invalid", amount));

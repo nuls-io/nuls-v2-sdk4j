@@ -385,8 +385,8 @@ public class NulsSDKTool {
             @Key(name = "txHex", description = "交易序列化字符串"),
             @Key(name = "contractAddress", description = "生成的合约地址")
     }))
-    public static Result<Map> createContractTx(String sender, String alias, String contractCode, Object[] args, String remark) {
-        return contractService.createContractTx(sender, alias, contractCode, args, remark);
+    public static Result<Map> createContractTxOffline(String sender, String alias, String contractCode, Object[] args, String remark) {
+        return contractService.createContractTxOffline(sender, alias, contractCode, args, remark);
     }
 
     @ApiOperation(description = "离线组装 - 调用合约的交易")
@@ -433,8 +433,8 @@ public class NulsSDKTool {
             @Key(name = "hash", description = "交易hash"),
             @Key(name = "txHex", description = "交易序列化字符串")
     }))
-    public static Result<Map> tokenTransfer(String fromAddress, String toAddress, String contractAddress, BigInteger amount, String remark) {
-        return contractService.tokenTransfer(fromAddress, toAddress, contractAddress, amount, remark);
+    public static Result<Map> tokenTransferTxOffline(String fromAddress, String toAddress, String contractAddress, BigInteger amount, String remark) {
+        return contractService.tokenTransferTxOffline(fromAddress, toAddress, contractAddress, amount, remark);
     }
 
     @ApiOperation(description = "离线组装 - 从账户地址向合约地址转账(主链资产)的合约交易")
@@ -448,8 +448,8 @@ public class NulsSDKTool {
             @Key(name = "hash", description = "交易hash"),
             @Key(name = "txHex", description = "交易序列化字符串")
     }))
-    public static Result<Map> tokenToContract(String fromAddress, String toAddress, BigInteger amount, String remark) {
-        return contractService.tokenToContract(fromAddress, toAddress, amount, remark);
+    public static Result<Map> transferToContractTxOffline(String fromAddress, String toAddress, BigInteger amount, String remark) {
+        return contractService.transferToContractTxOffline(fromAddress, toAddress, amount, remark);
     }
 
     @ApiOperation(description = "根据合约代码获取合约构造函数详情")
