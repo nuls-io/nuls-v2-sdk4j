@@ -199,7 +199,7 @@ public class NulsSDKTool {
             @Key(name = "hash", description = "交易hash"),
             @Key(name = "txHex", description = "交易序列化16进制字符串")
     }))
-    public static Result createTransferTx(TransferDto transferDto) {
+    public static Result createTransferTxOffline(TransferDto transferDto) {
         return transactionService.createTransferTx(transferDto);
     }
 
@@ -220,7 +220,7 @@ public class NulsSDKTool {
             @Key(name = "hash", description = "交易hash"),
             @Key(name = "txHex", description = "交易序列化16进制字符串")
     }))
-    public static Result createConsensusTx(ConsensusDto consensusDto) {
+    public static Result createConsensusTxOffline(ConsensusDto consensusDto) {
         return transactionService.createConsensusTx(consensusDto);
     }
 
@@ -232,7 +232,7 @@ public class NulsSDKTool {
             @Key(name = "hash", description = "交易hash"),
             @Key(name = "txHex", description = "交易序列化16进制字符串")
     }))
-    public static Result createDepositTx(DepositDto depositDto) {
+    public static Result createDepositTxOffline(DepositDto depositDto) {
         return transactionService.createDepositTx(depositDto);
     }
 
@@ -244,7 +244,7 @@ public class NulsSDKTool {
             @Key(name = "hash", description = "交易hash"),
             @Key(name = "txHex", description = "交易序列化16进制字符串")
     }))
-    public static Result createWithdrawDepositTx(WithDrawDto withDrawDto) {
+    public static Result createWithdrawDepositTxOffline(WithDrawDto withDrawDto) {
         return transactionService.createWithdrawDepositTx(withDrawDto);
     }
 
@@ -256,7 +256,7 @@ public class NulsSDKTool {
             @Key(name = "hash", description = "交易hash"),
             @Key(name = "txHex", description = "交易序列化16进制字符串")
     }))
-    public static Result createStopConsensusTx(StopConsensusDto stopConsensusDto) {
+    public static Result createStopConsensusTxOffline(StopConsensusDto stopConsensusDto) {
         return transactionService.createStopConsensusTx(stopConsensusDto);
     }
 
