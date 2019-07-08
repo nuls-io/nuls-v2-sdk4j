@@ -303,6 +303,69 @@ public class NulsSDKTool {
         return transactionService.createTransferTx(transferDto);
     }
 
+    @ApiOperation(description = "发布合约", order = 401)
+    @Parameters({
+            @Parameter(parameterName = "发布合约", parameterDes = "发布合约表单", requestType = @TypeDescriptor(value = ContractCreateForm.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象，包含两个属性", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "txHash", description = "发布合约的交易hash"),
+            @Key(name = "contractAddress", description = "生成的合约地址")
+    }))
+    public static Result createContract(ContractCreateForm form) {
+        return contractService.createContract(form);
+    }
+
+    @ApiOperation(description = "调用合约", order = 402)
+    @Parameters({
+            @Parameter(parameterName = "调用合约", parameterDes = "调用合约表单", requestType = @TypeDescriptor(value = ContractCallForm.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "txHash", description = "调用合约的交易hash")
+    }))
+    public static Result callContract(ContractCallForm form) {
+        return contractService.callContract(form);
+    }
+
+    @ApiOperation(description = "删除合约", order = 403)
+    @Parameters({
+            @Parameter(parameterName = "删除合约", parameterDes = "删除合约表单", requestType = @TypeDescriptor(value = ContractDeleteForm.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "txHash", description = "删除合约的交易hash")
+    }))
+    public static Result deleteContract(ContractDeleteForm form) {
+        return contractService.deleteContract(form);
+    }
+
+    @ApiOperation(description = "获取账户地址的指定token余额", order = 404)
+    @Parameters({
+            @Parameter(parameterName = "contractAddress", parameterDes = "合约地址"),
+            @Parameter(parameterName = "address", parameterDes = "账户地址")
+    })
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = ContractTokenInfoDto.class))
+    public static Result getTokenBalance(String contractAddress, String address) {
+        return contractService.getTokenBalance(contractAddress, address);
+    }
+
+    @ApiOperation(description = "获取智能合约详细信息", order = 405)
+    @Parameters({
+            @Parameter(parameterName = "address", parameterDes = "合约地址")
+    })
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = ContractInfoDto.class))
+    public static Result getContractInfo(String contractAddress) {
+        return contractService.getContractInfo(contractAddress);
+    }
+
+
+    @ApiOperation(description = "根据合约代码获取合约构造函数详情", order = 406)
+    @Parameters(description = "参数", value = {
+            @Parameter(parameterName = "contractCode", parameterDes = "智能合约代码(字节码的Hex编码字符串)")
+    })
+    @ResponseData(name = "返回值", description = "合约构造函数详情", responseType = @TypeDescriptor(value = ContractConstructorInfoDto.class))
+    public static Result<ContractConstructorInfoDto> getConstructor(String contractCode) {
+        return contractService.getConstructor(contractCode);
+    }
+
     @ApiOperation(description = "离线组装 - 发布合约的交易", order = 451)
     @Parameters(value = {
             @Parameter(parameterName = "sender", parameterDes = "交易创建者账户地址"),
@@ -381,15 +444,6 @@ public class NulsSDKTool {
     }))
     public static Result<Map> transferToContractTxOffline(String fromAddress, String toAddress, BigInteger amount, String remark) {
         return contractService.transferToContractTxOffline(fromAddress, toAddress, amount, remark);
-    }
-
-    @ApiOperation(description = "根据合约代码获取合约构造函数详情", order = 406)
-    @Parameters(description = "参数", value = {
-            @Parameter(parameterName = "contractCode", parameterDes = "智能合约代码(字节码的Hex编码字符串)")
-    })
-    @ResponseData(name = "返回值", description = "合约构造函数详情", responseType = @TypeDescriptor(value = ContractConstructorInfoDto.class))
-    public static Result<ContractConstructorInfoDto> getConstructor(String contractCode) {
-        return contractService.getConstructor(contractCode);
     }
 
     @ApiOperation(description = " 创建共识节点", order = 501)

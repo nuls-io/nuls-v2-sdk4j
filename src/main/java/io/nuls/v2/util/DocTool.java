@@ -98,6 +98,7 @@ public class DocTool {
     }
 
     public static class CmdDes implements Serializable {
+        int order;
         String cmdName;
         String cmdType;
         String des;
@@ -161,6 +162,36 @@ public class DocTool {
         public void setResult(List<ResultDes> result) {
             this.result = result;
         }
+
+        public int getOrder() {
+            return order;
+        }
+
+        public void setOrder(int order) {
+            this.order = order;
+        }
+
+        public int compareTo(int thatOrder) {
+            if(this.order > thatOrder) {
+                return 1;
+            } else if(this.order < thatOrder) {
+                return -1;
+            }
+            return 0;
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("{");
+            sb.append("\"order\":")
+                    .append(order);
+            sb.append(",\"cmdName\":")
+                    .append('\"').append(cmdName).append('\"');
+            sb.append(",\"des\":")
+                    .append('\"').append(des).append('\"');
+            sb.append('}');
+            return sb.toString();
+        }
     }
 
     public static void main(String[] args) throws IOException {
@@ -188,6 +219,7 @@ public class DocTool {
                 ApiOperation cmdAnnotation = (ApiOperation) annotation;
                 CmdDes cmdDes = new CmdDes();
 
+                cmdDes.order = cmdAnnotation.order();
                 cmdDes.cmdName = cmdBaseName + "#" + method.getName();
                 cmdDes.des = cmdAnnotation.description();
                 cmdDes.parameters = buildParam(method);
@@ -203,6 +235,10 @@ public class DocTool {
 
         public static void genDoc() throws IOException {
             List<CmdDes> cmdDesList = buildData();
+            cmdDesList.sort((a, b) -> {
+                return a.compareTo(b.order);
+            });
+            System.out.println();
             System.out.println("生成文档成功：" + createMarketDownDoc(cmdDesList, "./readme.md"));
 //            System.exit(0);
         }
@@ -378,9 +414,13 @@ public class DocTool {
             return filedList;
         }
 
-        public static String createJSONConfig(List<CmdDes> cmdDesList, String path) throws IOException {
+        public static String createJSONConfig(List<CmdDes> cmdDesList, String tempFile) throws IOException {
             String appName = "NULS-V2-SDK4J";
-            File mdFile = new File(path + File.separator + appName + ".json");
+            File file = new File(tempFile);
+            if (!file.exists()) {
+                throw new RuntimeException("模板文件不存在");
+            }
+            File mdFile = new File(file.getParentFile().getAbsolutePath() + File.separator + "documents" + File.separator + appName + ".json");
             if (mdFile.exists()) {
                 mdFile.delete();
             }
