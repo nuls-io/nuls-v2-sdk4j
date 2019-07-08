@@ -25,7 +25,7 @@ public class NulsSDKTool {
     @ApiOperation(description = "创建账户")
     @Parameters(value = {
             @Parameter(parameterName = "count", parameterType = "Integer", parameterDes = "创建数量"),
-            @Parameter(parameterName = "password", parameterType = "String", parameterDes = "密码")
+            @Parameter(parameterName = "password", parameterDes = "密码")
     })
     @ResponseData(name = "返回值", description = "返回账户地址集合",
             responseType = @TypeDescriptor(value = List.class, collectionElement = String.class)
@@ -37,7 +37,7 @@ public class NulsSDKTool {
     @ApiOperation(description = "离线创建账户")
     @Parameters(value = {
             @Parameter(parameterName = "count", parameterType = "Integer", parameterDes = "创建数量"),
-            @Parameter(parameterName = "password", parameterType = "String", parameterDes = "密码")
+            @Parameter(parameterName = "password", parameterDes = "密码")
     })
     @ResponseData(name = "返回值", description = "返回一个账户keystore集合",
             responseType = @TypeDescriptor(value = List.class, collectionElement = AccountDto.class)
@@ -48,9 +48,9 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "重置密码")
     @Parameters(value = {
-            @Parameter(parameterName = "address", parameterType = "String", parameterDes = "账户地址"),
-            @Parameter(parameterName = "oldPassword", parameterType = "String", parameterDes = "原密码"),
-            @Parameter(parameterName = "newPassword", parameterType = "String", parameterDes = "新密码")
+            @Parameter(parameterName = "address", parameterDes = "账户地址"),
+            @Parameter(parameterName = "oldPassword", parameterDes = "原密码"),
+            @Parameter(parameterName = "newPassword", parameterDes = "新密码")
     })
     @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "value", valueType = Boolean.class, description = "是否修改成功")
@@ -61,10 +61,10 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "离线重置密码")
     @Parameters(value = {
-            @Parameter(parameterName = "address", parameterType = "String", parameterDes = "账户地址"),
-            @Parameter(parameterName = "encryptedPriKey", parameterType = "String", parameterDes = "加密后的私钥"),
-            @Parameter(parameterName = "oldPassword", parameterType = "String", parameterDes = "原密码"),
-            @Parameter(parameterName = "newPassword", parameterType = "String", parameterDes = "新密码")
+            @Parameter(parameterName = "address", parameterDes = "账户地址"),
+            @Parameter(parameterName = "encryptedPriKey", parameterDes = "加密后的私钥"),
+            @Parameter(parameterName = "oldPassword", parameterDes = "原密码"),
+            @Parameter(parameterName = "newPassword", parameterDes = "新密码")
     })
     @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "value", valueType = String.class, description = "重置密码后的加密私钥")
@@ -75,8 +75,8 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "根据私钥导入账户")
     @Parameters({
-            @Parameter(parameterName = "priKey", parameterType = "String", parameterDes = "账户明文私钥"),
-            @Parameter(parameterName = "password", parameterType = "String", parameterDes = "密码")
+            @Parameter(parameterName = "priKey", parameterDes = "账户明文私钥"),
+            @Parameter(parameterName = "password", parameterDes = "密码")
     })
     @ResponseData(name = "返回值", description = "返回账户地址", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "value", description = "账户地址")
@@ -87,8 +87,8 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "获取账户私钥")
     @Parameters({
-            @Parameter(parameterName = "address", parameterType = "String", parameterDes = "账户地址"),
-            @Parameter(parameterName = "password", parameterType = "String", parameterDes = "密码")
+            @Parameter(parameterName = "address", parameterDes = "账户地址"),
+            @Parameter(parameterName = "password", parameterDes = "密码")
     })
     @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "value", description = "私钥")
@@ -99,9 +99,9 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "离线获取账户明文私钥")
     @Parameters({
-            @Parameter(parameterName = "address", parameterType = "String", parameterDes = "账户地址"),
-            @Parameter(parameterName = "encryptedPriKey", parameterType = "String", parameterDes = "加密后的私钥"),
-            @Parameter(parameterName = "password", parameterType = "String", parameterDes = "密码")
+            @Parameter(parameterName = "address", parameterDes = "账户地址"),
+            @Parameter(parameterName = "encryptedPriKey", parameterDes = "加密后的私钥"),
+            @Parameter(parameterName = "password", parameterDes = "密码")
     })
     @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "value", description = "明文私钥")
@@ -112,9 +112,9 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "导入keystore到钱包")
     @Parameters({
-            @Parameter(parameterName = "address", parameterType = "String", parameterDes = "账户地址"),
-            @Parameter(parameterName = "encryptedPriKey", parameterType = "String", parameterDes = "加密后的私钥"),
-            @Parameter(parameterName = "password", parameterType = "String", parameterDes = "密码")
+            @Parameter(parameterName = "address", parameterDes = "账户地址"),
+            @Parameter(parameterName = "encryptedPriKey", parameterDes = "加密后的私钥"),
+            @Parameter(parameterName = "password", parameterDes = "密码")
     })
     @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "value", description = "账户地址")
@@ -125,9 +125,9 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "导出keystore到指定文件目录")
     @Parameters({
-            @Parameter(parameterName = "address", parameterType = "String", parameterDes = "账户地址"),
-            @Parameter(parameterName = "password", parameterType = "String", parameterDes = "密码"),
-            @Parameter(parameterName = "filePath", parameterType = "String", parameterDes = "文件目录")
+            @Parameter(parameterName = "address", parameterDes = "账户地址"),
+            @Parameter(parameterName = "password", parameterDes = "密码"),
+            @Parameter(parameterName = "filePath", parameterDes = "文件目录")
     })
     @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "path", description = "导出的文件路径")
@@ -149,10 +149,10 @@ public class NulsSDKTool {
         return accountService.getAccountBalance(address);
     }
 
-    @ApiOperation(description = "摘要签名")
+    @ApiOperation(description = "多账户摘要签名")
     @Parameters({
             @Parameter(parameterName = "signDtoList", parameterDes = "摘要签名表单", requestType = @TypeDescriptor(value = SignDto.class)),
-            @Parameter(parameterName = "txHex", parameterType = "String", parameterDes = "交易序列化16进制字符串")
+            @Parameter(parameterName = "txHex", parameterDes = "交易序列化16进制字符串")
     })
     @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "hash", description = "交易hash"),
@@ -164,9 +164,9 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "明文私钥摘要签名")
     @Parameters({
-            @Parameter(parameterName = "txHex", parameterType = "String", parameterDes = "交易序列化16进制字符串"),
-            @Parameter(parameterName = "address", parameterType = "String", parameterDes = "账户地址"),
-            @Parameter(parameterName = "privateKey", parameterType = "String", parameterDes = "账户明文私钥")
+            @Parameter(parameterName = "txHex", parameterDes = "交易序列化16进制字符串"),
+            @Parameter(parameterName = "address", parameterDes = "账户地址"),
+            @Parameter(parameterName = "privateKey", parameterDes = "账户明文私钥")
     })
     @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "hash", description = "交易hash"),
@@ -178,10 +178,10 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "密文私钥摘要签名")
     @Parameters({
-            @Parameter(parameterName = "txHex", parameterType = "String", parameterDes = "交易序列化16进制字符串"),
-            @Parameter(parameterName = "address", parameterType = "String", parameterDes = "账户地址"),
-            @Parameter(parameterName = "encryptedPrivateKey", parameterType = "String", parameterDes = "账户密文私钥"),
-            @Parameter(parameterName = "password", parameterType = "String", parameterDes = "密码")
+            @Parameter(parameterName = "txHex", parameterDes = "交易序列化16进制字符串"),
+            @Parameter(parameterName = "address", parameterDes = "账户地址"),
+            @Parameter(parameterName = "encryptedPrivateKey", parameterDes = "账户密文私钥"),
+            @Parameter(parameterName = "password", parameterDes = "密码")
     })
     @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "hash", description = "交易hash"),
@@ -189,6 +189,29 @@ public class NulsSDKTool {
     }))
     public static Result sign(String txHex, String address, String encryptedPrivateKey, String password) {
         return transactionService.signTx(txHex, address, encryptedPrivateKey, password);
+    }
+
+    @ApiOperation(description = "验证交易是否正确")
+    @Parameters({
+            @Parameter(parameterName = "txHex", parameterDes = "交易序列化16进制字符串")
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "value", description = "交易hash")
+    }))
+    public static Result validateTx(String txHex) {
+        return transactionService.validateTx(txHex);
+    }
+
+    @ApiOperation(description = "广播交易")
+    @Parameters({
+            @Parameter(parameterName = "txHex", parameterDes = "交易序列化16进制字符串")
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "value", valueType = boolean.class, description = "是否成功"),
+            @Key(name = "hash", description = "交易hash")
+    }))
+    public static Result broadcast(String txHex) {
+        return transactionService.broadcastTx(txHex);
     }
 
     @ApiOperation(description = "离线组装转账交易")
@@ -374,11 +397,11 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "离线组装 - 发布合约的交易")
     @Parameters(value = {
-            @Parameter(parameterName = "sender", parameterType = "String", parameterDes = "交易创建者账户地址"),
-            @Parameter(parameterName = "alias", parameterType = "String", parameterDes = "合约别名"),
-            @Parameter(parameterName = "contractCode", parameterType = "String", parameterDes = "智能合约代码(字节码的Hex编码字符串)"),
+            @Parameter(parameterName = "sender", parameterDes = "交易创建者账户地址"),
+            @Parameter(parameterName = "alias", parameterDes = "合约别名"),
+            @Parameter(parameterName = "contractCode", parameterDes = "智能合约代码(字节码的Hex编码字符串)"),
             @Parameter(parameterName = "args", requestType = @TypeDescriptor(value = Object[].class), parameterDes = "参数列表", canNull = true),
-            @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
+            @Parameter(parameterName = "remark", parameterDes = "交易备注", canNull = true)
     })
     @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "hash", description = "交易hash"),
@@ -391,13 +414,13 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "离线组装 - 调用合约的交易")
     @Parameters(value = {
-            @Parameter(parameterName = "sender", parameterType = "String", parameterDes = "交易创建者账户地址"),
+            @Parameter(parameterName = "sender", parameterDes = "交易创建者账户地址"),
             @Parameter(parameterName = "value", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "调用者向合约地址转入的主网资产金额，没有此业务时填BigInteger.ZERO"),
-            @Parameter(parameterName = "contractAddress", parameterType = "String", parameterDes = "合约地址"),
-            @Parameter(parameterName = "methodName", parameterType = "String", parameterDes = "合约方法"),
-            @Parameter(parameterName = "methodDesc", parameterType = "String", parameterDes = "合约方法描述，若合约内方法没有重载，则此参数可以为空", canNull = true),
+            @Parameter(parameterName = "contractAddress", parameterDes = "合约地址"),
+            @Parameter(parameterName = "methodName", parameterDes = "合约方法"),
+            @Parameter(parameterName = "methodDesc", parameterDes = "合约方法描述，若合约内方法没有重载，则此参数可以为空", canNull = true),
             @Parameter(parameterName = "args", requestType = @TypeDescriptor(value = Object[].class), parameterDes = "参数列表", canNull = true),
-            @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
+            @Parameter(parameterName = "remark", parameterDes = "交易备注", canNull = true)
     })
     @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "hash", description = "交易hash"),
@@ -409,9 +432,9 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "离线组装 - 删除合约的交易")
     @Parameters(value = {
-            @Parameter(parameterName = "sender", parameterType = "String", parameterDes = "交易创建者账户地址"),
-            @Parameter(parameterName = "contractAddress", parameterType = "String", parameterDes = "合约地址"),
-            @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
+            @Parameter(parameterName = "sender", parameterDes = "交易创建者账户地址"),
+            @Parameter(parameterName = "contractAddress", parameterDes = "合约地址"),
+            @Parameter(parameterName = "remark", parameterDes = "交易备注", canNull = true)
     })
     @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "hash", description = "交易hash"),
@@ -423,11 +446,11 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "离线组装 - token转账交易")
     @Parameters(value = {
-            @Parameter(parameterName = "fromAddress", parameterType = "String", parameterDes = "转出者账户地址"),
-            @Parameter(parameterName = "toAddress", parameterType = "String", parameterDes = "转入地址"),
-            @Parameter(parameterName = "contractAddress", parameterType = "String", parameterDes = "token合约地址"),
+            @Parameter(parameterName = "fromAddress", parameterDes = "转出者账户地址"),
+            @Parameter(parameterName = "toAddress", parameterDes = "转入地址"),
+            @Parameter(parameterName = "contractAddress", parameterDes = "token合约地址"),
             @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的token资产金额"),
-            @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
+            @Parameter(parameterName = "remark", parameterDes = "交易备注", canNull = true)
     })
     @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "hash", description = "交易hash"),
@@ -439,10 +462,10 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "离线组装 - 从账户地址向合约地址转账(主链资产)的合约交易")
     @Parameters(value = {
-            @Parameter(parameterName = "fromAddress", parameterType = "String", parameterDes = "转出者账户地址"),
-            @Parameter(parameterName = "toAddress", parameterType = "String", parameterDes = "转入的合约地址"),
+            @Parameter(parameterName = "fromAddress", parameterDes = "转出者账户地址"),
+            @Parameter(parameterName = "toAddress", parameterDes = "转入的合约地址"),
             @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的主链资产金额"),
-            @Parameter(parameterName = "remark", parameterType = "String", parameterDes = "交易备注", canNull = true)
+            @Parameter(parameterName = "remark", parameterDes = "交易备注", canNull = true)
     })
     @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "hash", description = "交易hash"),
@@ -454,7 +477,7 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "根据合约代码获取合约构造函数详情")
     @Parameters(description = "参数", value = {
-            @Parameter(parameterName = "contractCode", parameterType = "String", parameterDes = "智能合约代码(字节码的Hex编码字符串)")
+            @Parameter(parameterName = "contractCode", parameterDes = "智能合约代码(字节码的Hex编码字符串)")
     })
     @ResponseData(name = "返回值", description = "合约构造函数详情", responseType = @TypeDescriptor(value = ContractConstructorInfoDto.class))
     public static Result<ContractConstructorInfoDto> getConstructor(String contractCode) {
