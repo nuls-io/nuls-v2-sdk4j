@@ -1,4 +1,776 @@
 # nuls-v2-sdk4j
+创建账户
+====
+Method: NulsSDKTool#createAccount
+---------------------------------
+
+
+参数列表
+----
+| 参数名      |  参数类型  | 参数描述 | 是否非空 |
+| -------- |:------:| ---- |:----:|
+| count    | string | 创建数量 |  是   |
+| password | string | 密码   |  是   |
+
+返回值
+---
+| 字段名 |      字段类型       | 参数描述     |
+| --- |:---------------:| -------- |
+| 返回值 | list&lt;string> | 返回账户地址集合 |
+
+重置密码
+====
+Method: NulsSDKTool#resetPassword
+---------------------------------
+
+
+参数列表
+----
+| 参数名         |  参数类型  | 参数描述 | 是否非空 |
+| ----------- |:------:| ---- |:----:|
+| address     | string | 账户地址 |  是   |
+| oldPassword | string | 原密码  |  是   |
+| newPassword | string | 新密码  |  是   |
+
+返回值
+---
+| 字段名   |  字段类型   | 参数描述   |
+| ----- |:-------:| ------ |
+| value | boolean | 是否修改成功 |
+
+根据私钥导入账户
+========
+Method: NulsSDKTool#importPriKey
+--------------------------------
+
+
+参数列表
+----
+| 参数名      |  参数类型  | 参数描述   | 是否非空 |
+| -------- |:------:| ------ |:----:|
+| priKey   | string | 账户明文私钥 |  是   |
+| password | string | 密码     |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述 |
+| ----- |:------:| ---- |
+| value | string | 账户地址 |
+
+获取账户私钥
+======
+Method: NulsSDKTool#getPriKey
+-----------------------------
+
+
+参数列表
+----
+| 参数名      |  参数类型  | 参数描述 | 是否非空 |
+| -------- |:------:| ---- |:----:|
+| address  | string | 账户地址 |  是   |
+| password | string | 密码   |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述 |
+| ----- |:------:| ---- |
+| value | string | 私钥   |
+
+导入keystore到钱包
+=============
+Method: NulsSDKTool#importKeystore
+----------------------------------
+
+
+参数列表
+----
+| 参数名             |  参数类型  | 参数描述   | 是否非空 |
+| --------------- |:------:| ------ |:----:|
+| address         | string | 账户地址   |  是   |
+| encryptedPriKey | string | 加密后的私钥 |  是   |
+| password        | string | 密码     |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述 |
+| ----- |:------:| ---- |
+| value | string | 账户地址 |
+
+导出keystore到指定文件目录
+=================
+Method: NulsSDKTool#exportKeyStore
+----------------------------------
+
+
+参数列表
+----
+| 参数名      |  参数类型  | 参数描述 | 是否非空 |
+| -------- |:------:| ---- |:----:|
+| address  | string | 账户地址 |  是   |
+| password | string | 密码   |  是   |
+| filePath | string | 文件目录 |  是   |
+
+返回值
+---
+| 字段名  |  字段类型  | 参数描述    |
+| ---- |:------:| ------- |
+| path | string | 导出的文件路径 |
+
+查询账户余额
+======
+Method: NulsSDKTool#getAccountBalance
+-------------------------------------
+
+
+参数列表
+----
+| 参数名     |  参数类型  | 参数描述 | 是否非空 |
+| ------- |:------:| ---- |:----:|
+| address | string | 账户地址 |  是   |
+
+返回值
+---
+| 字段名       |  字段类型  | 参数描述 |
+| --------- |:------:| ---- |
+| total     | string | 总余额  |
+| freeze    | string | 锁定金额 |
+| available | string | 可用余额 |
+
+多账户摘要签名
+=======
+Method: NulsSDKTool#sign
+------------------------
+
+
+参数列表
+----
+| 参数名                                                                 |  参数类型   | 参数描述         | 是否非空 |
+| ------------------------------------------------------------------- |:-------:| ------------ |:----:|
+| signDtoList                                                         | signdto | 摘要签名表单       |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address             | string  | 地址           |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;priKey              | string  | 明文私钥         |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;encryptedPrivateKey | string  | 加密私钥         |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;password            | string  | 密码           |  是   |
+| txHex                                                               | string  | 交易序列化16进制字符串 |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述          |
+| ----- |:------:| ------------- |
+| hash  | string | 交易hash        |
+| txHex | string | 签名后的交易16进制字符串 |
+
+明文私钥摘要签名
+========
+Method: NulsSDKTool#sign
+------------------------
+
+
+参数列表
+----
+| 参数名        |  参数类型  | 参数描述         | 是否非空 |
+| ---------- |:------:| ------------ |:----:|
+| txHex      | string | 交易序列化16进制字符串 |  是   |
+| address    | string | 账户地址         |  是   |
+| privateKey | string | 账户明文私钥       |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述          |
+| ----- |:------:| ------------- |
+| hash  | string | 交易hash        |
+| txHex | string | 签名后的交易16进制字符串 |
+
+密文私钥摘要签名
+========
+Method: NulsSDKTool#sign
+------------------------
+
+
+参数列表
+----
+| 参数名                 |  参数类型  | 参数描述         | 是否非空 |
+| ------------------- |:------:| ------------ |:----:|
+| txHex               | string | 交易序列化16进制字符串 |  是   |
+| address             | string | 账户地址         |  是   |
+| encryptedPrivateKey | string | 账户密文私钥       |  是   |
+| password            | string | 密码           |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述          |
+| ----- |:------:| ------------- |
+| hash  | string | 交易hash        |
+| txHex | string | 签名后的交易16进制字符串 |
+
+离线创建账户
+======
+Method: NulsSDKTool#createOffLineAccount
+----------------------------------------
+
+
+参数列表
+----
+| 参数名      |  参数类型  | 参数描述 | 是否非空 |
+| -------- |:------:| ---- |:----:|
+| count    | string | 创建数量 |  是   |
+| password | string | 密码   |  是   |
+
+返回值
+---
+| 字段名                 |  字段类型  | 参数描述   |
+| ------------------- |:------:| ------ |
+| address             | string | 账户地址   |
+| pubKey              | string | 公钥     |
+| prikey              | string | 明文私钥   |
+| encryptedPrivateKey | string | 加密后的私钥 |
+
+离线重置密码
+======
+Method: NulsSDKTool#resetPasswordOffline
+----------------------------------------
+
+
+参数列表
+----
+| 参数名             |  参数类型  | 参数描述   | 是否非空 |
+| --------------- |:------:| ------ |:----:|
+| address         | string | 账户地址   |  是   |
+| encryptedPriKey | string | 加密后的私钥 |  是   |
+| oldPassword     | string | 原密码    |  是   |
+| newPassword     | string | 新密码    |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述       |
+| ----- |:------:| ---------- |
+| value | string | 重置密码后的加密私钥 |
+
+离线获取账户明文私钥
+==========
+Method: NulsSDKTool#getPriKeyOffline
+------------------------------------
+
+
+参数列表
+----
+| 参数名             |  参数类型  | 参数描述   | 是否非空 |
+| --------------- |:------:| ------ |:----:|
+| address         | string | 账户地址   |  是   |
+| encryptedPriKey | string | 加密后的私钥 |  是   |
+| password        | string | 密码     |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述 |
+| ----- |:------:| ---- |
+| value | string | 明文私钥 |
+
+根据区块高度查询区块头
+===========
+Method: NulsSDKTool#getBlockHeader
+----------------------------------
+
+
+参数列表
+----
+| 参数名    | 参数类型 | 参数描述 | 是否非空 |
+| ------ |:----:| ---- |:----:|
+| height | long | 区块高度 |  是   |
+
+返回值
+---
+| 字段名                  |  字段类型  | 参数描述                 |
+| -------------------- |:------:| -------------------- |
+| hash                 | string | 区块的hash值             |
+| preHash              | string | 上一个区块的hash值          |
+| merkleHash           | string | 梅克尔hash              |
+| time                 | string | 区块生成时间               |
+| height               |  long  | 区块高度                 |
+| txCount              |  int   | 区块打包交易数量             |
+| blockSignature       | string | 签名Hex.encode(byte[]) |
+| size                 |  int   | 大小                   |
+| packingAddress       | string | 打包地址                 |
+| roundIndex           |  long  | 共识轮次                 |
+| consensusMemberCount |  int   | 参与共识成员数量             |
+| roundStartTime       | string | 当前共识轮开始时间            |
+| packingIndexOfRound  |  int   | 当前轮次打包出块的名次          |
+| mainVersion          | short  | 主网当前生效的版本            |
+| blockVersion         | short  | 区块的版本，可以理解为本地钱包的版本   |
+| stateRoot            | string | 智能合约世界状态根            |
+
+根据区块hash查询区块头
+=============
+Method: NulsSDKTool#getBlockHeader
+----------------------------------
+
+
+参数列表
+----
+| 参数名  |  参数类型  | 参数描述   | 是否非空 |
+| ---- |:------:| ------ |:----:|
+| hash | string | 区块hash |  是   |
+
+返回值
+---
+| 字段名                  |  字段类型  | 参数描述                 |
+| -------------------- |:------:| -------------------- |
+| hash                 | string | 区块的hash值             |
+| preHash              | string | 上一个区块的hash值          |
+| merkleHash           | string | 梅克尔hash              |
+| time                 | string | 区块生成时间               |
+| height               |  long  | 区块高度                 |
+| txCount              |  int   | 区块打包交易数量             |
+| blockSignature       | string | 签名Hex.encode(byte[]) |
+| size                 |  int   | 大小                   |
+| packingAddress       | string | 打包地址                 |
+| roundIndex           |  long  | 共识轮次                 |
+| consensusMemberCount |  int   | 参与共识成员数量             |
+| roundStartTime       | string | 当前共识轮开始时间            |
+| packingIndexOfRound  |  int   | 当前轮次打包出块的名次          |
+| mainVersion          | short  | 主网当前生效的版本            |
+| blockVersion         | short  | 区块的版本，可以理解为本地钱包的版本   |
+| stateRoot            | string | 智能合约世界状态根            |
+
+根据区块高度查询区块，包含区块打包的所有交易信息，此接口返回数据量较多，谨慎调用
+========================================
+Method: NulsSDKTool#getBlock
+----------------------------
+
+
+参数列表
+----
+| 参数名    | 参数类型 | 参数描述 | 是否非空 |
+| ------ |:----:| ---- |:----:|
+| height | long | 区块高度 |  是   |
+
+返回值
+---
+| 字段名                  |  字段类型  | 参数描述                 |
+| -------------------- |:------:| -------------------- |
+| hash                 | string | 区块的hash值             |
+| preHash              | string | 上一个区块的hash值          |
+| merkleHash           | string | 梅克尔hash              |
+| time                 | string | 区块生成时间               |
+| height               |  long  | 区块高度                 |
+| txCount              |  int   | 区块打包交易数量             |
+| blockSignature       | string | 签名Hex.encode(byte[]) |
+| size                 |  int   | 大小                   |
+| packingAddress       | string | 打包地址                 |
+| roundIndex           |  long  | 共识轮次                 |
+| consensusMemberCount |  int   | 参与共识成员数量             |
+| roundStartTime       | string | 当前共识轮开始时间            |
+| packingIndexOfRound  |  int   | 当前轮次打包出块的名次          |
+| mainVersion          | short  | 主网当前生效的版本            |
+| blockVersion         | short  | 区块的版本，可以理解为本地钱包的版本   |
+| stateRoot            | string | 智能合约世界状态根            |
+
+根据区块hash查询区块，包含区块打包的所有交易信息，此接口返回数据量较多，谨慎调用
+==========================================
+Method: NulsSDKTool#getBlock
+----------------------------
+
+
+参数列表
+----
+| 参数名  |  参数类型  | 参数描述   | 是否非空 |
+| ---- |:------:| ------ |:----:|
+| hash | string | 区块hash |  是   |
+
+返回值
+---
+| 字段名                  |  字段类型  | 参数描述                 |
+| -------------------- |:------:| -------------------- |
+| hash                 | string | 区块的hash值             |
+| preHash              | string | 上一个区块的hash值          |
+| merkleHash           | string | 梅克尔hash              |
+| time                 | string | 区块生成时间               |
+| height               |  long  | 区块高度                 |
+| txCount              |  int   | 区块打包交易数量             |
+| blockSignature       | string | 签名Hex.encode(byte[]) |
+| size                 |  int   | 大小                   |
+| packingAddress       | string | 打包地址                 |
+| roundIndex           |  long  | 共识轮次                 |
+| consensusMemberCount |  int   | 参与共识成员数量             |
+| roundStartTime       | string | 当前共识轮开始时间            |
+| packingIndexOfRound  |  int   | 当前轮次打包出块的名次          |
+| mainVersion          | short  | 主网当前生效的版本            |
+| blockVersion         | short  | 区块的版本，可以理解为本地钱包的版本   |
+| stateRoot            | string | 智能合约世界状态根            |
+
+查询最新区块头信息
+=========
+Method: NulsSDKTool#getBestBlockHeader
+--------------------------------------
+
+
+参数列表
+----
+无参数
+
+返回值
+---
+| 字段名                  |  字段类型  | 参数描述                 |
+| -------------------- |:------:| -------------------- |
+| hash                 | string | 区块的hash值             |
+| preHash              | string | 上一个区块的hash值          |
+| merkleHash           | string | 梅克尔hash              |
+| time                 | string | 区块生成时间               |
+| height               |  long  | 区块高度                 |
+| txCount              |  int   | 区块打包交易数量             |
+| blockSignature       | string | 签名Hex.encode(byte[]) |
+| size                 |  int   | 大小                   |
+| packingAddress       | string | 打包地址                 |
+| roundIndex           |  long  | 共识轮次                 |
+| consensusMemberCount |  int   | 参与共识成员数量             |
+| roundStartTime       | string | 当前共识轮开始时间            |
+| packingIndexOfRound  |  int   | 当前轮次打包出块的名次          |
+| mainVersion          | short  | 主网当前生效的版本            |
+| blockVersion         | short  | 区块的版本，可以理解为本地钱包的版本   |
+| stateRoot            | string | 智能合约世界状态根            |
+
+查询最新区块
+======
+Method: NulsSDKTool#getBestBlock
+--------------------------------
+
+
+参数列表
+----
+无参数
+
+返回值
+---
+| 字段名                                                                                                           |      字段类型       | 参数描述                                      |
+| ------------------------------------------------------------------------------------------------------------- |:---------------:| ----------------------------------------- |
+| header                                                                                                        |     object      | 区块头信息, 只返回对应的部分数据                         |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hash                                                          |     string      | 区块的hash值                                  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;preHash                                                       |     string      | 上一个区块的hash值                               |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;merkleHash                                                    |     string      | 梅克尔hash                                   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;time                                                          |     string      | 区块生成时间                                    |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height                                                        |      long       | 区块高度                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;txCount                                                       |       int       | 区块打包交易数量                                  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blockSignature                                                |     string      | 签名Hex.encode(byte[])                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;size                                                          |       int       | 大小                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;packingAddress                                                |     string      | 打包地址                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;roundIndex                                                    |      long       | 共识轮次                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;consensusMemberCount                                          |       int       | 参与共识成员数量                                  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;roundStartTime                                                |     string      | 当前共识轮开始时间                                 |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;packingIndexOfRound                                           |       int       | 当前轮次打包出块的名次                               |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mainVersion                                                   |      short      | 主网当前生效的版本                                 |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blockVersion                                                  |      short      | 区块的版本，可以理解为本地钱包的版本                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stateRoot                                                     |     string      | 智能合约世界状态根                                 |
+| txs                                                                                                           | list&lt;object> | 交易列表                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hash                                                          |     string      | 交易的hash值                                  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type                                                          |       int       | 交易类型                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;time                                                          |     string      | 交易时间                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blockHeight                                                   |      long       | 区块高度                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remark                                                        |     string      | 交易备注                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;transactionSignature                                          |     string      | 交易签名                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;status                                                        |       int       | 交易状态 0:unConfirm(待确认), 1:confirm(已确认)     |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;size                                                          |       int       | 交易大小                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inBlockIndex                                                  |       int       | 在区块中的顺序，存储在rocksDB中是无序的，保存区块时赋值，取出后根据此值排序 |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;form                                                          | list&lt;object> | 输入                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address       |     string      | 账户地址                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetsChainId |       int       | 资产发行链的id                                  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetsId      |       int       | 资产id                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount        |     string      | 数量                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nonce         |     string      | 账户nonce值                                  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;locked        |      byte       | 0普通交易，-1解锁金额交易（退出共识，退出委托）                 |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to                                                            | list&lt;object> | 输出                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address       |     string      | 账户地址                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetsChainId |       int       | 资产发行链的id                                  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetsId      |       int       | 资产id                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount        |     string      | 数量                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lockTime      |      long       | 解锁时间，-1为永久锁定                              |
+
+转账
+==
+Method: NulsSDKTool#transfer
+----------------------------
+
+
+参数列表
+----
+| 参数名                                                       |     参数类型     | 参数描述   | 是否非空 |
+| --------------------------------------------------------- |:------------:| ------ |:----:|
+| transferForm                                              | transferform | 转账交易表单 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address   |    string    | 转账地址   |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;toAddress |    string    | 接收者地址  |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;password  |    string    | 密码     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount    |  biginteger  | 转账金额   |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remark    |    string    | 交易备注   |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述   |
+| ----- |:------:| ------ |
+| value | string | 交易hash |
+
+计算创建转账交易所需手续费
+=============
+Method: NulsSDKTool#calcTransferTxFee
+-------------------------------------
+
+
+参数列表
+----
+| 参数名                                                          |       参数类型       | 参数描述    | 是否非空 |
+| ------------------------------------------------------------ |:----------------:| ------- |:----:|
+| TransferTxFeeDto                                             | transfertxfeedto | 转账交易手续费 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;addressCount |       int        | 转账地址数量  |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fromLength   |       int        | 转账输入长度  |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;toLength     |       int        | 转账输出长度  |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remark       |      string      | 交易备注    |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;price        |    biginteger    | 手续费单价   |  是   |
+
+返回值
+---
+| 字段名 |    字段类型    | 参数描述  |
+| --- |:----------:| ----- |
+| 返回值 | biginteger | 手续费金额 |
+
+根据hash获取交易，只查已确认交易
+==================
+Method: NulsSDKTool#getTx
+-------------------------
+
+
+参数列表
+----
+| 参数名  |  参数类型  | 参数描述   | 是否非空 |
+| ---- |:------:| ------ |:----:|
+| hash | string | 交易hash |  是   |
+
+返回值
+---
+| 字段名                                                           |      字段类型       | 参数描述                                      |
+| ------------------------------------------------------------- |:---------------:| ----------------------------------------- |
+| hash                                                          |     string      | 交易的hash值                                  |
+| type                                                          |       int       | 交易类型                                      |
+| time                                                          |     string      | 交易时间                                      |
+| blockHeight                                                   |      long       | 区块高度                                      |
+| remark                                                        |     string      | 交易备注                                      |
+| transactionSignature                                          |     string      | 交易签名                                      |
+| status                                                        |       int       | 交易状态 0:unConfirm(待确认), 1:confirm(已确认)     |
+| size                                                          |       int       | 交易大小                                      |
+| inBlockIndex                                                  |       int       | 在区块中的顺序，存储在rocksDB中是无序的，保存区块时赋值，取出后根据此值排序 |
+| form                                                          | list&lt;object> | 输入                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address       |     string      | 账户地址                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetsChainId |       int       | 资产发行链的id                                  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetsId      |       int       | 资产id                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount        |     string      | 数量                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nonce         |     string      | 账户nonce值                                  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;locked        |      byte       | 0普通交易，-1解锁金额交易（退出共识，退出委托）                 |
+| to                                                            | list&lt;object> | 输出                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address       |     string      | 账户地址                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetsChainId |       int       | 资产发行链的id                                  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetsId      |       int       | 资产id                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount        |     string      | 数量                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lockTime      |      long       | 解锁时间，-1为永久锁定                              |
+
+验证交易是否正确
+========
+Method: NulsSDKTool#validateTx
+------------------------------
+
+
+参数列表
+----
+| 参数名   |  参数类型  | 参数描述         | 是否非空 |
+| ----- |:------:| ------------ |:----:|
+| txHex | string | 交易序列化16进制字符串 |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述   |
+| ----- |:------:| ------ |
+| value | string | 交易hash |
+
+广播交易
+====
+Method: NulsSDKTool#broadcast
+-----------------------------
+
+
+参数列表
+----
+| 参数名   |  参数类型  | 参数描述         | 是否非空 |
+| ----- |:------:| ------------ |:----:|
+| txHex | string | 交易序列化16进制字符串 |  是   |
+
+返回值
+---
+| 字段名   |  字段类型   | 参数描述   |
+| ----- |:-------:| ------ |
+| value | boolean | 是否成功   |
+| hash  | string  | 交易hash |
+
+离线组装转账交易
+========
+Method: NulsSDKTool#createTransferTxOffline
+-------------------------------------------
+
+
+参数列表
+----
+| 参数名                                                                                                      |      参数类型       | 参数描述     | 是否非空 |
+| -------------------------------------------------------------------------------------------------------- |:---------------:| -------- |:----:|
+| transferDto                                                                                              |   transferdto   | 转账交易表单   |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inputs                                                   | list&lt;object> | 转账交易输入列表 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address  |     string      | 账户地址     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chainId  |       int       | 资产的链id   |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetId  |       int       | 资产id     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount   |   biginteger    | 资产金额     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nonce    |     string      | 资产nonce值 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;outputs                                                  | list&lt;object> | 转账交易输出列表 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address  |     string      | 账户地址     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chainId  |       int       | 资产的链id   |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetId  |       int       | 资产id     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount   |   biginteger    | 资产金额     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lockTime |      long       | 锁定时间     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remark                                                   |     string      | 交易备注     |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述         |
+| ----- |:------:| ------------ |
+| hash  | string | 交易hash       |
+| txHex | string | 交易序列化16进制字符串 |
+
+发布合约
+====
+Method: NulsSDKTool#createContract
+----------------------------------
+
+
+参数列表
+----
+| 参数名                                                          |        参数类型        | 参数描述                 | 是否非空 |
+| ------------------------------------------------------------ |:------------------:| -------------------- |:----:|
+| 发布合约                                                         | contractcreateform | 发布合约表单               |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contractCode |       string       | 智能合约代码(字节码的Hex编码字符串) |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alias        |       string       | 合约别名                 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;args         |      object[]      | 参数列表                 |  是   |
+
+返回值
+---
+| 字段名             |  字段类型  | 参数描述        |
+| --------------- |:------:| ----------- |
+| txHash          | string | 发布合约的交易hash |
+| contractAddress | string | 生成的合约地址     |
+
+调用合约
+====
+Method: NulsSDKTool#callContract
+--------------------------------
+
+
+参数列表
+----
+| 参数名                                                             |       参数类型       | 参数描述               | 是否非空 |
+| --------------------------------------------------------------- |:----------------:| ------------------ |:----:|
+| 调用合约                                                            | contractcallform | 调用合约表单             |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contractAddress |      string      | 智能合约地址             |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value           |       long       | 交易附带的货币量           |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;methodName      |      string      | 方法名                |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;methodDesc      |      string      | 方法签名，如果方法名不重复，可以不传 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;args            |     object[]     | 参数列表               |  是   |
+
+返回值
+---
+| 字段名    |  字段类型  | 参数描述        |
+| ------ |:------:| ----------- |
+| txHash | string | 调用合约的交易hash |
+
+删除合约
+====
+Method: NulsSDKTool#deleteContract
+----------------------------------
+
+
+参数列表
+----
+| 参数名                                                             |        参数类型        | 参数描述      | 是否非空 |
+| --------------------------------------------------------------- |:------------------:| --------- |:----:|
+| 删除合约                                                            | contractdeleteform | 删除合约表单    |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sender          |       string       | 交易创建者     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contractAddress |       string       | 智能合约地址    |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;password        |       string       | 交易创建者账户密码 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remark          |       string       | 备注        |  是   |
+
+返回值
+---
+| 字段名    |  字段类型  | 参数描述        |
+| ------ |:------:| ----------- |
+| txHash | string | 删除合约的交易hash |
+
+获取账户地址的指定token余额
+================
+Method: NulsSDKTool#getTokenBalance
+-----------------------------------
+
+
+参数列表
+----
+| 参数名             |  参数类型  | 参数描述 | 是否非空 |
+| --------------- |:------:| ---- |:----:|
+| contractAddress | string | 合约地址 |  是   |
+| address         | string | 账户地址 |  是   |
+
+返回值
+---
+| 字段名             |  字段类型  | 参数描述                    |
+| --------------- |:------:| ----------------------- |
+| contractAddress | string | 合约地址                    |
+| name            | string | token名称                 |
+| symbol          | string | token符号                 |
+| amount          | string | token数量                 |
+| decimals        |  long  | token支持的小数位数            |
+| blockHeight     |  long  | 合约创建时的区块高度              |
+| status          |  int   | 合约状态(0-不存在, 1-正常, 2-终止) |
+
+获取智能合约详细信息
+==========
+Method: NulsSDKTool#getContractInfo
+-----------------------------------
+
+
+参数列表
+----
+| 参数名     |  参数类型  | 参数描述 | 是否非空 |
+| ------- |:------:| ---- |:----:|
+| address | string | 合约地址 |  是   |
+
+返回值
+---
+| 字段名                                                                                                      |      字段类型       | 参数描述                          |
+| -------------------------------------------------------------------------------------------------------- |:---------------:| ----------------------------- |
+| createTxHash                                                                                             |     string      | 发布合约的交易hash                   |
+| address                                                                                                  |     string      | 合约地址                          |
+| creater                                                                                                  |     string      | 合约创建者地址                       |
+| alias                                                                                                    |     string      | 合约别名                          |
+| createTime                                                                                               |      long       | 合约创建时间（单位：秒）                  |
+| blockHeight                                                                                              |      long       | 合约创建时的区块高度                    |
+| isDirectPayable                                                                                          |     boolean     | 是否接受直接转账                      |
+| isNrc20                                                                                                  |     boolean     | 是否是NRC20合约                    |
+| nrc20TokenName                                                                                           |     string      | NRC20-token名称                 |
+| nrc20TokenSymbol                                                                                         |     string      | NRC20-token符号                 |
+| decimals                                                                                                 |      long       | NRC20-token支持的小数位数            |
+| totalSupply                                                                                              |     string      | NRC20-token发行总量               |
+| status                                                                                                   |     string      | 合约状态（not_found, normal, stop） |
+| method                                                                                                   | list&lt;object> | 合约方法列表                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name                                                     |     string      | 方法名称                          |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;desc                                                     |     string      | 方法描述                          |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;args                                                     | list&lt;object> | 方法参数列表                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type     |     string      | 参数类型                          |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name     |     string      | 参数名称                          |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;required |     boolean     | 是否必填                          |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;returnArg                                                |     string      | 返回值类型                         |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;view                                                     |     boolean     | 是否视图方法（调用此方法数据不上链）            |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;event                                                    |     boolean     | 是否是事件                         |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;payable                                                  |     boolean     | 是否是可接受主链资产转账的方法               |
+
 根据合约代码获取合约构造函数详情
 ================
 Method: NulsSDKTool#getConstructor
@@ -26,12 +798,12 @@ Method: NulsSDKTool#getConstructor
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;view                                                     |     boolean     | 是否视图方法（调用此方法数据不上链） |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;event                                                    |     boolean     | 是否是事件              |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;payable                                                  |     boolean     | 是否是可接受主链资产转账的方法    |
-| isNrc20                                                                                                  |     boolean     | 是否是NRC20合约         |
+| nrc20                                                                                                    |     boolean     | 是否是NRC20合约         |
 
 离线组装 - 发布合约的交易
 ==============
-Method: NulsSDKTool#createTxOffline
------------------------------------
+Method: NulsSDKTool#createContractTxOffline
+-------------------------------------------
 
 
 参数列表
@@ -54,8 +826,8 @@ Method: NulsSDKTool#createTxOffline
 
 离线组装 - 调用合约的交易
 ==============
-Method: NulsSDKTool#callTxOffline
----------------------------------
+Method: NulsSDKTool#callContractTxOffline
+-----------------------------------------
 
 
 参数列表
@@ -79,8 +851,8 @@ Method: NulsSDKTool#callTxOffline
 
 离线组装 - 删除合约的交易
 ==============
-Method: NulsSDKTool#deleteTxOffline
------------------------------------
+Method: NulsSDKTool#deleteContractTxOffline
+-------------------------------------------
 
 
 参数列表
@@ -100,8 +872,8 @@ Method: NulsSDKTool#deleteTxOffline
 
 离线组装 - token转账交易
 ================
-Method: NulsSDKTool#tokenTransfer
----------------------------------
+Method: NulsSDKTool#tokenTransferTxOffline
+------------------------------------------
 
 
 参数列表
@@ -123,8 +895,8 @@ Method: NulsSDKTool#tokenTransfer
 
 离线组装 - 从账户地址向合约地址转账(主链资产)的合约交易
 ==============================
-Method: NulsSDKTool#tokenToContract
------------------------------------
+Method: NulsSDKTool#transferToContractTxOffline
+-----------------------------------------------
 
 
 参数列表
@@ -142,4 +914,208 @@ Method: NulsSDKTool#tokenToContract
 | ----- |:------:| -------- |
 | hash  | string | 交易hash   |
 | txHex | string | 交易序列化字符串 |
+
+ 创建共识节点
+=======
+Method: NulsSDKTool#createAgent
+-------------------------------
+
+
+参数列表
+----
+| 参数名                                                            |      参数类型       | 参数描述         | 是否非空 |
+| -------------------------------------------------------------- |:---------------:| ------------ |:----:|
+| 创建共识(代理)节点                                                     | createagentform | 创建共识(代理)节点表单 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;agentAddress   |     string      | 节点地址         |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;packingAddress |     string      | 节点出块地址       |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rewardAddress  |     string      | 获取奖励地址       |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;commissionRate |       int       | 佣金比例         |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deposit        |     string      | 保证金          |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;password       |     string      | 密码           |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述   |
+| ----- |:------:| ------ |
+| value | string | 交易hash |
+
+注销共识节点
+======
+Method: NulsSDKTool#stopAgent
+-----------------------------
+
+
+参数列表
+----
+| 参数名                                                          |     参数类型      | 参数描述     | 是否非空 |
+| ------------------------------------------------------------ |:-------------:| -------- |:----:|
+| 注销共识节点                                                       | stopagentform | 注销共识节点表单 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;agentAddress |    string     | 节点创建地址   |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;password     |    string     | 密码       |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述   |
+| ----- |:------:| ------ |
+| value | string | 交易hash |
+
+deposit nuls to a bank! 申请参与共识
+==============================
+Method: NulsSDKTool#depositToAgent
+----------------------------------
+
+
+参数列表
+----
+| 参数名                                                       |    参数类型     | 参数描述     | 是否非空 |
+| --------------------------------------------------------- |:-----------:| -------- |:----:|
+| 申请参与共识                                                    | depositform | 申请参与共识表单 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address   |   string    | 账户地址     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;agentHash |   string    | 共识节点hash |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deposit   |   string    | 委托金      |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;password  |   string    | 密码       |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述   |
+| ----- |:------:| ------ |
+| value | string | 交易hash |
+
+退出共识
+====
+Method: NulsSDKTool#withdraw
+----------------------------
+
+
+参数列表
+----
+| 参数名                                                      |     参数类型     | 参数描述        | 是否非空 |
+| -------------------------------------------------------- |:------------:| ----------- |:----:|
+| 退出共识                                                     | withdrawform | 退出共识表单      |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address  |    string    | 地址          |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;txHash   |    string    | 委托共识的交易hash |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;password |    string    | 密码          |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述   |
+| ----- |:------:| ------ |
+| value | string | 交易hash |
+
+离线组装创建共识节点交易
+============
+Method: NulsSDKTool#createConsensusTxOffline
+--------------------------------------------
+
+
+参数列表
+----
+| 参数名                                                                                                     |     参数类型     | 参数描述     | 是否非空 |
+| ------------------------------------------------------------------------------------------------------- |:------------:| -------- |:----:|
+| consensusDto                                                                                            | consensusdto | 创建节点交易表单 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;agentAddress                                            |    string    | 节点创建地址   |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;packingAddress                                          |    string    | 节点出块地址   |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rewardAddress                                           |    string    | 获取共识奖励地址 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;commissionRate                                          |     int      | 节点佣金比例   |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deposit                                                 |  biginteger  | 创建节点保证金  |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;input                                                   |    object    | 交易输入信息   |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address |    string    | 账户地址     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chainId |     int      | 资产的链id   |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetId |     int      | 资产id     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount  |  biginteger  | 资产金额     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nonce   |    string    | 资产nonce值 |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述         |
+| ----- |:------:| ------------ |
+| hash  | string | 交易hash       |
+| txHex | string | 交易序列化16进制字符串 |
+
+离线组装委托共识交易
+==========
+Method: NulsSDKTool#createDepositTxOffline
+------------------------------------------
+
+
+参数列表
+----
+| 参数名                                                                                                     |    参数类型    | 参数描述     | 是否非空 |
+| ------------------------------------------------------------------------------------------------------- |:----------:| -------- |:----:|
+| depositDto                                                                                              | depositdto | 委托共识交易表单 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address                                                 |   string   | 账户地址     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deposit                                                 | biginteger | 委托金额     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;agentHash                                               |   string   | 共识节点hash |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;input                                                   |   object   | 交易输入信息   |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address |   string   | 账户地址     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chainId |    int     | 资产的链id   |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetId |    int     | 资产id     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount  | biginteger | 资产金额     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nonce   |   string   | 资产nonce值 |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述         |
+| ----- |:------:| ------------ |
+| hash  | string | 交易hash       |
+| txHex | string | 交易序列化16进制字符串 |
+
+离线组装退出委托共识交易
+============
+Method: NulsSDKTool#createWithdrawDepositTxOffline
+--------------------------------------------------
+
+
+参数列表
+----
+| 参数名                                                                                                     |    参数类型     | 参数描述        | 是否非空 |
+| ------------------------------------------------------------------------------------------------------- |:-----------:| ----------- |:----:|
+| withDrawDto                                                                                             | withdrawdto | 退出委托交易表单    |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address                                                 |   string    | 地址          |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;depositHash                                             |   string    | 委托共识交易的hash |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;price                                                   | biginteger  | 手续费单价       |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;input                                                   |   object    | 交易输入信息      |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address |   string    | 账户地址        |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chainId |     int     | 资产的链id      |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetId |     int     | 资产id        |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount  | biginteger  | 资产金额        |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nonce   |   string    | 资产nonce值    |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述         |
+| ----- |:------:| ------------ |
+| hash  | string | 交易hash       |
+| txHex | string | 交易序列化16进制字符串 |
+
+离线组装注销共识节点交易
+============
+Method: NulsSDKTool#createStopConsensusTxOffline
+------------------------------------------------
+
+
+参数列表
+----
+| 参数名                                                                                                                                                     |       参数类型       | 参数描述        | 是否非空 |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------- |:----------------:| ----------- |:----:|
+| stopConsensusDto                                                                                                                                        | stopconsensusdto | 注销共识节点交易表单  |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;agentHash                                                                                               |      string      | 创建节点的交易hash |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;agentAddress                                                                                            |      string      | 节点地址        |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deposit                                                                                                 |    biginteger    | 创建节点的保证金    |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;price                                                                                                   |    biginteger    | 手续费单价       |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;depositList                                                                                             | list&lt;object>  | 停止委托列表      |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;depositHash                                             |      string      | 委托共识的交易hash |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;input                                                   |      object      | 交易输入信息      |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address |      string      | 账户地址        |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chainId |       int        | 资产的链id      |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetId |       int        | 资产id        |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount  |    biginteger    | 资产金额        |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nonce   |      string      | 资产nonce值    |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述         |
+| ----- |:------:| ------------ |
+| hash  | string | 交易hash       |
+| txHex | string | 交易序列化16进制字符串 |
 
