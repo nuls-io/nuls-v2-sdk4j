@@ -521,5 +521,34 @@ public class TransactionService {
         Map result = balanceResult.getResult();
         return Result.getSuccess(result);
     }
+
+    /**
+     * 验证交易
+     * @param form
+     * @return
+     */
+    public Result validateTx(String txHex) {
+        validateChainId();
+        try {
+            if(StringUtils.isBlank(txHex)) {
+                throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "form is empty");
+            }
+            Map<String, Object> map = new HashMap<>();
+            map.put("txHex", txHex);
+
+            RestFulResult restFulResult = RestFulUtil.post("api/accountledger/transaction/validate", map);
+            Result result;
+            if (restFulResult.isSuccess()) {
+                result = io.nuls.core.basic.Result.getSuccess(restFulResult.getData());
+            } else {
+                ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+                result = io.nuls.core.basic.Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+            }
+            return result;
+        } catch (NulsException e) {
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
+        }
+
+    }
 }
 
