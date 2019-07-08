@@ -20,7 +20,7 @@ import java.util.*;
  * @Time: 2019-06-19 14:26
  * @Description: 生成rpc接口文档
  */
-public class DocTool {
+public class Sdk4jDocTool {
 
     static Set<String> exclusion = Set.of("io.nuls.base.protocol.cmd", "io.nuls.core.rpc.cmd.kernel", "io.nuls.core.rpc.modulebootstrap");
 
@@ -238,15 +238,17 @@ public class DocTool {
             cmdDesList.sort((a, b) -> {
                 return a.compareTo(b.order);
             });
-            System.out.println();
             System.out.println("生成文档成功：" + createMarketDownDoc(cmdDesList, "./readme.md"));
 //            System.exit(0);
         }
 
         public static void genJSON() throws IOException {
             List<CmdDes> cmdDesList = buildData();
+            cmdDesList.sort((a, b) -> {
+                return a.compareTo(b.order);
+            });
             Log.info("{}", cmdDesList);
-            System.out.println("生成文档成功：" + createJSONConfig(cmdDesList, "/Users/pierreluo/IdeaProjects/nuls-engine/nuls-sdk-provider/documents"));
+            System.out.println("生成文档成功：" + createJSONConfig(cmdDesList, "./readme.md"));
 //            System.exit(0);
         }
 
