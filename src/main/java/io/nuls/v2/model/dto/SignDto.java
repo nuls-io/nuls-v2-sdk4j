@@ -1,17 +1,18 @@
 package io.nuls.v2.model.dto;
 
 import io.nuls.core.rpc.model.ApiModel;
+import io.nuls.core.rpc.model.ApiModelProperty;
 
 @ApiModel
 public class SignDto {
 
-
+    @ApiModelProperty(description = "地址", required = true)
     private String address;
-
+    @ApiModelProperty(description = "明文私钥", required = false)
     private String priKey;
-
+    @ApiModelProperty(description = "加密私钥", required = false)
     private String encryptedPrivateKey;
-
+    @ApiModelProperty(description = "密码", required = false)
     private String password;
 
     public String getAddress() {
