@@ -14,6 +14,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Author: zhoulijun
@@ -433,7 +434,7 @@ public class Sdk4jDocTool {
                     try {
                         StringWriter stringWriter = new StringWriter();
                         try (BufferedWriter sbw = new BufferedWriter(stringWriter)) {
-                            writeMarkdown(cmd, sbw);
+                            writeMarkdown(cmd, sbw, null);
                             sbw.flush();
                             cmd.md = stringWriter.toString();
                         }
@@ -464,16 +465,31 @@ public class Sdk4jDocTool {
             }
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(mdFile, true))) {
                 writer.newLine();
+                AtomicInteger i = new AtomicInteger(0);
                 cmdDesList.forEach(cmd -> {
-                    writeMarkdown(cmd, writer);
+                    writeMarkdown(cmd, writer, i);
                 });
             }
             return mdFile.getAbsolutePath();
         }
 
-        private static void writeMarkdown(CmdDes cmd, BufferedWriter writer) {
+        private static void writeMarkdown(CmdDes cmd, BufferedWriter writer, AtomicInteger i) {
             try {
-                writer.write(new Heading(cmd.des, 1).toString());
+                String order = "";
+                if(i != null) {
+                    if(i.get() == 0) {
+                        i.set(cmd.order);
+                    } else {
+                        String currentFirstLetterOfOrder = String.valueOf(i.get()).substring(0, 1);
+                        String firstLetterOfOrder = String.valueOf(cmd.order).substring(0, 1);
+                        if(!currentFirstLetterOfOrder.equals(firstLetterOfOrder)) {
+                            i.set(cmd.order);
+                        }
+                    }
+                    order = String.valueOf(i.getAndIncrement());
+                    order = order.substring(0, 1) + "." + Integer.parseInt(order.substring(1)) + " ";
+                }
+                writer.write(new Heading(order + cmd.des, 1).toString());
                 writer.newLine();
                 writer.write(new Heading("Method: " + cmd.cmdName.replaceAll("_", "\\\\_"), 2).toString());
                 writer.newLine();

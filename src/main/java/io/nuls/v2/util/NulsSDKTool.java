@@ -24,7 +24,7 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "创建账户", order = 101)
     @Parameters(value = {
-            @Parameter(parameterName = "count", parameterType = "Integer", parameterDes = "创建数量"),
+            @Parameter(parameterName = "count", requestType = @TypeDescriptor(value = int.class), parameterDes = "创建数量"),
             @Parameter(parameterName = "password", parameterDes = "密码")
     })
     @ResponseData(name = "返回值", description = "返回账户地址集合",
@@ -154,7 +154,7 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "离线创建账户", order = 151)
     @Parameters(value = {
-            @Parameter(parameterName = "count", parameterType = "Integer", parameterDes = "创建数量"),
+            @Parameter(parameterName = "count", requestType = @TypeDescriptor(value = int.class), parameterDes = "创建数量"),
             @Parameter(parameterName = "password", parameterDes = "密码")
     })
     @ResponseData(name = "返回值", description = "返回一个账户keystore集合",
