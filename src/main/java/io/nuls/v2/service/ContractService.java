@@ -56,7 +56,7 @@ public class ContractService {
         return instance;
     }
 
-    @ApiOperation(description = "离线组装 - 发布合约的交易")
+    //@ApiOperation(description = "离线组装 - 发布合约的交易")
     @Parameters(value = {
             @Parameter(parameterName = "sender", parameterType = "String", parameterDes = "交易创建者账户地址"),
             @Parameter(parameterName = "alias", parameterType = "String", parameterDes = "合约别名"),
@@ -159,7 +159,7 @@ public class ContractService {
     }
 
 
-    @ApiOperation(description = "离线组装 - 调用合约的交易")
+    //@ApiOperation(description = "离线组装 - 调用合约的交易")
     @Parameters(value = {
             @Parameter(parameterName = "sender", parameterType = "String", parameterDes = "交易创建者账户地址"),
             @Parameter(parameterName = "value", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "调用者向合约地址转入的主网资产金额，没有此业务时填BigInteger.ZERO"),
@@ -265,7 +265,7 @@ public class ContractService {
     }
 
 
-    @ApiOperation(description = "离线组装 - 删除合约的交易")
+    //@ApiOperation(description = "离线组装 - 删除合约的交易")
     @Parameters(value = {
             @Parameter(parameterName = "sender", parameterType = "String", parameterDes = "交易创建者账户地址"),
             @Parameter(parameterName = "contractAddress", parameterType = "String", parameterDes = "合约地址"),
@@ -323,7 +323,7 @@ public class ContractService {
     }
 
 
-    @ApiOperation(description = "根据合约代码获取合约构造函数详情")
+    //@ApiOperation(description = "根据合约代码获取合约构造函数详情")
     @Parameters(description = "参数", value = {
             @Parameter(parameterName = "contractCode", parameterType = "String", parameterDes = "智能合约代码(字节码的Hex编码字符串)")
     })
@@ -342,7 +342,7 @@ public class ContractService {
         return getSuccess().setData(dto);
     }
 
-    @ApiOperation(description = "离线组装 - token转账交易")
+    //@ApiOperation(description = "离线组装 - token转账交易")
     @Parameters(value = {
             @Parameter(parameterName = "fromAddress", parameterType = "String", parameterDes = "转出者账户地址"),
             @Parameter(parameterName = "toAddress", parameterType = "String", parameterDes = "转入者账户地址"),
@@ -374,7 +374,7 @@ public class ContractService {
         return this.callContractTxOffline(fromAddress, null, contractAddress, Constant.NRC20_METHOD_TRANSFER, null, new Object[]{toAddress, amount.toString()}, remark);
     }
 
-    @ApiOperation(description = "离线组装 - 从账户地址向合约地址转账(主链资产)的合约交易")
+    //@ApiOperation(description = "离线组装 - 从账户地址向合约地址转账(主链资产)的合约交易")
     @Parameters(value = {
             @Parameter(parameterName = "fromAddress", parameterType = "String", parameterDes = "转出者账户地址"),
             @Parameter(parameterName = "toAddress", parameterType = "String", parameterDes = "转入的合约地址"),
