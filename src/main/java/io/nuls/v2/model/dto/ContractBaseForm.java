@@ -4,10 +4,8 @@ import io.nuls.core.rpc.model.ApiModel;
 import io.nuls.core.rpc.model.ApiModelProperty;
 
 @ApiModel(name = "智能合约表单数据")
-public class ContractBaseForm {
+public class ContractBaseForm extends BaseForm{
 
-    @ApiModelProperty(description = "链ID")
-    private Integer chainId;
     @ApiModelProperty(description = "交易创建者")
     private String sender;
     @ApiModelProperty(description = "最大gas消耗")
@@ -59,11 +57,4 @@ public class ContractBaseForm {
         this.remark = remark;
     }
 
-    public void setChainId(Integer chainId) {
-        this.chainId = chainId;
-    }
-
-    public Integer getChainId() {
-        return chainId;
-    }
 }
