@@ -34,7 +34,7 @@ public class NulsSDKTool {
         return accountService.createAccount(count, password);
     }
 
-    @ApiOperation(description = "重置密码", order = 102)
+    @ApiOperation(description = "修改密码", order = 102)
     @Parameters(value = {
             @Parameter(parameterName = "address", parameterDes = "账户地址"),
             @Parameter(parameterName = "oldPassword", parameterDes = "原密码"),
