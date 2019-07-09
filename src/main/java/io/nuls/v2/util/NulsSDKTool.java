@@ -337,7 +337,29 @@ public class NulsSDKTool {
         return contractService.deleteContract(form);
     }
 
-    @ApiOperation(description = "获取账户地址的指定token余额", order = 404)
+    @ApiOperation(description = "token转账", order = 404)
+    @Parameters({
+            @Parameter(parameterName = "token转账", parameterDes = "token转账表单", requestType = @TypeDescriptor(value = ContractTokenTransferForm.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "txHash", description = "交易hash")
+    }))
+    public static Result tokentransfer(ContractTokenTransferForm form) {
+        return contractService.tokentransfer(form);
+    }
+
+    @ApiOperation(description = "从账户地址向合约地址转账(主链资产)的合约交易", order = 405)
+    @Parameters({
+            @Parameter(parameterName = "向合约地址转账", parameterDes = "向合约地址转账表单", requestType = @TypeDescriptor(value = ContractTransferForm.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "txHash", description = "交易hash")
+    }))
+    public static Result transferTocontract(ContractTransferForm form) {
+        return contractService.transferTocontract(form);
+    }
+
+    @ApiOperation(description = "获取账户地址的指定token余额", order = 406)
     @Parameters({
             @Parameter(parameterName = "contractAddress", parameterDes = "合约地址"),
             @Parameter(parameterName = "address", parameterDes = "账户地址")
@@ -347,7 +369,7 @@ public class NulsSDKTool {
         return contractService.getTokenBalance(contractAddress, address);
     }
 
-    @ApiOperation(description = "获取智能合约详细信息", order = 405)
+    @ApiOperation(description = "获取智能合约详细信息", order = 407)
     @Parameters({
             @Parameter(parameterName = "address", parameterDes = "合约地址")
     })
@@ -356,14 +378,112 @@ public class NulsSDKTool {
         return contractService.getContractInfo(contractAddress);
     }
 
+    @ApiOperation(description = "获取智能合约执行结果", order = 408)
+    @Parameters({
+            @Parameter(parameterName = "hash", parameterDes = "交易hash")
+    })
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = ContractResultDto.class))
+    public static Result getContractResult(String hash) {
+        return contractService.getContractResult(hash);
+    }
 
-    @ApiOperation(description = "根据合约代码获取合约构造函数详情", order = 406)
+    @ApiOperation(description = "根据合约代码获取合约构造函数详情", order = 409)
     @Parameters(description = "参数", value = {
             @Parameter(parameterName = "contractCode", parameterDes = "智能合约代码(字节码的Hex编码字符串)")
     })
     @ResponseData(name = "返回值", description = "合约构造函数详情", responseType = @TypeDescriptor(value = ContractConstructorInfoDto.class))
     public static Result<ContractConstructorInfoDto> getConstructor(String contractCode) {
         return contractService.getConstructor(contractCode);
+    }
+
+    @ApiOperation(description = "获取已发布合约指定函数的信息", order = 410)
+    @Parameters({
+            @Parameter(parameterName = "获取已发布合约指定函数的信息", parameterDes = "获取已发布合约指定函数的信息表单", requestType = @TypeDescriptor(value = ContractMethodForm.class))
+    })
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = ProgramMethod.class))
+    public static Result getContractMethod(ContractMethodForm form) {
+        return contractService.getContractMethod(form);
+    }
+
+    @ApiOperation(description = "获取已发布合约指定函数的参数类型列表", order = 411)
+    @Parameters({
+            @Parameter(parameterName = "获取已发布合约指定函数的参数类型列表", parameterDes = "获取已发布合约指定函数的参数类型表单", requestType = @TypeDescriptor(value = ContractMethodForm.class))
+    })
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = List.class, collectionElement = String.class))
+    public static Result getContractMethodArgsTypes(ContractMethodForm form) {
+        return contractService.getContractMethodArgsTypes(form);
+    }
+
+    @ApiOperation(description = "验证发布合约", order = 412)
+    @Parameters(value = {
+            @Parameter(parameterName = "验证发布合约", parameterDes = "验证发布合约表单", requestType = @TypeDescriptor(value = ContractValidateCreateForm.class))
+    })
+    @ResponseData(name = "返回值", description = "返回消耗的gas值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "success", valueType = boolean.class, description = "验证成功与否"),
+            @Key(name = "code", description = "验证失败的错误码"),
+            @Key(name = "msg", description = "验证失败的错误信息")
+    }))
+    public static Result validateContractCreate(ContractValidateCreateForm form) {
+        return contractService.validateContractCreate(form);
+    }
+
+    @ApiOperation(description = "验证调用合约", order = 413)
+    @Parameters(value = {
+            @Parameter(parameterName = "验证调用合约", parameterDes = "验证调用合约表单", requestType = @TypeDescriptor(value = ContractValidateCallForm.class))
+    })
+    @ResponseData(name = "返回值", description = "返回消耗的gas值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "success", valueType = boolean.class, description = "验证成功与否"),
+            @Key(name = "code", description = "验证失败的错误码"),
+            @Key(name = "msg", description = "验证失败的错误信息")
+    }))
+    public static Result validateContractCall(ContractValidateCallForm form) {
+        return contractService.validateContractCall(form);
+    }
+
+    @ApiOperation(description = "验证删除合约", order = 414)
+    @Parameters(value = {
+            @Parameter(parameterName = "验证删除合约", parameterDes = "验证删除合约表单", requestType = @TypeDescriptor(value = ContractValidateDeleteForm.class))
+    })
+    @ResponseData(name = "返回值", description = "返回消耗的gas值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "success", valueType = boolean.class, description = "验证成功与否"),
+            @Key(name = "code", description = "验证失败的错误码"),
+            @Key(name = "msg", description = "验证失败的错误信息")
+    }))
+    public static Result validateContractDelete(ContractValidateDeleteForm form) {
+        return contractService.validateContractDelete(form);
+    }
+
+    @ApiOperation(description = "估算发布合约交易的GAS", order = 415)
+    @Parameters(value = {
+            @Parameter(parameterName = "估算发布合约交易的GAS", parameterDes = "估算发布合约交易的GAS表单", requestType = @TypeDescriptor(value = ImputedGasContractCreateForm.class))
+    })
+    @ResponseData(name = "返回值", description = "返回消耗的gas值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "gasLimit", valueType = Long.class, description = "消耗的gas值，执行失败返回数值1")
+    }))
+    public static Result imputedContractCreateGas(ImputedGasContractCreateForm form) {
+        return contractService.imputedContractCreateGas(form);
+    }
+
+    @ApiOperation(description = "估算调用合约交易的GAS", order = 416)
+    @Parameters(value = {
+            @Parameter(parameterName = "估算调用合约交易的GAS", parameterDes = "估算调用合约交易的GAS表单", requestType = @TypeDescriptor(value = ImputedGasContractCallForm.class))
+    })
+    @ResponseData(name = "返回值", description = "返回消耗的gas值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "gasLimit", valueType = Long.class, description = "消耗的gas值，执行失败返回数值1")
+    }))
+    public static Result imputedContractCallGas(ImputedGasContractCallForm form) {
+        return contractService.imputedContractCallGas(form);
+    }
+
+    @ApiOperation(description = "调用合约不上链方法", order = 417)
+    @Parameters(value = {
+            @Parameter(parameterName = "调用合约不上链方法", parameterDes = "调用合约不上链方法表单", requestType = @TypeDescriptor(value = ContractViewCallForm.class))
+    })
+    @ResponseData(name = "返回值", description = "返回Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "result", description = "视图方法的调用结果")
+    }))
+    public static Result imputedContractCallGas(ContractViewCallForm form) {
+        return contractService.imputedContractCallGas(form);
     }
 
     @ApiOperation(description = "离线组装 - 发布合约的交易", order = 451)

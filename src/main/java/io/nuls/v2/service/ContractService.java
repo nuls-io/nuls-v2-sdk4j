@@ -9,24 +9,18 @@ import io.nuls.core.constant.ErrorCode;
 import io.nuls.core.crypto.HexUtil;
 import io.nuls.core.model.FormatValidUtils;
 import io.nuls.core.model.StringUtils;
+import io.nuls.core.parse.MapUtils;
 import io.nuls.core.rpc.model.*;
 import io.nuls.v2.SDKContext;
 import io.nuls.v2.constant.Constant;
 import io.nuls.v2.error.ContractErrorCode;
 import io.nuls.v2.model.annotation.Api;
-import io.nuls.v2.model.annotation.ApiOperation;
 import io.nuls.v2.model.annotation.ApiType;
 import io.nuls.v2.model.dto.*;
-import io.nuls.v2.tx.CallContractTransaction;
-import io.nuls.v2.tx.CreateContractTransaction;
-import io.nuls.v2.tx.DeleteContractTransaction;
 import io.nuls.v2.txdata.CallContractData;
 import io.nuls.v2.txdata.CreateContractData;
 import io.nuls.v2.txdata.DeleteContractData;
-import io.nuls.v2.util.AccountTool;
-import io.nuls.v2.util.ContractUtil;
-import io.nuls.v2.util.JsonRpcUtil;
-import io.nuls.v2.util.RestFulUtil;
+import io.nuls.v2.util.*;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -323,25 +317,6 @@ public class ContractService {
     }
 
 
-    //@ApiOperation(description = "根据合约代码获取合约构造函数详情")
-    @Parameters(description = "参数", value = {
-            @Parameter(parameterName = "contractCode", parameterType = "String", parameterDes = "智能合约代码(字节码的Hex编码字符串)")
-    })
-    @ResponseData(name = "返回值", description = "合约构造函数详情", responseType = @TypeDescriptor(value = ContractConstructorInfoDto.class))
-    public Result<ContractConstructorInfoDto> getConstructor(String contractCode) {
-        if (StringUtils.isBlank(contractCode)) {
-            return Result.getFailed(CommonCodeConstanst.NULL_PARAMETER).setMsg("contractCode is empty");
-        }
-        int chainId = SDKContext.main_chain_id;
-        RpcResult<Map> rpcResult = JsonRpcUtil.request("getContractConstructor", List.of(chainId, contractCode));
-        RpcResultError rpcResultError = rpcResult.getError();
-        if (rpcResultError != null) {
-            return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());
-        }
-        ContractConstructorInfoDto dto = new ContractConstructorInfoDto(rpcResult.getResult());
-        return getSuccess().setData(dto);
-    }
-
     //@ApiOperation(description = "离线组装 - token转账交易")
     @Parameters(value = {
             @Parameter(parameterName = "fromAddress", parameterType = "String", parameterDes = "转出者账户地址"),
@@ -419,7 +394,6 @@ public class ContractService {
         params.put("price", form.getPrice());
         params.put("password", form.getPassword());
         params.put("remark", form.getRemark());
-        params.put("chainId", SDKContext.main_chain_id);
         params.put("alias", form.getAlias());
         params.put("args", form.getArgs());
         params.put("contractCode", form.getContractCode());
@@ -427,10 +401,10 @@ public class ContractService {
         RestFulResult restFulResult = RestFulUtil.post("api/contract/create", params);
         Result result;
         if (restFulResult.isSuccess()) {
-            result = io.nuls.core.basic.Result.getSuccess(restFulResult.getData());
+            result = Result.getSuccess(restFulResult.getData());
         } else {
             ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
-            result = io.nuls.core.basic.Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
         }
         return result;
     }
@@ -446,7 +420,6 @@ public class ContractService {
             return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg(String.format("price [%s] is invalid", form.getPrice()));
         }
         Map<String, Object> params = new HashMap<>();
-        params.put("chainId", SDKContext.main_chain_id);
         params.put("sender", form.getSender());
         params.put("gasLimit", form.getGasLimit());
         params.put("price", form.getPrice());
@@ -461,10 +434,10 @@ public class ContractService {
         RestFulResult restFulResult = RestFulUtil.post("api/contract/call", params);
         Result result;
         if (restFulResult.isSuccess()) {
-            result = io.nuls.core.basic.Result.getSuccess(restFulResult.getData());
+            result = Result.getSuccess(restFulResult.getData());
         } else {
             ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
-            result = io.nuls.core.basic.Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
         }
         return result;
     }
@@ -474,7 +447,6 @@ public class ContractService {
             return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("form data is empty");
         }
         Map<String, Object> params = new HashMap<>();
-        params.put("chainId", SDKContext.main_chain_id);
         params.put("sender", form.getSender());
         params.put("contractAddress", form.getContractAddress());
         params.put("password", form.getPassword());
@@ -483,10 +455,50 @@ public class ContractService {
         RestFulResult restFulResult = RestFulUtil.post("api/contract/delete", params);
         Result result;
         if (restFulResult.isSuccess()) {
-            result = io.nuls.core.basic.Result.getSuccess(restFulResult.getData());
+            result = Result.getSuccess(restFulResult.getData());
         } else {
             ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
-            result = io.nuls.core.basic.Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
+    }
+
+    public Result tokentransfer(ContractTokenTransferForm form) {
+        if (form == null) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("form data is empty");
+        }
+        if (form.getAmount() == null || form.getAmount().compareTo(BigInteger.ZERO) < 0) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("amount is invalid");
+        }
+        Map<String, Object> params = MapUtils.beanToMap(form);
+
+        RestFulResult restFulResult = RestFulUtil.post("api/contract/tokentransfer", params);
+        Result result;
+        if (restFulResult.isSuccess()) {
+            result = Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
+    }
+
+    public Result transferTocontract(ContractTransferForm form) {
+        if (form == null) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("form data is empty");
+        }
+        if (form.getAmount() == null || form.getAmount().compareTo(BigInteger.ZERO) < 0) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("amount is invalid");
+        }
+        Map<String, Object> params = MapUtils.beanToMap(form);
+
+        RestFulResult restFulResult = RestFulUtil.post("api/contract/transfer2contract", params);
+        Result result;
+        if (restFulResult.isSuccess()) {
+            result = Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
         }
         return result;
     }
@@ -501,13 +513,29 @@ public class ContractService {
         RestFulResult restFulResult = RestFulUtil.get("api/contract/balance/token/" + contractAddress + "/" + address);
         Result result;
         if (restFulResult.isSuccess()) {
-            result = io.nuls.core.basic.Result.getSuccess(restFulResult.getData());
+            result = Result.getSuccess(restFulResult.getData());
         } else {
             ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
-            result = io.nuls.core.basic.Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
         }
         return result;
     }
+
+    public Result getContractResult(String hash) {
+        if (hash == null || !ValidateUtil.validHash(hash)) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("[hash] is invalid");
+        }
+        RestFulResult restFulResult = RestFulUtil.get("api/contract/result/" + hash);
+        Result result;
+        if (restFulResult.isSuccess()) {
+            result = Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
+    }
+
 
     public Result getContractInfo(String contractAddress) {
         if (contractAddress == null) {
@@ -516,10 +544,184 @@ public class ContractService {
         RestFulResult restFulResult = RestFulUtil.get("api/contract/info/" + contractAddress);
         Result result;
         if (restFulResult.isSuccess()) {
-            result = io.nuls.core.basic.Result.getSuccess(restFulResult.getData());
+            result = Result.getSuccess(restFulResult.getData());
         } else {
             ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
-            result = io.nuls.core.basic.Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
+    }
+
+    public Result<ContractConstructorInfoDto> getConstructor(String contractCode) {
+        if (StringUtils.isBlank(contractCode)) {
+            return Result.getFailed(CommonCodeConstanst.NULL_PARAMETER).setMsg("contractCode is empty");
+        }
+        int chainId = SDKContext.main_chain_id;
+        RpcResult<Map> rpcResult = JsonRpcUtil.request("getContractConstructor", List.of(chainId, contractCode));
+        RpcResultError rpcResultError = rpcResult.getError();
+        if (rpcResultError != null) {
+            return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());
+        }
+        ContractConstructorInfoDto dto = new ContractConstructorInfoDto(rpcResult.getResult());
+        return getSuccess().setData(dto);
+    }
+
+    public Result getContractMethod(ContractMethodForm form) {
+        if (form == null) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("form data is empty");
+        }
+        if (!AddressTool.validAddress(SDKContext.main_chain_id, form.getContractAddress())) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg(String.format("contractAddress [%s] is invalid", form.getContractAddress()));
+        }
+        if (StringUtils.isBlank(form.getMethodName())) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("methodName is empty");
+        }
+        Map<String, Object> params = MapUtils.beanToMap(form);
+
+        RestFulResult restFulResult = RestFulUtil.post("api/contract/method", params);
+        Result result;
+        if (restFulResult.isSuccess()) {
+            result = Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
+    }
+
+    public Result getContractMethodArgsTypes(ContractMethodForm form) {
+        if (form == null) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("form data is empty");
+        }
+        if (!AddressTool.validAddress(SDKContext.main_chain_id, form.getContractAddress())) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg(String.format("contractAddress [%s] is invalid", form.getContractAddress()));
+        }
+        if (StringUtils.isBlank(form.getMethodName())) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("methodName is empty");
+        }
+        Map<String, Object> params = MapUtils.beanToMap(form);
+
+        RestFulResult restFulResult = RestFulUtil.post("api/contract/method/argstypes", params);
+        Result result;
+        if (restFulResult.isSuccess()) {
+            result = Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
+    }
+
+    public Result validateContractCreate(ContractValidateCreateForm form) {
+        if (form == null) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("form data is empty");
+        }
+        if (form.getGasLimit() < 0) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg(String.format("gasLimit [%s] is invalid", form.getGasLimit()));
+        }
+        if (form.getPrice() < 0) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg(String.format("price [%s] is invalid", form.getPrice()));
+        }
+        Map<String, Object> params = MapUtils.beanToMap(form);
+
+        RestFulResult restFulResult = RestFulUtil.post("api/contract/validate/create", params);
+        Result result;
+        if (restFulResult.isSuccess()) {
+            result = Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
+    }
+
+    public Result validateContractCall(ContractValidateCallForm form) {
+        if (form == null) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("form data is empty");
+        }
+        if (form.getGasLimit() < 0) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg(String.format("gasLimit [%s] is invalid", form.getGasLimit()));
+        }
+        if (form.getPrice() < 0) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg(String.format("price [%s] is invalid", form.getPrice()));
+        }
+        Map<String, Object> params = MapUtils.beanToMap(form);
+
+        RestFulResult restFulResult = RestFulUtil.post("api/contract/validate/call", params);
+        Result result;
+        if (restFulResult.isSuccess()) {
+            result = Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
+    }
+
+    public Result validateContractDelete(ContractValidateDeleteForm form) {
+        if (form == null) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("form data is empty");
+        }
+        Map<String, Object> params = MapUtils.beanToMap(form);
+
+        RestFulResult restFulResult = RestFulUtil.post("api/contract/validate/delete", params);
+        Result result;
+        if (restFulResult.isSuccess()) {
+            result = Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
+    }
+
+    public Result imputedContractCreateGas(ImputedGasContractCreateForm form) {
+        if (form == null) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("form data is empty");
+        }
+        Map<String, Object> params = MapUtils.beanToMap(form);
+
+        RestFulResult restFulResult = RestFulUtil.post("api/contract/imputedgas/create", params);
+        Result result;
+        if (restFulResult.isSuccess()) {
+            result = Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
+    }
+
+    public Result imputedContractCallGas(ImputedGasContractCallForm form) {
+        if (form == null) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("form data is empty");
+        }
+        Map<String, Object> params = MapUtils.beanToMap(form);
+
+        RestFulResult restFulResult = RestFulUtil.post("api/contract/imputedgas/call", params);
+        Result result;
+        if (restFulResult.isSuccess()) {
+            result = Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
+    }
+
+    public Result imputedContractCallGas(ContractViewCallForm form) {
+        if (form == null) {
+            return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("form data is empty");
+        }
+        Map<String, Object> params = MapUtils.beanToMap(form);
+
+        RestFulResult restFulResult = RestFulUtil.post("api/contract/view", params);
+        Result result;
+        if (restFulResult.isSuccess()) {
+            result = Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
         }
         return result;
     }
