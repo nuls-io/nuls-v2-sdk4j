@@ -185,7 +185,7 @@ public class ContractUtil {
 
     public static String bigInteger2String(BigInteger bigInteger) {
         if (bigInteger == null) {
-            return null;
+            return "0";
         }
         return bigInteger.toString();
     }
