@@ -75,7 +75,7 @@ public class ContractService {
             return Result.getFailed(CommonCodeConstanst.NULL_PARAMETER).setMsg("contractCode is empty");
         }
         // 验证发布合约的合法性
-        RpcResult validateResult = JsonRpcUtil.request("validateContractCreate", List.of(chainId, sender, MAX_GASLIMIT, CONTRACT_MINIMUM_PRICE, contractCode, args));
+        RpcResult validateResult = JsonRpcUtil.request("validateContractCreate", ListUtil.of(chainId, sender, MAX_GASLIMIT, CONTRACT_MINIMUM_PRICE, contractCode, args));
         Map map = (Map) validateResult.getResult();
         boolean success = (boolean) map.get("success");
         if (!success) {
@@ -83,7 +83,7 @@ public class ContractService {
         }
 
         // 预估发布合约需要的GAS
-        RpcResult<Map> rpcResult = JsonRpcUtil.request("imputedContractCreateGas", List.of(chainId, sender, contractCode, args));
+        RpcResult<Map> rpcResult = JsonRpcUtil.request("imputedContractCreateGas", ListUtil.of(chainId, sender, contractCode, args));
         RpcResultError rpcResultError = rpcResult.getError();
         if (rpcResultError != null) {
             return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());
@@ -100,7 +100,7 @@ public class ContractService {
         // 生成参数的二维数组
         String[][] finalArgs = null;
         if (args != null && args.length > 0) {
-            RpcResult<Map> constructorResult = JsonRpcUtil.request("getContractConstructor", List.of(chainId, contractCode));
+            RpcResult<Map> constructorResult = JsonRpcUtil.request("getContractConstructor", ListUtil.of(chainId, contractCode));
             rpcResultError = constructorResult.getError();
             if (rpcResultError != null) {
                 return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());
@@ -131,7 +131,7 @@ public class ContractService {
             createContractData.setArgs(finalArgs);
         }
         // 获取交易创建者的nonce值
-        RpcResult<Map> balanceResult = JsonRpcUtil.request("getAccountBalance", List.of(chainId, assetChainId, assetId, sender));
+        RpcResult<Map> balanceResult = JsonRpcUtil.request("getAccountBalance", ListUtil.of(chainId, assetChainId, assetId, sender));
         rpcResultError = balanceResult.getError();
         if (rpcResultError != null) {
             return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());
@@ -186,7 +186,7 @@ public class ContractService {
         }
 
         // 验证调用合约的合法性
-        RpcResult validateResult = JsonRpcUtil.request("validateContractCall", List.of(chainId, sender, value,
+        RpcResult validateResult = JsonRpcUtil.request("validateContractCall", ListUtil.of(chainId, sender, value,
                 MAX_GASLIMIT, CONTRACT_MINIMUM_PRICE, contractAddress, methodName, methodDesc, args));
         Map map = (Map) validateResult.getResult();
         boolean success = (boolean) map.get("success");
@@ -195,7 +195,7 @@ public class ContractService {
         }
 
         // 估算调用合约需要的GAS
-        RpcResult<Map> rpcResult = JsonRpcUtil.request("imputedContractCallGas", List.of(chainId, sender, value, contractAddress, methodName, methodDesc, args));
+        RpcResult<Map> rpcResult = JsonRpcUtil.request("imputedContractCallGas", ListUtil.of(chainId, sender, value, contractAddress, methodName, methodDesc, args));
         RpcResultError rpcResultError = rpcResult.getError();
         if (rpcResultError != null) {
             return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());
@@ -208,7 +208,7 @@ public class ContractService {
         // 生成参数的二维数组
         String[][] finalArgs = null;
         if (args != null && args.length > 0) {
-            RpcResult<List> constructorResult = JsonRpcUtil.request("getContractMethodArgsTypes", List.of(chainId, contractAddress, methodName));
+            RpcResult<List> constructorResult = JsonRpcUtil.request("getContractMethodArgsTypes", ListUtil.of(chainId, contractAddress, methodName));
             rpcResultError = constructorResult.getError();
             if (rpcResultError != null) {
                 return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());
@@ -237,7 +237,7 @@ public class ContractService {
         }
 
         // 获取交易创建者的nonce值
-        RpcResult<Map> balanceResult = JsonRpcUtil.request("getAccountBalance", List.of(chainId, assetChainId, assetId, sender));
+        RpcResult<Map> balanceResult = JsonRpcUtil.request("getAccountBalance", ListUtil.of(chainId, assetChainId, assetId, sender));
         rpcResultError = balanceResult.getError();
         if (rpcResultError != null) {
             return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());
@@ -278,7 +278,7 @@ public class ContractService {
             return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("contractAddress [%s] is invalid", contractAddress));
         }
         // 验证删除合约的合法性
-        RpcResult validateResult = JsonRpcUtil.request("validateContractDelete", List.of(chainId, sender, contractAddress));
+        RpcResult validateResult = JsonRpcUtil.request("validateContractDelete", ListUtil.of(chainId, sender, contractAddress));
         Map map = (Map) validateResult.getResult();
         boolean success = (boolean) map.get("success");
         if (!success) {
@@ -295,7 +295,7 @@ public class ContractService {
         // 获取交易创建者的nonce值
         int assetChainId = SDKContext.nuls_chain_id;
         int assetId = SDKContext.nuls_asset_id;
-        RpcResult<Map> balanceResult = JsonRpcUtil.request("getAccountBalance", List.of(chainId, assetChainId, assetId, sender));
+        RpcResult<Map> balanceResult = JsonRpcUtil.request("getAccountBalance", ListUtil.of(chainId, assetChainId, assetId, sender));
         RpcResultError rpcResultError = balanceResult.getError();
         if (rpcResultError != null) {
             return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());
@@ -557,7 +557,7 @@ public class ContractService {
             return Result.getFailed(CommonCodeConstanst.NULL_PARAMETER).setMsg("contractCode is empty");
         }
         int chainId = SDKContext.main_chain_id;
-        RpcResult<Map> rpcResult = JsonRpcUtil.request("getContractConstructor", List.of(chainId, contractCode));
+        RpcResult<Map> rpcResult = JsonRpcUtil.request("getContractConstructor", ListUtil.of(chainId, contractCode));
         RpcResultError rpcResultError = rpcResult.getError();
         if (rpcResultError != null) {
             return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());

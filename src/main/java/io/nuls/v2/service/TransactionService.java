@@ -513,7 +513,7 @@ public class TransactionService {
      * @return
      */
     public Result broadcastTx(String txHex) {
-        RpcResult<Map> balanceResult = JsonRpcUtil.request("broadcastTx", List.of(SDKContext.main_chain_id, txHex));
+        RpcResult<Map> balanceResult = JsonRpcUtil.request("broadcastTx", ListUtil.of(SDKContext.main_chain_id, txHex));
         RpcResultError rpcResultError = balanceResult.getError();
         if (rpcResultError != null) {
             return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());
