@@ -8,11 +8,11 @@ public class SignDto {
 
     @ApiModelProperty(description = "地址", required = true)
     private String address;
-    @ApiModelProperty(description = "明文私钥", required = true)
+    @ApiModelProperty(description = "明文私钥", required = false)
     private String priKey;
-    @ApiModelProperty(description = "加密私钥", required = true)
+    @ApiModelProperty(description = "加密私钥", required = false)
     private String encryptedPrivateKey;
-    @ApiModelProperty(description = "密码", required = true)
+    @ApiModelProperty(description = "密码", required = false)
     private String password;
 
     public String getAddress() {
