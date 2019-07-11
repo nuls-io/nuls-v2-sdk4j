@@ -37,5 +37,7 @@ import java.lang.annotation.Target;
 public @interface ApiOperation {
     String description();
 
+    String detailDesc() default "";
+
     int order();
 }
