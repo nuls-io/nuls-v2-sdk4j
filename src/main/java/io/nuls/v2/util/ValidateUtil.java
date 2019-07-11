@@ -63,7 +63,7 @@ public class ValidateUtil {
 
 
     public static boolean validateCommissionRate(int commissionRate) {
-        return commissionRate >= 0 || commissionRate <= 100;
+        return commissionRate >= 0 && commissionRate <= 100;
     }
 
     public static boolean validHash(String hex) {
