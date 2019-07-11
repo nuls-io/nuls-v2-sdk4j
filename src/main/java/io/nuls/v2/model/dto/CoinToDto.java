@@ -11,7 +11,7 @@ public class CoinToDto {
     @ApiModelProperty(description = "账户地址")
     private String address;
     @ApiModelProperty(description = "资产的链id")
-    private int chainId;
+    private int assetChainId;
     @ApiModelProperty(description = "资产id")
     private int assetId;
     @ApiModelProperty(description = "资产金额")
@@ -27,12 +27,12 @@ public class CoinToDto {
         this.address = address;
     }
 
-    public int getChainId() {
-        return chainId;
+    public int getAssetChainId() {
+        return assetChainId;
     }
 
-    public void setChainId(int chainId) {
-        this.chainId = chainId;
+    public void setAssetChainId(int assetChainId) {
+        this.assetChainId = assetChainId;
     }
 
     public int getAssetId() {

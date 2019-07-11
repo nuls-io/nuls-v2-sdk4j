@@ -53,7 +53,7 @@ public class TransationServiceTest {
         CoinToDto to = new CoinToDto();
         to.setAddress("8CPcA7kaXSHbWb3GHP7bd5hRLFu8RZv57rY9w");
         to.setAmount(new BigInteger("10000000"));
-        to.setChainId(SDKContext.main_chain_id);
+        to.setAssetChainId(SDKContext.main_chain_id);
         to.setAssetId(SDKContext.main_asset_id);
         outputs.add(to);
 

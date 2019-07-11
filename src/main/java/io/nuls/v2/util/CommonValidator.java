@@ -64,8 +64,8 @@ public class CommonValidator {
         //            if (!AddressTool.validAddress(SDKContext.default_chain_id, to.getAddress())) {
 //                throw new NulsRuntimeException(AccountErrorCode.PARAMETER_ERROR, "to address [" + to.getAddress() + "] is invalid");
 //            }
-        if (!validateChainId(to.getChainId())) {
-            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "to chainId [" + to.getChainId() + "] is invalid");
+        if (!validateChainId(to.getAssetChainId())) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "to chainId [" + to.getAssetChainId() + "] is invalid");
         }
         if (!validateChainId(to.getAssetId())) {
             throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "to assetId [" + to.getAssetId() + "] is invalid");

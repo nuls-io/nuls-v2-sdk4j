@@ -105,8 +105,8 @@ public class TransactionService {
                 }
             }
             for (CoinToDto toDto : transferDto.getOutputs()) {
-                if (toDto.getChainId() == 0) {
-                    toDto.setChainId(SDKContext.main_chain_id);
+                if (toDto.getAssetChainId() == 0) {
+                    toDto.setAssetChainId(SDKContext.main_chain_id);
                 }
                 if (toDto.getAssetId() == 0) {
                     toDto.setAssetId(SDKContext.main_asset_id);
@@ -153,7 +153,7 @@ public class TransactionService {
         List<CoinTo> coinTos = new ArrayList<>();
         for (CoinToDto to : transferDto.getOutputs()) {
             byte[] addressByte = AddressTool.getAddress(to.getAddress());
-            CoinTo coinTo = new CoinTo(addressByte, to.getChainId(), to.getAssetId(), to.getAmount(), to.getLockTime());
+            CoinTo coinTo = new CoinTo(addressByte, to.getAssetChainId(), to.getAssetId(), to.getAmount(), to.getLockTime());
             coinTos.add(coinTo);
         }
 
