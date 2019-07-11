@@ -112,7 +112,7 @@
         <dependency>
             <groupId>io.nuls.v2</groupId>
             <artifactId>nuls-core-rockdb</artifactId>
-
+            <version>${nuls.v2.version}</version>
         </dependency>
 
         <dependency>
