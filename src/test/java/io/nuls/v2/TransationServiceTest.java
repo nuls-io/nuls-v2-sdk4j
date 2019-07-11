@@ -44,7 +44,7 @@ public class TransationServiceTest {
         CoinFromDto from = new CoinFromDto();
         from.setAddress(address);
         from.setAmount(new BigInteger("10000000").add(fee));
-        from.setChainId(SDKContext.main_chain_id);
+        from.setAssetChainId(SDKContext.main_chain_id);
         from.setAssetId(SDKContext.main_asset_id);
         from.setNonce("6db83fdd14f6f233");
         inputs.add(from);
@@ -79,7 +79,7 @@ public class TransationServiceTest {
 
         CoinFromDto fromDto = new CoinFromDto();
         fromDto.setAddress(address);
-        fromDto.setChainId(SDKContext.main_chain_id);
+        fromDto.setAssetChainId(SDKContext.main_chain_id);
         fromDto.setAssetId(SDKContext.main_asset_id);
         fromDto.setAmount(deposit.add(fee));
         fromDto.setNonce("0000000000000000");
@@ -105,7 +105,7 @@ public class TransationServiceTest {
 
         CoinFromDto fromDto = new CoinFromDto();
         fromDto.setAddress(address);
-        fromDto.setChainId(SDKContext.main_chain_id);
+        fromDto.setAssetChainId(SDKContext.main_chain_id);
         fromDto.setAssetId(SDKContext.main_asset_id);
         fromDto.setAmount(deposit.add(fee));
         fromDto.setNonce("63b6e201aa9af5f0");
@@ -130,7 +130,7 @@ public class TransationServiceTest {
 
         CoinFromDto fromDto = new CoinFromDto();
         fromDto.setAddress(address);
-        fromDto.setChainId(SDKContext.main_chain_id);
+        fromDto.setAssetChainId(SDKContext.main_chain_id);
         fromDto.setAssetId(SDKContext.main_asset_id);
         fromDto.setAmount(deposit);
 
@@ -155,7 +155,7 @@ public class TransationServiceTest {
         depositDto1.setDepositHash("8ada2c25024ee0559b3d78c8e7695184b1c73b42b3a0ba586db83fdd14f6f233");
         CoinFromDto fromDto1 = new CoinFromDto();
         fromDto1.setAddress("8CPcA7kaUfbmbNhT6pHGvBhhK1NSKfCrQjdSL");
-        fromDto1.setChainId(SDKContext.main_chain_id);
+        fromDto1.setAssetChainId(SDKContext.main_chain_id);
         fromDto1.setAssetId(SDKContext.main_asset_id);
         fromDto1.setAmount(new BigInteger("200000000000"));
         depositDto1.setInput(fromDto1);
@@ -165,7 +165,7 @@ public class TransationServiceTest {
         depositDto2.setDepositHash("02d6b74d99c8406e30f9267c8e79f69b318f9a12a162063d63b6e201aa9af5f0");
         CoinFromDto fromDto2 = new CoinFromDto();
         fromDto2.setAddress("8CPcA7kaUfbmbNhT6pHGvBhhK1NSKfCrQjdSL");
-        fromDto2.setChainId(SDKContext.main_chain_id);
+        fromDto2.setAssetChainId(SDKContext.main_chain_id);
         fromDto2.setAssetId(SDKContext.main_asset_id);
         fromDto2.setAmount(new BigInteger("200000000000"));
         depositDto2.setInput(fromDto2);

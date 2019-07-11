@@ -97,8 +97,8 @@ public class TransactionService {
             CommonValidator.checkTransferDto(transferDto);
 
             for (CoinFromDto fromDto : transferDto.getInputs()) {
-                if (fromDto.getChainId() == 0) {
-                    fromDto.setChainId(SDKContext.main_chain_id);
+                if (fromDto.getAssetChainId() == 0) {
+                    fromDto.setAssetChainId(SDKContext.main_chain_id);
                 }
                 if (fromDto.getAssetId() == 0) {
                     fromDto.setAssetId(SDKContext.main_asset_id);
@@ -146,7 +146,7 @@ public class TransactionService {
         for (CoinFromDto from : transferDto.getInputs()) {
             byte[] address = AddressTool.getAddress(from.getAddress());
             byte[] nonce = HexUtil.decode(from.getNonce());
-            CoinFrom coinFrom = new CoinFrom(address, from.getChainId(), from.getAssetId(), from.getAmount(), nonce, AccountConstant.NORMAL_TX_LOCKED);
+            CoinFrom coinFrom = new CoinFrom(address, from.getAssetChainId(), from.getAssetId(), from.getAmount(), nonce, AccountConstant.NORMAL_TX_LOCKED);
             coinFroms.add(coinFrom);
         }
 
@@ -200,8 +200,8 @@ public class TransactionService {
             }
             CommonValidator.validateConsensusDto(consensusDto);
 
-            if (consensusDto.getInput().getChainId() == 0) {
-                consensusDto.getInput().setChainId(SDKContext.main_chain_id);
+            if (consensusDto.getInput().getAssetChainId() == 0) {
+                consensusDto.getInput().setAssetChainId(SDKContext.main_chain_id);
             }
             if (consensusDto.getInput().getAssetId() == 0) {
                 consensusDto.getInput().setAssetId(SDKContext.main_asset_id);
@@ -244,8 +244,8 @@ public class TransactionService {
         validateChainId();
         try {
             CommonValidator.validateDepositDto(dto);
-            if (dto.getInput().getChainId() == 0) {
-                dto.getInput().setChainId(SDKContext.main_chain_id);
+            if (dto.getInput().getAssetChainId() == 0) {
+                dto.getInput().setAssetChainId(SDKContext.main_chain_id);
             }
             if (dto.getInput().getAssetId() == 0) {
                 dto.getInput().setAssetId(SDKContext.main_asset_id);
@@ -279,11 +279,11 @@ public class TransactionService {
 
         byte[] address = AddressTool.getAddress(from.getAddress());
         byte[] nonce = HexUtil.decode(from.getNonce());
-        CoinFrom coinFrom = new CoinFrom(address, from.getChainId(), from.getAssetId(), from.getAmount(), nonce, AccountConstant.NORMAL_TX_LOCKED);
+        CoinFrom coinFrom = new CoinFrom(address, from.getAssetChainId(), from.getAssetId(), from.getAmount(), nonce, AccountConstant.NORMAL_TX_LOCKED);
         coinFroms.add(coinFrom);
 
         List<CoinTo> coinTos = new ArrayList<>();
-        CoinTo coinTo = new CoinTo(address, from.getChainId(), from.getAssetId(), amount, -1);
+        CoinTo coinTo = new CoinTo(address, from.getAssetChainId(), from.getAssetId(), amount, -1);
         coinTos.add(coinTo);
 
         txSize = txSize + getSignatureSize(coinFroms);
@@ -308,8 +308,8 @@ public class TransactionService {
                 dto.setPrice(SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE);
             }
             CommonValidator.validateWithDrawDto(dto);
-            if (dto.getInput().getChainId() == 0) {
-                dto.getInput().setChainId(SDKContext.main_chain_id);
+            if (dto.getInput().getAssetChainId() == 0) {
+                dto.getInput().setAssetChainId(SDKContext.main_chain_id);
             }
             if (dto.getInput().getAssetId() == 0) {
                 dto.getInput().setAssetId(SDKContext.main_asset_id);
@@ -352,13 +352,13 @@ public class TransactionService {
 
         CoinFromDto from = dto.getInput();
         byte[] address = AddressTool.getAddress(from.getAddress());
-        CoinFrom coinFrom = new CoinFrom(address, from.getChainId(), from.getAssetId(), from.getAmount(), (byte) -1);
+        CoinFrom coinFrom = new CoinFrom(address, from.getAssetChainId(), from.getAssetId(), from.getAmount(), (byte) -1);
         NulsHash nulsHash = NulsHash.fromHex(dto.getDepositHash());
         coinFrom.setNonce(TxUtils.getNonce(nulsHash.getBytes()));
         coinFroms.add(coinFrom);
 
         List<CoinTo> coinTos = new ArrayList<>();
-        CoinTo coinTo = new CoinTo(address, from.getChainId(), from.getAssetId(), from.getAmount().subtract(dto.getPrice()), 0);
+        CoinTo coinTo = new CoinTo(address, from.getAssetChainId(), from.getAssetId(), from.getAmount().subtract(dto.getPrice()), 0);
         coinTos.add(coinTo);
 
         txSize = txSize + getSignatureSize(coinFroms);
@@ -384,8 +384,8 @@ public class TransactionService {
             }
             CommonValidator.validateStopConsensusDto(dto);
             for (StopDepositDto depositDto : dto.getDepositList()) {
-                if (depositDto.getInput().getChainId() == 0) {
-                    depositDto.getInput().setChainId(SDKContext.main_chain_id);
+                if (depositDto.getInput().getAssetChainId() == 0) {
+                    depositDto.getInput().setAssetChainId(SDKContext.main_chain_id);
                 }
                 if (depositDto.getInput().getAssetId() == 0) {
                     depositDto.getInput().setAssetId(SDKContext.main_asset_id);
@@ -426,7 +426,7 @@ public class TransactionService {
     private CoinData assemblyCoinData(StopConsensusDto dto, int txSize) throws NulsException {
         //获取当前链注册共识资产的chainId和assetId
         CoinFromDto fromDto = dto.getDepositList().get(0).getInput();
-        int chainId = fromDto.getChainId();
+        int chainId = fromDto.getAssetChainId();
         int assetId = fromDto.getAssetId();
 
         List<CoinFrom> coinFromList = new ArrayList<>();
@@ -442,12 +442,12 @@ public class TransactionService {
         for (StopDepositDto depositDto : dto.getDepositList()) {
             CoinFromDto input = depositDto.getInput();
             byte[] address = AddressTool.getAddress(input.getAddress());
-            CoinFrom coinFrom1 = new CoinFrom(address, input.getChainId(), input.getAssetId(), input.getAmount(), (byte) -1);
+            CoinFrom coinFrom1 = new CoinFrom(address, input.getAssetChainId(), input.getAssetId(), input.getAmount(), (byte) -1);
             NulsHash nulsHash1 = NulsHash.fromHex(depositDto.getDepositHash());
             coinFrom1.setNonce(TxUtils.getNonce(nulsHash1.getBytes()));
             coinFromList.add(coinFrom1);
             //将相同账户的多次委托的金额存放在一起
-            String key = input.getAddress() + input.getChainId() + input.getAssetId();
+            String key = input.getAddress() + input.getAssetChainId() + input.getAssetId();
             fromDto = dtoMap.get(key);
             if (fromDto == null) {
                 dtoMap.put(key, input);
@@ -459,7 +459,7 @@ public class TransactionService {
         List<CoinTo> coinToList = new ArrayList<>();
         for (CoinFromDto input : dtoMap.values()) {
             byte[] address = AddressTool.getAddress(input.getAddress());
-            CoinTo coinTo = new CoinTo(address, input.getChainId(), input.getAssetId(), input.getAmount(), 0L);
+            CoinTo coinTo = new CoinTo(address, input.getAssetChainId(), input.getAssetId(), input.getAmount(), 0L);
             coinToList.add(coinTo);
         }
         //计算手续费
@@ -524,7 +524,7 @@ public class TransactionService {
 
     /**
      * 验证交易
-     * @param form
+     * @param txHex
      * @return
      */
     public Result validateTx(String txHex) {

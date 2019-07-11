@@ -31,8 +31,8 @@ public class CommonValidator {
         if (!AddressTool.validAddress(SDKContext.main_chain_id, from.getAddress())) {
             throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "from address [" + from.getAddress() + "] is invalid");
         }
-        if (!validateChainId(from.getChainId())) {
-            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "from chainId [" + from.getChainId() + "] is invalid");
+        if (!validateChainId(from.getAssetChainId())) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "from chainId [" + from.getAssetChainId() + "] is invalid");
         }
         if (!validateChainId(from.getAssetId())) {
             throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "from assetId [" + from.getAssetId() + "] is invalid");
@@ -49,8 +49,8 @@ public class CommonValidator {
         if (!AddressTool.validAddress(SDKContext.main_chain_id, from.getAddress())) {
             throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "from address [" + from.getAddress() + "] is invalid");
         }
-        if (!validateChainId(from.getChainId())) {
-            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "from chainId [" + from.getChainId() + "] is invalid");
+        if (!validateChainId(from.getAssetChainId())) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "from chainId [" + from.getAssetChainId() + "] is invalid");
         }
         if (!validateChainId(from.getAssetId())) {
             throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "from assetId [" + from.getAssetId() + "] is invalid");
