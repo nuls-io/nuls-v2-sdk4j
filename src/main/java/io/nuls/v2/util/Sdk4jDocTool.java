@@ -1,10 +1,12 @@
 package io.nuls.v2.util;
 
 import io.nuls.core.log.Log;
+import io.nuls.core.model.StringUtils;
 import io.nuls.core.parse.JSONUtils;
 import io.nuls.core.rpc.model.*;
 import io.nuls.v2.model.annotation.ApiOperation;
 import net.steppschuh.markdowngenerator.table.Table;
+import net.steppschuh.markdowngenerator.text.Text;
 import net.steppschuh.markdowngenerator.text.heading.Heading;
 
 import java.io.*;
@@ -103,6 +105,7 @@ public class Sdk4jDocTool {
         String cmdName;
         String cmdType;
         String des;
+        String detailDesc;
         String httpMethod;
         String md;
         List<ResultDes> parameters;
@@ -138,6 +141,14 @@ public class Sdk4jDocTool {
 
         public void setDes(String des) {
             this.des = des;
+        }
+
+        public String getDetailDesc() {
+            return detailDesc;
+        }
+
+        public void setDetailDesc(String detailDesc) {
+            this.detailDesc = detailDesc;
         }
 
         public String getHttpMethod() {
@@ -196,7 +207,6 @@ public class Sdk4jDocTool {
     }
 
     public static void main(String[] args) throws IOException {
-        //Gen.genJSON();
         Gen.genDoc();
         System.exit(0);
     }
@@ -220,6 +230,11 @@ public class Sdk4jDocTool {
                 ApiOperation cmdAnnotation = (ApiOperation) annotation;
                 CmdDes cmdDes = new CmdDes();
 
+                String detailDesc = cmdAnnotation.detailDesc();
+                if(StringUtils.isBlank(detailDesc)) {
+                    detailDesc = cmdAnnotation.description();
+                }
+                cmdDes.detailDesc = detailDesc;
                 cmdDes.order = cmdAnnotation.order();
                 cmdDes.cmdName = cmdBaseName + "#" + method.getName();
                 cmdDes.des = cmdAnnotation.description();
@@ -227,7 +242,7 @@ public class Sdk4jDocTool {
                 annotation = method.getAnnotation(ResponseData.class);
                 if (annotation != null) {
                     ResponseData responseData = (ResponseData) annotation;
-                    cmdDes.result = buildResultDes(responseData.responseType(), responseData.description(), responseData.name());
+                    cmdDes.result = buildResultDes(responseData.responseType(), responseData.description(), responseData.name(), true);
                 }
                 cmdDesList.add(cmdDes);
             }
@@ -240,7 +255,6 @@ public class Sdk4jDocTool {
                 return a.compareTo(b.order);
             });
             System.out.println("生成文档成功：" + createMarketDownDoc(cmdDesList, "./readme.md"));
-//            System.exit(0);
         }
 
         public static void genJSON() throws IOException {
@@ -250,7 +264,6 @@ public class Sdk4jDocTool {
             });
             Log.info("{}", cmdDesList);
             System.out.println("生成文档成功：" + createJSONConfig(cmdDesList, "./readme.md"));
-//            System.exit(0);
         }
 
         public static List<ResultDes> buildParam(Method method) {
@@ -270,9 +283,9 @@ public class Sdk4jDocTool {
                 res.des = parameter.parameterDes();
                 res.canNull = parameter.canNull();
                 if (baseType.contains(parameter.requestType().value())) {
-                    param.addAll(buildResultDes(parameter.requestType(), res.des, res.name));
+                    param.addAll(buildResultDes(parameter.requestType(), res.des, res.name, res.canNull));
                 } else {
-                    res.list = buildResultDes(parameter.requestType(), res.des, res.name);
+                    res.list = buildResultDes(parameter.requestType(), res.des, res.name, res.canNull);
                     res.type = parameter.requestType().value().getSimpleName().toLowerCase();
                     param.add(res);
                 }
@@ -280,7 +293,7 @@ public class Sdk4jDocTool {
             return param;
         }
 
-        public static List<ResultDes> buildResultDes(TypeDescriptor typeDescriptor, String des, String name) {
+        public static List<ResultDes> buildResultDes(TypeDescriptor typeDescriptor, String des, String name, boolean canNull) {
             ResultDes resultDes = new ResultDes();
             if (typeDescriptor.value() == Void.class) {
                 resultDes.type = "void";
@@ -292,6 +305,7 @@ public class Sdk4jDocTool {
                 resultDes.des = des;
                 resultDes.name = name;
                 resultDes.type = typeDescriptor.value().getSimpleName().toLowerCase();
+                resultDes.canNull = canNull;
                 return List.of(resultDes);
             } else if (typeDescriptor.value() == Map.class) {
                 return mapToResultDes(typeDescriptor);
@@ -300,6 +314,7 @@ public class Sdk4jDocTool {
                     resultDes.type = "list&lt;" + typeDescriptor.collectionElement().getSimpleName() + ">";
                     resultDes.des = des;
                     resultDes.name = name;
+                    resultDes.canNull = canNull;
                     return List.of(resultDes);
                 }
                 if (typeDescriptor.collectionElement() == Map.class) {
@@ -311,6 +326,7 @@ public class Sdk4jDocTool {
                 resultDes.des = des;
                 resultDes.name = name;
                 resultDes.type = "object[]";
+                resultDes.canNull = canNull;
                 return List.of(resultDes);
             } else {
                 Annotation annotation = typeDescriptor.value().getAnnotation(ApiModel.class);
@@ -318,6 +334,7 @@ public class Sdk4jDocTool {
                     resultDes.type = typeDescriptor.value().getSimpleName().toLowerCase();
                     resultDes.name = name;
                     resultDes.des = des;
+                    resultDes.canNull = canNull;
                     return List.of(resultDes);
                 }
                 return classToResultDes(typeDescriptor.value());
@@ -382,11 +399,12 @@ public class Sdk4jDocTool {
                 ResultDes filedDes = new ResultDes();
                 filedDes.des = apiModelProperty.description();
                 filedDes.name = filed.getName();
+                filedDes.canNull = !apiModelProperty.required();
                 if (apiModelProperty.type().value() != Void.class) {
                     if (baseType.contains(apiModelProperty.type().collectionElement())) {
                         filedDes.type = "list&lt;" + apiModelProperty.type().collectionElement().getSimpleName() + ">";
                     } else {
-                        filedDes.list = buildResultDes(apiModelProperty.type(), filedDes.des, filedDes.name);
+                        filedDes.list = buildResultDes(apiModelProperty.type(), filedDes.des, filedDes.name, filedDes.canNull);
                         if (apiModelProperty.type().value() == List.class) {
                             filedDes.type = "list&lt;object>";
                         } else if (apiModelProperty.type().value() == Map.class) {
@@ -493,6 +511,7 @@ public class Sdk4jDocTool {
                 writer.newLine();
                 writer.write(new Heading("Method: " + cmd.cmdName.replaceAll("_", "\\\\_"), 2).toString());
                 writer.newLine();
+                writer.write(new Text("_**详细描述: " + cmd.detailDesc + "**_").toString());
                 writer.newLine();
                 buildParam(writer, cmd.parameters);
                 buildResult(writer, cmd.result);
@@ -539,10 +558,7 @@ public class Sdk4jDocTool {
             }
             Table.Builder tableBuilder = new Table.Builder()
                     .withAlignments(Table.ALIGN_LEFT, Table.ALIGN_CENTER, Table.ALIGN_LEFT, Table.ALIGN_CENTER)
-                    .addRow("参数名", "参数类型", "参数描述", "是否非空");
-//            parameters.forEach(p->{
-//                tableBuilder.addRow(p.parameterName(),p.parameterType().toLowerCase(),p.parameterDes(),!p.canNull() ? "是" : "否");
-//            });
+                    .addRow("参数名", "参数类型", "参数描述", "是否必填");
             buildParam(tableBuilder, parameters, 0);
             writer.newLine();
             writer.write(tableBuilder.build().toString());
