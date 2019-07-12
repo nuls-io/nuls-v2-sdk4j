@@ -61,4 +61,10 @@ public class BlockServiceTest {
         Result result = NulsSDKTool.getBestBlock();
         System.out.println(result.getData());
     }
+
+    @Test
+    public void testInfo() {
+        Result result = NulsSDKTool.getInfo();
+        System.out.println(result.getData());
+    }
 }

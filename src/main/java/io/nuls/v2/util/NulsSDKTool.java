@@ -22,6 +22,18 @@ public class NulsSDKTool {
 
     private static ContractService contractService = ContractService.getInstance();
 
+    @ApiOperation(description = "获取本链相关信息", order = 001)
+    @ResponseData(name = "返回值", description = "返回账户地址", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "chainId", description = "本链的ID"),
+            @Key(name = "assetId", description = "本链默认主资产的ID"),
+            @Key(name = "inflationAmount", description = "本链默认主资的初始数量"),
+            @Key(name = "agentChainId", description = "本链共识资产的链ID"),
+            @Key(name = "agentAssetId", description = "本链共识资产的ID")
+    }))
+    public static Result<Map> getInfo() {
+        return blockService.getInfo();
+    }
+
     @ApiOperation(description = "创建账户", order = 101)
     @Parameters(value = {
             @Parameter(parameterName = "count", requestType = @TypeDescriptor(value = int.class), parameterDes = "创建数量"),

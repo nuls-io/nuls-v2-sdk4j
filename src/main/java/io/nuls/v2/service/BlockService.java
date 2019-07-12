@@ -98,4 +98,17 @@ public class BlockService {
         }
         return result;
     }
+
+
+    public Result getInfo() {
+        RestFulResult restFulResult = RestFulUtil.get("info");
+        Result result;
+        if (restFulResult.isSuccess()) {
+            result = io.nuls.core.basic.Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = io.nuls.core.basic.Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
+    }
 }
