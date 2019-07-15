@@ -22,11 +22,11 @@ public class NulsSDKTool {
 
     private static ContractService contractService = ContractService.getInstance();
 
-    @ApiOperation(description = "获取本链相关信息", order = 001)
-    @ResponseData(name = "返回值", description = "返回账户地址", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+    @ApiOperation(description = "获取本链相关信息,其中共识资产为本链创建共识节点交易和创建委托共识交易时，需要用到的资产", order = 001)
+    @ResponseData(name = "返回值", description = "返回本链信息", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "chainId", description = "本链的ID"),
             @Key(name = "assetId", description = "本链默认主资产的ID"),
-            @Key(name = "inflationAmount", description = "本链默认主资的初始数量"),
+            @Key(name = "inflationAmount", description = "本链默认主资产的初始数量"),
             @Key(name = "agentChainId", description = "本链共识资产的链ID"),
             @Key(name = "agentAssetId", description = "本链共识资产的ID")
     }))
@@ -34,7 +34,7 @@ public class NulsSDKTool {
         return blockService.getInfo();
     }
 
-    @ApiOperation(description = "创建账户", order = 101)
+    @ApiOperation(description = "批量创建账户", order = 101, detailDesc = "创建的账户存在于本地钱包内")
     @Parameters(value = {
             @Parameter(parameterName = "count", requestType = @TypeDescriptor(value = int.class), parameterDes = "创建数量"),
             @Parameter(parameterName = "password", parameterDes = "密码")
@@ -46,7 +46,7 @@ public class NulsSDKTool {
         return accountService.createAccount(count, password);
     }
 
-    @ApiOperation(description = "修改密码", order = 102)
+    @ApiOperation(description = "修改账户密码", order = 102)
     @Parameters(value = {
             @Parameter(parameterName = "address", parameterDes = "账户地址"),
             @Parameter(parameterName = "oldPassword", parameterDes = "原密码"),
@@ -59,19 +59,7 @@ public class NulsSDKTool {
         return accountService.resetPassword(address, oldPassword, newPassword);
     }
 
-    @ApiOperation(description = "根据私钥导入账户", order = 103)
-    @Parameters({
-            @Parameter(parameterName = "priKey", parameterDes = "账户明文私钥"),
-            @Parameter(parameterName = "password", parameterDes = "密码")
-    })
-    @ResponseData(name = "返回值", description = "返回账户地址", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
-            @Key(name = "value", description = "账户地址")
-    }))
-    public static Result importPriKey(String priKey, String password) {
-        return accountService.importPriKey(priKey, password);
-    }
-
-    @ApiOperation(description = "获取账户私钥", order = 104)
+    @ApiOperation(description = "导出账户私钥", order = 103, detailDesc = "只能导出本地钱包已存在账户的私钥")
     @Parameters({
             @Parameter(parameterName = "address", parameterDes = "账户地址"),
             @Parameter(parameterName = "password", parameterDes = "密码")
@@ -83,7 +71,19 @@ public class NulsSDKTool {
         return accountService.getPriKey(address, password);
     }
 
-    @ApiOperation(description = "导入keystore到钱包", order = 105)
+    @ApiOperation(description = "根据私钥导入账户", order = 104, detailDesc = "导入私钥时，需要输入密码给明文私钥加密")
+    @Parameters({
+            @Parameter(parameterName = "priKey", parameterDes = "账户明文私钥"),
+            @Parameter(parameterName = "password", parameterDes = "密码")
+    })
+    @ResponseData(name = "返回值", description = "返回账户地址", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "value", description = "账户地址")
+    }))
+    public static Result importPriKey(String priKey, String password) {
+        return accountService.importPriKey(priKey, password);
+    }
+
+    @ApiOperation(description = "根据keystore导入账户", order = 105)
     @Parameters({
             @Parameter(parameterName = "address", parameterDes = "账户地址"),
             @Parameter(parameterName = "encryptedPriKey", parameterDes = "加密后的私钥"),
@@ -109,62 +109,17 @@ public class NulsSDKTool {
         return accountService.exportKeyStore(address, password, filePath);
     }
 
-    @ApiOperation(description = "查询账户余额", order = 107)
+    @ApiOperation(description = "查询账户余额", order = 107, detailDesc = "根据资产链ID和资产ID，查询本链账户对应资产的余额与nonce值")
     @Parameters({
             @Parameter(parameterName = "address", requestType = @TypeDescriptor(value = String.class), parameterDes = "账户地址")
     })
-    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
-            @Key(name = "total", description = "总余额"),
-            @Key(name = "freeze", description = "锁定金额"),
-            @Key(name = "available", description = "可用余额")
-    }))
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = AccountBalanceDto.class))
     public static Result getAccountBalance(String address) {
         return accountService.getAccountBalance(address);
     }
 
-    @ApiOperation(description = "多账户摘要签名", order = 108)
-    @Parameters({
-            @Parameter(parameterName = "signDtoList", parameterDes = "摘要签名表单", requestType = @TypeDescriptor(value = SignDto.class)),
-            @Parameter(parameterName = "txHex", parameterDes = "交易序列化16进制字符串")
-    })
-    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
-            @Key(name = "hash", description = "交易hash"),
-            @Key(name = "txHex", description = "签名后的交易16进制字符串")
-    }))
-    public static Result sign(List<SignDto> signDtoList, String txHex) {
-        return accountService.sign(signDtoList, txHex);
-    }
 
-    @ApiOperation(description = "明文私钥摘要签名", order = 109)
-    @Parameters({
-            @Parameter(parameterName = "txHex", parameterDes = "交易序列化16进制字符串"),
-            @Parameter(parameterName = "address", parameterDes = "账户地址"),
-            @Parameter(parameterName = "privateKey", parameterDes = "账户明文私钥")
-    })
-    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
-            @Key(name = "hash", description = "交易hash"),
-            @Key(name = "txHex", description = "签名后的交易16进制字符串")
-    }))
-    public static Result sign(String txHex, String address, String privateKey) {
-        return transactionService.signTx(txHex, address, privateKey);
-    }
-
-    @ApiOperation(description = "密文私钥摘要签名", order = 110)
-    @Parameters({
-            @Parameter(parameterName = "txHex", parameterDes = "交易序列化16进制字符串"),
-            @Parameter(parameterName = "address", parameterDes = "账户地址"),
-            @Parameter(parameterName = "encryptedPrivateKey", parameterDes = "账户密文私钥"),
-            @Parameter(parameterName = "password", parameterDes = "密码")
-    })
-    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
-            @Key(name = "hash", description = "交易hash"),
-            @Key(name = "txHex", description = "签名后的交易16进制字符串")
-    }))
-    public static Result sign(String txHex, String address, String encryptedPrivateKey, String password) {
-        return transactionService.signTx(txHex, address, encryptedPrivateKey, password);
-    }
-
-    @ApiOperation(description = "离线创建账户", order = 151)
+    @ApiOperation(description = "离线 - 批量创建账户", order = 151, detailDesc = "创建的账户不会保存到钱包中,接口直接返回账户的keystore信息")
     @Parameters(value = {
             @Parameter(parameterName = "count", requestType = @TypeDescriptor(value = int.class), parameterDes = "创建数量"),
             @Parameter(parameterName = "password", parameterDes = "密码")
@@ -176,7 +131,7 @@ public class NulsSDKTool {
         return accountService.createOffLineAccount(count, password);
     }
 
-    @ApiOperation(description = "离线重置密码", order = 152)
+    @ApiOperation(description = "离线修改账户密码", order = 152)
     @Parameters(value = {
             @Parameter(parameterName = "address", parameterDes = "账户地址"),
             @Parameter(parameterName = "encryptedPriKey", parameterDes = "加密后的私钥"),
@@ -184,7 +139,7 @@ public class NulsSDKTool {
             @Parameter(parameterName = "newPassword", parameterDes = "新密码")
     })
     @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
-            @Key(name = "value", valueType = String.class, description = "重置密码后的加密私钥")
+            @Key(name = "value", description = "重置密码后的加密私钥")
     }))
     public static Result resetPasswordOffline(String address, String encryptedPriKey, String password, String newPassword) {
         return accountService.resetPasswordOffline(address, encryptedPriKey, password, newPassword);
@@ -202,6 +157,49 @@ public class NulsSDKTool {
     public static Result getPriKeyOffline(String address, String encryptedPriKey, String password) {
         return accountService.getPriKeyOffline(address, encryptedPriKey, password);
     }
+
+    @ApiOperation(description = "多账户摘要签名", order = 154, detailDesc = "用于签名离线组装的多账户转账交易，调用接口时，参数可以传地址和私钥，或者传地址和加密私钥和加密密码")
+    @Parameters({
+            @Parameter(parameterName = "signDtoList", parameterDes = "摘要签名表单", requestType = @TypeDescriptor(value = SignDto.class)),
+            @Parameter(parameterName = "txHex", parameterDes = "交易序列化16进制字符串")
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "签名后的交易16进制字符串")
+    }))
+    public static Result sign(List<SignDto> signDtoList, String txHex) {
+        return accountService.sign(signDtoList, txHex);
+    }
+
+    @ApiOperation(description = "明文私钥摘要签名", order = 155)
+    @Parameters({
+            @Parameter(parameterName = "txHex", parameterDes = "交易序列化16进制字符串"),
+            @Parameter(parameterName = "address", parameterDes = "账户地址"),
+            @Parameter(parameterName = "privateKey", parameterDes = "账户明文私钥")
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "签名后的交易16进制字符串")
+    }))
+    public static Result sign(String txHex, String address, String privateKey) {
+        return transactionService.signTx(txHex, address, privateKey);
+    }
+
+    @ApiOperation(description = "密文私钥摘要签名", order = 156)
+    @Parameters({
+            @Parameter(parameterName = "txHex", parameterDes = "交易序列化16进制字符串"),
+            @Parameter(parameterName = "address", parameterDes = "账户地址"),
+            @Parameter(parameterName = "encryptedPrivateKey", parameterDes = "账户密文私钥"),
+            @Parameter(parameterName = "password", parameterDes = "密码")
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "签名后的交易16进制字符串")
+    }))
+    public static Result sign(String txHex, String address, String encryptedPrivateKey, String password) {
+        return transactionService.signTx(txHex, address, encryptedPrivateKey, password);
+    }
+
 
     @ApiOperation(description = "根据区块高度查询区块头", order = 201)
     @Parameters({
@@ -251,27 +249,7 @@ public class NulsSDKTool {
         return blockService.getBestBlock();
     }
 
-    @ApiOperation(description = "转账", order = 301)
-    @Parameters({
-            @Parameter(parameterName = "transferForm", parameterDes = "转账交易表单", requestType = @TypeDescriptor(value = TransferForm.class))
-    })
-    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
-            @Key(name = "value", description = "交易hash")
-    }))
-    public static Result transfer(TransferForm transferForm) {
-        return transactionService.transfer(transferForm);
-    }
-
-    @ApiOperation(description = "计算创建转账交易所需手续费", order = 302)
-    @Parameters({
-            @Parameter(parameterName = "TransferTxFeeDto", parameterDes = "转账交易手续费", requestType = @TypeDescriptor(value = TransferTxFeeDto.class))
-    })
-    @ResponseData(name = "返回值", description = "手续费金额", responseType = @TypeDescriptor(value = BigInteger.class))
-    public static BigInteger calcTransferTxFee(TransferTxFeeDto dto) {
-        return transactionService.calcTransferTxFee(dto);
-    }
-
-    @ApiOperation(description = "根据hash获取交易，只查已确认交易", order = 303)
+    @ApiOperation(description = "根据hash查询交易详情", order = 301)
     @Parameters({
             @Parameter(parameterName = "hash", parameterDes = "交易hash")
     })
@@ -280,7 +258,7 @@ public class NulsSDKTool {
         return transactionService.getTx(txHash);
     }
 
-    @ApiOperation(description = "验证交易是否正确", order = 304)
+    @ApiOperation(description = "验证交易", order = 302, detailDesc = "验证离线组装的交易,验证成功返回交易hash值,失败返回错误提示信息")
     @Parameters({
             @Parameter(parameterName = "txHex", parameterDes = "交易序列化16进制字符串")
     })
@@ -291,7 +269,7 @@ public class NulsSDKTool {
         return transactionService.validateTx(txHex);
     }
 
-    @ApiOperation(description = "广播交易", order = 305)
+    @ApiOperation(description = "广播交易", order = 303, detailDesc = "广播离线组装的交易,成功返回true,失败返回错误提示信息")
     @Parameters({
             @Parameter(parameterName = "txHex", parameterDes = "交易序列化16进制字符串")
     })
@@ -303,7 +281,19 @@ public class NulsSDKTool {
         return transactionService.broadcastTx(txHex);
     }
 
-    @ApiOperation(description = "离线组装转账交易", order = 351)
+    @ApiOperation(description = "单笔转账", order = 304, detailDesc = "发起单账户单资产的转账交易")
+    @Parameters({
+            @Parameter(parameterName = "transferForm", parameterDes = "转账交易表单", requestType = @TypeDescriptor(value = TransferForm.class))
+    })
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "value", description = "交易hash")
+    }))
+    public static Result transfer(TransferForm transferForm) {
+        return transactionService.transfer(transferForm);
+    }
+
+    @ApiOperation(description = "离线组装转账交易", order = 350, detailDesc = "根据inputs和outputs离线组装转账交易，用于单账户或多账户的转账交易。" +
+            "交易手续费为inputs里本链主资产金额总和，减去outputs里本链主资产总和")
     @Parameters({
             @Parameter(parameterName = "transferDto", parameterDes = "转账交易表单", requestType = @TypeDescriptor(value = TransferDto.class))
     })
@@ -313,6 +303,15 @@ public class NulsSDKTool {
     }))
     public static Result createTransferTxOffline(TransferDto transferDto) {
         return transactionService.createTransferTx(transferDto);
+    }
+
+    @ApiOperation(description = "计算离线创建转账交易所需手续费", order = 351)
+    @Parameters({
+            @Parameter(parameterName = "TransferTxFeeDto", parameterDes = "转账交易手续费", requestType = @TypeDescriptor(value = TransferTxFeeDto.class))
+    })
+    @ResponseData(name = "返回值", description = "手续费金额", responseType = @TypeDescriptor(value = BigInteger.class))
+    public static BigInteger calcTransferTxFee(TransferTxFeeDto dto) {
+        return transactionService.calcTransferTxFee(dto);
     }
 
     @ApiOperation(description = "发布合约", order = 401)
@@ -602,7 +601,7 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "deposit nuls to a bank! 申请参与共识", order = 503)
     @Parameters({
-            @Parameter(parameterName = "申请参与共识", parameterDes = "申请参与共识表单", requestType = @TypeDescriptor(value = DepositForm.class))
+            @Parameter(parameterName = "委托参与共识", parameterDes = "委托参与共识表单", requestType = @TypeDescriptor(value = DepositForm.class))
     })
     @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "value", description = "交易hash")
@@ -622,7 +621,16 @@ public class NulsSDKTool {
         return consensusService.withdraw(form);
     }
 
-    @ApiOperation(description = "离线组装创建共识节点交易", order = 551)
+    @ApiOperation(description = "查询节点的委托共识列表", order = 505)
+    @Parameters({
+            @Parameter(parameterName = "agentHash", parameterDes = "创建共识节点的交易hash")
+    })
+    @ResponseData(name = "返回值", description = "返回委托共识集合", responseType = @TypeDescriptor(value = List.class, collectionElement = DepositInfoDto.class))
+    public static Result getDepositList(String agentHash) {
+        return consensusService.getDepositList(agentHash);
+    }
+
+    @ApiOperation(description = "离线组装创建共识节点交易", order = 551, detailDesc = "参与共识所需资产可通过查询链信息接口获取(agentChainId和agentAssetId)")
     @Parameters({
             @Parameter(parameterName = "consensusDto", parameterDes = "创建节点交易表单", requestType = @TypeDescriptor(value = ConsensusDto.class))
     })
@@ -634,7 +642,7 @@ public class NulsSDKTool {
         return transactionService.createConsensusTx(consensusDto);
     }
 
-    @ApiOperation(description = "离线组装委托共识交易", order = 552)
+    @ApiOperation(description = "离线组装委托共识交易", order = 552, detailDesc = "参与共识所需资产可通过查询链信息接口获取(agentChainId和agentAssetId)")
     @Parameters({
             @Parameter(parameterName = "depositDto", parameterDes = "委托共识交易表单", requestType = @TypeDescriptor(value = DepositDto.class))
     })
@@ -646,7 +654,7 @@ public class NulsSDKTool {
         return transactionService.createDepositTx(depositDto);
     }
 
-    @ApiOperation(description = "离线组装退出委托共识交易", order = 553)
+    @ApiOperation(description = "离线组装退出委托共识交易", order = 553, detailDesc = "接口的input数据，则是委托共识交易的output数据，nonce值可为空")
     @Parameters({
             @Parameter(parameterName = "withDrawDto", parameterDes = "退出委托交易表单", requestType = @TypeDescriptor(value = WithDrawDto.class))
     })
@@ -658,7 +666,7 @@ public class NulsSDKTool {
         return transactionService.createWithdrawDepositTx(withDrawDto);
     }
 
-    @ApiOperation(description = "离线组装注销共识节点交易", order = 554)
+    @ApiOperation(description = "离线组装注销共识节点交易", order = 554, detailDesc = "组装交易的StopDepositDto信息，可通过查询节点的委托共识列表获取，input的nonce值可为空")
     @Parameters({
             @Parameter(parameterName = "stopConsensusDto", parameterDes = "注销共识节点交易表单", requestType = @TypeDescriptor(value = StopConsensusDto.class))
     })

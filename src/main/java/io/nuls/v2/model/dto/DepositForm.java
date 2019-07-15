@@ -3,7 +3,7 @@ package io.nuls.v2.model.dto;
 import io.nuls.core.rpc.model.ApiModel;
 import io.nuls.core.rpc.model.ApiModelProperty;
 
-@ApiModel
+@ApiModel(name = "委托参与共识表单数据")
 public class DepositForm {
 
     @ApiModelProperty(description = "账户地址")
