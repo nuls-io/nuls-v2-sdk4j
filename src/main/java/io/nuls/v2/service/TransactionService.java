@@ -40,7 +40,7 @@ public class TransactionService {
 
     public Result getTx(String txHash) {
         validateChainId();
-        RestFulResult restFulResult = RestFulUtil.get("api/accountledger/tx/" + txHash);
+        RestFulResult restFulResult = RestFulUtil.get("api/tx/" + txHash);
         Result result;
         if (restFulResult.isSuccess()) {
             result = Result.getSuccess(restFulResult.getData());

@@ -48,6 +48,8 @@ public class TransactionDto {
     private String remark;
     @ApiModelProperty(description = "交易签名")
     private String transactionSignature;
+    @ApiModelProperty(description = "交易业务数据序列化字符串")
+    private String txDataHex;
     @ApiModelProperty(description = "交易状态 0:unConfirm(待确认), 1:confirm(已确认)")
     private int status = 0;
     @ApiModelProperty(description = "交易大小")
@@ -105,6 +107,14 @@ public class TransactionDto {
 
     public void setTransactionSignature(String transactionSignature) {
         this.transactionSignature = transactionSignature;
+    }
+
+    public String getTxDataHex() {
+        return txDataHex;
+    }
+
+    public void setTxDataHex(String txDataHex) {
+        this.txDataHex = txDataHex;
     }
 
     public int getStatus() {
