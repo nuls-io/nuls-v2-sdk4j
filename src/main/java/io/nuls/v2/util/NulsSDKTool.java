@@ -113,7 +113,7 @@ public class NulsSDKTool {
     @Parameters({
             @Parameter(parameterName = "address", requestType = @TypeDescriptor(value = String.class), parameterDes = "账户地址")
     })
-    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = AccountBalanceDto.class))
+    @ResponseData(name = "返回值", description = "注意: 返回值是一个Map对象，内部key-value结构是[responseType]描述对象的结构", responseType = @TypeDescriptor(value = AccountBalanceDto.class))
     public static Result getAccountBalance(String address) {
         return accountService.getAccountBalance(address);
     }
@@ -205,7 +205,7 @@ public class NulsSDKTool {
     @Parameters({
             @Parameter(parameterName = "height", requestType = @TypeDescriptor(value = Long.class), parameterDes = "区块高度")
     })
-    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = BlockHeaderDto.class))
+    @ResponseData(name = "返回值", description = "注意: 返回值是一个Map对象，内部key-value结构是[responseType]描述对象的结构", responseType = @TypeDescriptor(value = BlockHeaderDto.class))
     public static Result getBlockHeader(long height) {
         return blockService.getBlockHeader(height);
     }
@@ -214,7 +214,7 @@ public class NulsSDKTool {
     @Parameters({
             @Parameter(parameterName = "hash", parameterDes = "区块hash")
     })
-    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = BlockHeaderDto.class))
+    @ResponseData(name = "返回值", description = "注意: 返回值是一个Map对象，内部key-value结构是[responseType]描述对象的结构", responseType = @TypeDescriptor(value = BlockHeaderDto.class))
     public static Result getBlockHeader(String hash) {
         return blockService.getBlockHeader(hash);
     }
@@ -223,7 +223,7 @@ public class NulsSDKTool {
     @Parameters({
             @Parameter(parameterName = "height", requestType = @TypeDescriptor(value = Long.class), parameterDes = "区块高度")
     })
-    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = BlockHeaderDto.class))
+    @ResponseData(name = "返回值", description = "注意: 返回值是一个Map对象，内部key-value结构是[responseType]描述对象的结构", responseType = @TypeDescriptor(value = BlockHeaderDto.class))
     public static Result getBlock(long height) {
         return blockService.getBlock(height);
     }
@@ -232,19 +232,19 @@ public class NulsSDKTool {
     @Parameters({
             @Parameter(parameterName = "hash", parameterDes = "区块hash")
     })
-    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = BlockHeaderDto.class))
+    @ResponseData(name = "返回值", description = "注意: 返回值是一个Map对象，内部key-value结构是[responseType]描述对象的结构", responseType = @TypeDescriptor(value = BlockHeaderDto.class))
     public static Result getBlock(String hash) {
         return blockService.getBlock(hash);
     }
 
     @ApiOperation(description = "查询最新区块头信息", order = 205)
-    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = BlockHeaderDto.class))
+    @ResponseData(name = "返回值", description = "注意: 返回值是一个Map对象，内部key-value结构是[responseType]描述对象的结构", responseType = @TypeDescriptor(value = BlockHeaderDto.class))
     public static Result getBestBlockHeader() {
         return blockService.getBestBlockHeader();
     }
 
     @ApiOperation(description = "查询最新区块", order = 206)
-    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = BlockDto.class))
+    @ResponseData(name = "返回值", description = "注意: 返回值是一个Map对象，内部key-value结构是[responseType]描述对象的结构", responseType = @TypeDescriptor(value = BlockDto.class))
     public static Result getBestBlock() {
         return blockService.getBestBlock();
     }
@@ -253,7 +253,7 @@ public class NulsSDKTool {
     @Parameters({
             @Parameter(parameterName = "hash", parameterDes = "交易hash")
     })
-    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = TransactionDto.class))
+    @ResponseData(name = "返回值", description = "注意: 返回值是一个Map对象，内部key-value结构是[responseType]描述对象的结构", responseType = @TypeDescriptor(value = TransactionDto.class))
     public static Result getTx(String txHash) {
         return transactionService.getTx(txHash);
     }
@@ -375,7 +375,7 @@ public class NulsSDKTool {
             @Parameter(parameterName = "contractAddress", parameterDes = "合约地址"),
             @Parameter(parameterName = "address", parameterDes = "账户地址")
     })
-    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = ContractTokenInfoDto.class))
+    @ResponseData(name = "返回值", description = "注意: 返回值是一个Map对象，内部key-value结构是[responseType]描述对象的结构", responseType = @TypeDescriptor(value = ContractTokenInfoDto.class))
     public static Result getTokenBalance(String contractAddress, String address) {
         return contractService.getTokenBalance(contractAddress, address);
     }
@@ -384,7 +384,7 @@ public class NulsSDKTool {
     @Parameters({
             @Parameter(parameterName = "address", parameterDes = "合约地址")
     })
-    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = ContractInfoDto.class))
+    @ResponseData(name = "返回值", description = "注意: 返回值是一个Map对象，内部key-value结构是[responseType]描述对象的结构", responseType = @TypeDescriptor(value = ContractInfoDto.class))
     public static Result getContractInfo(String contractAddress) {
         return contractService.getContractInfo(contractAddress);
     }
@@ -393,7 +393,7 @@ public class NulsSDKTool {
     @Parameters({
             @Parameter(parameterName = "hash", parameterDes = "交易hash")
     })
-    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = ContractResultDto.class))
+    @ResponseData(name = "返回值", description = "注意: 返回值是一个Map对象，内部key-value结构是[responseType]描述对象的结构", responseType = @TypeDescriptor(value = ContractResultDto.class))
     public static Result getContractResult(String hash) {
         return contractService.getContractResult(hash);
     }
@@ -411,7 +411,7 @@ public class NulsSDKTool {
     @Parameters({
             @Parameter(parameterName = "获取已发布合约指定函数的信息", parameterDes = "获取已发布合约指定函数的信息表单", requestType = @TypeDescriptor(value = ContractMethodForm.class))
     })
-    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = ProgramMethod.class))
+    @ResponseData(name = "返回值", description = "注意: 返回值是一个Map对象，内部key-value结构是[responseType]描述对象的结构", responseType = @TypeDescriptor(value = ProgramMethod.class))
     public static Result getContractMethod(ContractMethodForm form) {
         return contractService.getContractMethod(form);
     }
@@ -625,7 +625,7 @@ public class NulsSDKTool {
     @Parameters({
             @Parameter(parameterName = "agentHash", parameterDes = "创建共识节点的交易hash")
     })
-    @ResponseData(name = "返回值", description = "返回委托共识集合", responseType = @TypeDescriptor(value = List.class, collectionElement = DepositInfoDto.class))
+    @ResponseData(name = "返回值", description = "注意: 返回值是一个List<Map>集合对象，内部key-value结构是[responseType]描述对象的结构", responseType = @TypeDescriptor(value = List.class, collectionElement = DepositInfoDto.class))
     public static Result getDepositList(String agentHash) {
         return consensusService.getDepositList(agentHash);
     }
