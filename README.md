@@ -12,7 +12,7 @@ maven依赖：
 <dependency>
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j</artifactId>
-    <version>1.0.0-beta1</version>
+    <version>1.0.0-beta1.1</version>
 </dependency>
 ```
 
