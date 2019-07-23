@@ -25,8 +25,8 @@ public class ContractServiceTest {
     public void before() {
         contractService = ContractService.getInstance();
         transactionService = TransactionService.getInstance();
-        NulsSDKBootStrap.init(2, url);
-        SDKContext.nuls_chain_id = 2;
+        NulsSDKBootStrap.initTest(url);
+
     }
 
     @Test

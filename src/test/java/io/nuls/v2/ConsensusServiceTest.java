@@ -17,7 +17,7 @@ public class ConsensusServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.init(2, "http://127.0.0.1:9898/");
+        NulsSDKBootStrap.initTest("http://127.0.0.1:9898/");
     }
 
     @Test

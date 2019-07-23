@@ -11,20 +11,23 @@ public class NulsSDKBootStrap {
      *
      * @param chainId 运行链的id
      */
-    public static void init(int chainId) {
+    public static void initChainId(int chainId) {
         if (chainId < 1 || chainId > 65535) {
             throw new RuntimeException("[defaultChainId] is invalid");
         }
         SDKContext.main_chain_id = chainId;
+        SDKContext.nuls_chain_id = chainId;
         I18nUtils.loadLanguage(NulsSDKBootStrap.class, LANGUAGE_PATH, LANGUAGE);
     }
 
-    public static void init(String httpUrl) {
+    public static void initTest(String httpUrl) {
+        initChainId(2);
         SDKContext.wallet_url = httpUrl;
     }
 
-    public static void init(int chainId, String httpUrl) {
-        init(chainId);
-        init(httpUrl);
+    public static void initMain(String httpUrl) {
+        initChainId(1);
+        SDKContext.wallet_url = httpUrl;
     }
+
 }
