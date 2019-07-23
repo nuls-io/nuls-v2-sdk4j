@@ -26,7 +26,7 @@ public class TransationServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.initChainId(100);
+        NulsSDKBootStrap.init(100, null);
     }
 
     @Test

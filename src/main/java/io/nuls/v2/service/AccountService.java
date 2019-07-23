@@ -371,14 +371,18 @@ public class AccountService {
      * @param address 地址
      * @return result
      */
-    public Result getAccountBalance(String address) {
+    public Result getAccountBalance(String address, int chainId, int assetsId) {
         validateChainId();
         try {
-            if (!AddressTool.validAddress(SDKContext.main_chain_id, address)) {
+            if (!AddressTool.validAddress(chainId, address)) {
                 throw new NulsException(AccountErrorCode.ADDRESS_ERROR);
             }
+            Map<String, Object> params = new HashMap<>();
+            params.put("assetChainId", chainId);
+            params.put("assetId", assetsId);
+
             Result result;
-            RestFulResult restFulResult = RestFulUtil.get("api/accountledger/balance/" + address);
+            RestFulResult restFulResult = RestFulUtil.post("api/accountledger/balance/" + address, params);
             if (restFulResult.isSuccess()) {
                 result = Result.getSuccess(restFulResult.getData());
             } else {

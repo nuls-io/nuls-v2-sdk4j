@@ -48,6 +48,7 @@ public class Sdk4jDocTool {
         baseType.add(byte.class);
         baseType.add(String.class);
         baseType.add(Object[].class);
+        baseType.add(String[].class);
         baseType.add(BigInteger.class);
         baseType.add(BigDecimal.class);
     }
@@ -505,6 +506,9 @@ public class Sdk4jDocTool {
                         }
                     }
                     order = String.valueOf(i.getAndIncrement());
+                    if(cmd.order < 100) {
+                        order = "0".repeat(3 - order.length()) + order;
+                    }
                     order = order.substring(0, 1) + "." + Integer.parseInt(order.substring(1)) + " ";
                 }
                 writer.write(new Heading(order + cmd.des, 1).toString());

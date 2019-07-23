@@ -125,7 +125,7 @@ public class AccountServiceTest {
 
     @Test
     public void testBalance() {
-        Result result = NulsSDKTool.getAccountBalance("tNULSeBaMshNPEnuqiDhMdSA4iNs6LMgjY6tcL");
+        Result result = NulsSDKTool.getAccountBalance("tNULSeBaMshNPEnuqiDhMdSA4iNs6LMgjY6tcL", 2, 1);
         System.out.println(result);
     }
 
