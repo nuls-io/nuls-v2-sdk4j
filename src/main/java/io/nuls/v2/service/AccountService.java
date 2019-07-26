@@ -84,10 +84,11 @@ public class AccountService {
      * 批量创建离线账户
      *
      * @param count    The number of accounts you want to create
+     * @param prefix   The address prefix
      * @param password The password of the account
      * @return result
      */
-    public Result<List<AccountDto>> createOffLineAccount(int count, String password) {
+    public Result<List<AccountDto>> createOffLineAccount(int count, String prefix, String password) {
         validateChainId();
 
         List<AccountDto> list = new ArrayList<>();
@@ -100,7 +101,12 @@ public class AccountService {
             }
             for (int i = 0; i < count; i++) {
                 //create account
-                Account account = AccountTool.createAccount(SDKContext.main_chain_id);
+                Account account;
+                if (StringUtils.isBlank(prefix)) {
+                    account = AccountTool.createAccount(SDKContext.main_chain_id);
+                } else {
+                    account = AccountTool.createAccount(SDKContext.main_chain_id, prefix);
+                }
                 if (StringUtils.isNotBlank(password)) {
                     account.encrypt(password);
                 }

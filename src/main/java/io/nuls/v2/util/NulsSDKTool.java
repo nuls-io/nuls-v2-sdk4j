@@ -119,7 +119,7 @@ public class NulsSDKTool {
     }
 
 
-    @ApiOperation(description = "离线 - 批量创建账户", order = 151, detailDesc = "创建的账户不会保存到钱包中,接口直接返回账户的keystore信息")
+    @ApiOperation(description = "离线 - 批量创建账户", order = 150, detailDesc = "创建的账户不会保存到钱包中,接口直接返回账户的keystore信息")
     @Parameters(value = {
             @Parameter(parameterName = "count", requestType = @TypeDescriptor(value = int.class), parameterDes = "创建数量"),
             @Parameter(parameterName = "password", parameterDes = "密码")
@@ -128,7 +128,20 @@ public class NulsSDKTool {
             responseType = @TypeDescriptor(value = List.class, collectionElement = AccountDto.class)
     )
     public static Result<List<AccountDto>> createOffLineAccount(int count, String password) {
-        return accountService.createOffLineAccount(count, password);
+        return accountService.createOffLineAccount(count, null, password);
+    }
+
+    @ApiOperation(description = "离线 - 批量创建地址带固定前缀的账户", order = 151, detailDesc = "创建的账户不会保存到钱包中,接口直接返回账户的keystore信息")
+    @Parameters(value = {
+            @Parameter(parameterName = "count", requestType = @TypeDescriptor(value = int.class), parameterDes = "创建数量"),
+            @Parameter(parameterName = "prefix", requestType = @TypeDescriptor(value = String.class), canNull = true, parameterDes = "地址前缀"),
+            @Parameter(parameterName = "password", parameterDes = "密码")
+    })
+    @ResponseData(name = "返回值", description = "返回一个账户keystore集合",
+            responseType = @TypeDescriptor(value = List.class, collectionElement = AccountDto.class)
+    )
+    public static Result<List<AccountDto>> createOffLineAccount(int count, String prefix, String password) {
+        return accountService.createOffLineAccount(count, prefix, password);
     }
 
     @ApiOperation(description = "离线修改账户密码", order = 152)
