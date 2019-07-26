@@ -8,7 +8,7 @@
     <artifactId>sdk4j</artifactId>
     <version>1.0.0-beta1.1</version>
 
-    <name>sdk4j</name>
+    <name>nuls-sdk4j</name>
     <!-- FIXME change it to the project's website -->
     <url>http://www.example.com</url>
 
