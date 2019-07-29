@@ -16,7 +16,7 @@ maven依赖：
 </dependency>
 ```
 
-模块依赖：依赖`NULS2.0`的`NULS-SDK-Provider`模块
+注：调用`NULS-SDK-4J`提供的在线接口时，必须先运行`NULS2.0`的`NULS-SDK-Provider`模块。
 
 ## 初始化
 
