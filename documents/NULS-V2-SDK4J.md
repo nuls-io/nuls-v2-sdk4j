@@ -2,17 +2,17 @@
 
 `NULS-SDK-4J`是给用JAVA对接`NULS-SDK-Provider`模块的合作伙伴提供的开发组件。在阅读此文档前，请开发人员先阅读《NULS-SDK-API使用说明》。
 
-## 依赖
+## maven
 
 JDK版本：JDK-11
 
-maven依赖：
+此工程已上传到maven中央仓库，可在maven工程中使用：
 
 ```xml
 <dependency>
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j</artifactId>
-    <version>1.0.0-beta1.1</version>
+    <version>1.0.0-beta1.2</version>
 </dependency>
 ```
 
