@@ -1,6 +1,5 @@
 package io.nuls.v2.service;
 
-import io.nuls.base.api.provider.consensus.facade.GetDepositListReq;
 import io.nuls.core.basic.Result;
 import io.nuls.core.constant.ErrorCode;
 import io.nuls.core.exception.NulsException;

@@ -2,7 +2,10 @@ package io.nuls.v2.service;
 
 import io.nuls.base.basic.AddressTool;
 import io.nuls.base.basic.NulsByteBuffer;
+import io.nuls.base.data.MultiSigAccount;
 import io.nuls.base.data.Transaction;
+import io.nuls.base.signture.MultiSignTxSignature;
+import io.nuls.base.signture.P2PHKSignature;
 import io.nuls.base.signture.SignatureUtil;
 import io.nuls.core.basic.Result;
 import io.nuls.core.constant.ErrorCode;
@@ -25,10 +28,7 @@ import io.nuls.v2.util.CommonValidator;
 import io.nuls.v2.util.RestFulUtil;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static io.nuls.v2.util.ValidateUtil.validateChainId;
 
@@ -279,6 +279,23 @@ public class AccountService {
         }
     }
 
+    public Result setAlias(String address, String alias ,String password) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("password", password);
+        params.put("address", address);
+        params.put("alias", alias);
+
+        Result result;
+        RestFulResult restFulResult = RestFulUtil.post("api/account/alias/", params);
+        if (restFulResult.isSuccess()) {
+            result = Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
+    }
+
     /**
      * Change the off-line account password by encryptedPriKey and passowrd
      *
@@ -329,6 +346,9 @@ public class AccountService {
         validateChainId();
         try {
             CommonValidator.validateSignDto(signDtoList);
+            if (StringUtils.isBlank(txHex)) {
+                throw new NulsRuntimeException(AccountErrorCode.PARAMETER_ERROR, "txHex is invalid");
+            }
 
             List<ECKey> signEcKeys = new ArrayList<>();
             for (SignDto signDto : signDtoList) {
@@ -359,6 +379,79 @@ public class AccountService {
             Transaction tx = new Transaction();
             tx.parse(new NulsByteBuffer(HexUtil.decode(txHex)));
             SignatureUtil.createTransactionSignture(tx, signEcKeys);
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("hash", tx.getHash().toHex());
+            map.put("txHex", HexUtil.encode(tx.serialize()));
+            return Result.getSuccess(map);
+        } catch (NulsException e) {
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
+        } catch (IOException e) {
+            return Result.getFailed(AccountErrorCode.SERIALIZE_ERROR).setMsg(AccountErrorCode.SERIALIZE_ERROR.getMsg());
+        }
+    }
+
+    public Result multiSign(SignDto signDto, String txHex) {
+        validateChainId();
+        try {
+            CommonValidator.validateSignDto(signDto);
+            if (StringUtils.isBlank(txHex)) {
+                throw new NulsRuntimeException(AccountErrorCode.PARAMETER_ERROR, "txHex is invalid");
+            }
+            Transaction tx = new Transaction();
+            tx.parse(new NulsByteBuffer(HexUtil.decode(txHex)));
+
+            if (tx.getTransactionSignature() == null) {
+                throw new NulsRuntimeException(AccountErrorCode.PARAMETER_ERROR, "is not multiSign TransferTx");
+            }
+
+            byte[] priKeyBytes;
+            if (StringUtils.isNotBlank(signDto.getPriKey())) {
+                if (!ECKey.isValidPrivteHex(signDto.getPriKey())) {
+                    throw new NulsRuntimeException(AccountErrorCode.PRIVATE_KEY_WRONG, signDto.getPriKey() + " is invalid");
+                }
+                priKeyBytes = HexUtil.decode(signDto.getPriKey());
+            } else {
+                try {
+                    priKeyBytes = AESEncrypt.decrypt(HexUtil.decode(signDto.getEncryptedPrivateKey()), signDto.getPassword());
+                    if (!ECKey.isValidPrivteHex(HexUtil.encode(priKeyBytes))) {
+                        throw new NulsRuntimeException(AccountErrorCode.PRIVATE_KEY_WRONG, signDto.getEncryptedPrivateKey() + " is invalid");
+                    }
+                } catch (CryptoException e) {
+                    throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "encryptedPrivateKey[" + signDto.getEncryptedPrivateKey() + "] password error");
+                }
+            }
+            Account account = AccountTool.createAccount(SDKContext.main_chain_id, HexUtil.encode(priKeyBytes));
+            if (!signDto.getAddress().equals(account.getAddress().getBase58())) {
+                throw new NulsRuntimeException(AccountErrorCode.ADDRESS_ERROR, account.getAddress() + " and private key do not match");
+            }
+
+            MultiSignTxSignature transactionSignature = new MultiSignTxSignature();
+            transactionSignature.parse(new NulsByteBuffer(tx.getTransactionSignature()));
+            boolean hasPubKey = false;
+            for (byte[] bytes : transactionSignature.getPubKeyList()) {
+                if(Arrays.equals(bytes, account.getPubKey())) {
+                    hasPubKey = true;
+                }
+            }
+            if(!hasPubKey) {
+                throw new NulsRuntimeException(AccountErrorCode.ADDRESS_ERROR, account.getAddress() + " not one of the multiSign address");
+            }
+            List<P2PHKSignature> p2PHKSignatures = transactionSignature.getP2PHKSignatures();
+            if(p2PHKSignatures == null) {
+                p2PHKSignatures = new ArrayList<>();
+            }
+            for (P2PHKSignature p2PHKSignature : p2PHKSignatures) {
+                if (Arrays.equals(p2PHKSignature.getPublicKey(), account.getPubKey())) {
+                    //已经签过名了
+                    throw new NulsRuntimeException(AccountErrorCode.ADDRESS_ALREADY_SIGNED);
+                }
+            }
+            ECKey ecKey = account.getEcKey(signDto.getPassword());
+            P2PHKSignature p2PHKSignature = SignatureUtil.createSignatureByEckey(tx, ecKey);
+            p2PHKSignatures.add(p2PHKSignature);
+            transactionSignature.setP2PHKSignatures(p2PHKSignatures);
+            tx.setTransactionSignature(transactionSignature.serialize());
 
             Map<String, Object> map = new HashMap<>();
             map.put("hash", tx.getHash().toHex());
@@ -435,4 +528,24 @@ public class AccountService {
             return Result.getFailed(e.getErrorCode()).setMsg(e.format());
         }
     }
+
+    public Result createMultiSignAccount(List<String> pubKeys, int minSigns) {
+        validateChainId();
+        try {
+            if (pubKeys == null || pubKeys.isEmpty()) {
+                throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "pubKeys is invalid");
+            }
+            if (minSigns < 1 || minSigns > pubKeys.size()) {
+                throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "minSigns is invalid");
+            }
+            MultiSigAccount multiSigAccount = AccountTool.createMultiSigAccount(SDKContext.main_chain_id, pubKeys, minSigns);
+            Map<String, Object> map = new HashMap<>();
+            map.put("value", multiSigAccount.getAddress().getBase58());
+
+            return Result.getSuccess(map);
+        } catch (NulsException e) {
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
+        }
+    }
+
 }

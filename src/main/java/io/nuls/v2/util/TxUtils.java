@@ -3,6 +3,7 @@ package io.nuls.v2.util;
 import io.nuls.base.basic.TransactionFeeCalculator;
 import io.nuls.base.data.CoinFrom;
 import io.nuls.base.data.CoinTo;
+import io.nuls.base.signture.P2PHKSignature;
 import io.nuls.core.exception.NulsException;
 import io.nuls.core.model.BigIntegerUtils;
 import io.nuls.core.model.StringUtils;
@@ -51,7 +52,7 @@ public class TxUtils {
 
     public static BigInteger calcTransferTxFee(int addressCount, int fromLength, int toLength, String remark, BigInteger price) {
         int size = 10;
-        size += addressCount * 110;
+        size += addressCount * P2PHKSignature.SERIALIZE_LENGTH;
         size += 70 * fromLength;
         size += 68 * toLength;
         if (StringUtils.isNotBlank(remark)) {

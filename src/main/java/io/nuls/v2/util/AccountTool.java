@@ -25,7 +25,9 @@
 
 package io.nuls.v2.util;
 
+import com.google.common.primitives.UnsignedBytes;
 import io.nuls.base.data.Address;
+import io.nuls.base.data.MultiSigAccount;
 import io.nuls.core.constant.BaseConstant;
 import io.nuls.core.crypto.ECKey;
 import io.nuls.core.crypto.HexUtil;
@@ -39,13 +41,11 @@ import io.nuls.core.rpc.util.NulsDateUtils;
 import io.nuls.v2.constant.AccountConstant;
 import io.nuls.v2.error.AccountErrorCode;
 import io.nuls.v2.model.Account;
+import org.bouncycastle.util.encoders.Hex;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author: qinyifeng
@@ -151,7 +151,7 @@ public class AccountTool {
             }
             result = byteArrayOutputStream.toByteArray();
         } catch (Exception e) {
-            Log.error("",e);
+            Log.error("", e);
             throw new NulsRuntimeException(AccountErrorCode.FAILED);
         } finally {
             try {
@@ -159,12 +159,48 @@ public class AccountTool {
             } catch (Exception e) {
             }
         }
-        return  result;
+        return result;
+    }
+
+    public static MultiSigAccount createMultiSigAccount(int chainId, List<String> pubKeys, int minSigns) throws NulsException {
+        //验证公钥是否重复
+        Set<String> pubkeySet = new HashSet<>(pubKeys);
+        if (pubkeySet.size() < pubKeys.size()) {
+            throw new NulsException(AccountErrorCode.PUBKEY_REPEAT);
+        }
+        //公钥排序, 按固定的顺序来生成多签账户地址
+        pubKeys = new ArrayList<String>(pubKeys);
+        Collections.sort(pubKeys, new Comparator<String>() {
+            private Comparator<byte[]> comparator = UnsignedBytes.lexicographicalComparator();
+
+            @Override
+            public int compare(String k1, String k2) {
+                return comparator.compare(Hex.decode(k1), Hex.decode(k2));
+            }
+        });
+        Address address = new Address(chainId, BaseConstant.P2SH_ADDRESS_TYPE, SerializeUtils.sha256hash160(AccountTool.createMultiSigAccountOriginBytes(chainId, minSigns, pubKeys)));
+
+        MultiSigAccount multiSigAccount = new MultiSigAccount();
+        multiSigAccount.setChainId(chainId);
+        multiSigAccount.setAddress(address);
+        multiSigAccount.setM((byte) minSigns);
+
+        List<byte[]> list = new ArrayList<>();
+        for (String pubKey : pubKeys) {
+            list.add(HexUtil.decode(pubKey));
+        }
+        multiSigAccount.setPubKeyList(list);
+        return multiSigAccount;
     }
 
 
-
-
-
-
+    public static String getPrefix(String address) {
+        for (int i = 1; i < address.length(); i++) {
+            char c = address.charAt(i);
+            if (ValidateUtil.regexMatch(c + "", "^[a-z]{1}$")) {
+                return address.substring(0, i);
+            }
+        }
+        return null;
+    }
 }

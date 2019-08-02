@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.nuls.core.basic.Result;
 import io.nuls.core.parse.JSONUtils;
 import io.nuls.v2.model.dto.AccountDto;
+import io.nuls.v2.model.dto.AliasDto;
+import io.nuls.v2.model.dto.MultiSignAliasDto;
 import io.nuls.v2.model.dto.SignDto;
 import io.nuls.v2.util.NulsSDKTool;
 import org.junit.Before;
@@ -27,12 +29,12 @@ public class AccountServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.initTest("http://127.0.0.1:9898/");
+        NulsSDKBootStrap.initTest("http://127.0.0.1:18004/");
     }
 
     @Test
     public void testCreateAccount() {
-        int count = 1;
+        int count = 2;
         Result<List<String>> result = NulsSDKTool.createAccount(count, password);
         for (String address : result.getData()) {
             System.out.println(address);
@@ -41,7 +43,7 @@ public class AccountServiceTest {
 
     @Test
     public void testCreateOfflineAccount() {
-        int count = 1;
+        int count = 2;
 
         Result<List<AccountDto>> result = NulsSDKTool.createOffLineAccount(count, password);
 
@@ -108,17 +110,30 @@ public class AccountServiceTest {
 
     @Test
     public void testSign() {
-        String txHex = "02004e001a5d00008c011764000115423f8fc2f9f62496cb98d43e3347bd7996327d64000100201d9a0000000000000000000000000000000000000000000000000000000000086db83fdd14f6f233000117640001425026ca27e88bce748ab4b6b2c14140f76b90b9640001008096980000000000000000000000000000000000000000000000000000000000000000000000000000";
+        String txHex = "030080d8435d0026170200013b191fcfe919eda35432f7ba2ad508e5c224e1310d736466617364666173646673648c01170200013b191fcfe919eda35432f7ba2ad508e5c224e131020001004023050600000000000000000000000000000000000000000000000000000000080000000000000000000117020001e2f297763765bc154afaac7aec5e7899a729fed20200010000e1f50500000000000000000000000000000000000000000000000000000000000000000000000000";
 
         List<SignDto> signDtoList = new ArrayList<>();
         SignDto signDto = new SignDto();
-        signDto.setAddress(address);
-//        signDto.setPriKey("dsfsdfsddf");
-        signDto.setEncryptedPrivateKey(encryptedPrivateKey);
-        signDto.setPassword(password);
+        signDto.setAddress("tNULSeBaMidSH7amSTjaNvVkL9VDdFEc9rUztf");
+        signDto.setPriKey("aa7a8d46f9e685de7e9b9c859e6386997633041aab172929689ded7c2f49c7d8");
+//        signDto.setEncryptedPrivateKey("298d69f9a7ed29d734769945a1788beecc0498d596da622e1d89909af29c07629ccd8a9df1b60196a4659e0e3c6cf9ce");
+//        signDto.setPassword(password);
         signDtoList.add(signDto);
 
         Result result = NulsSDKTool.sign(signDtoList, txHex);
+        Map map = (Map) result.getData();
+        System.out.println(map);
+    }
+
+    @Test
+    public void testMultiSign() {
+        String txHex = "02002ef2435d0672656d61726b008c0117020003f6231825aa05e4d25b4772909a15c9ba3c0b6fe202000100402a86481700000000000000000000000000000000000000000000000000000008e2a45f6068c4bb7a00011702000191866cefc8c9e1181b4e1e068b64fa288405b3e60200010000e87648170000000000000000000000000000000000000000000000000000000000000000000000460202210377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db2103f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1";
+        SignDto signDto = new SignDto();
+        signDto.setAddress("tNULSeBaMoDwD9pvR4cYMvBdJYPs9LmTnHyq8y");
+        signDto.setEncryptedPrivateKey("298d69f9a7ed29d734769945a1788beecc0498d596da622e1d89909af29c07629ccd8a9df1b60196a4659e0e3c6cf9ce");
+        signDto.setPassword(password);
+
+        Result result = NulsSDKTool.multiSign(signDto, txHex);
         Map map = (Map) result.getData();
         System.out.println(map);
     }
@@ -129,4 +144,41 @@ public class AccountServiceTest {
         System.out.println(result);
     }
 
+    @Test
+    public void testAliasTx() {
+        String address = "tNULSeBaMoDwD9pvR4cYMvBdJYPs9LmTnHyq8y";
+        String alias = "testalias";
+        AliasDto aliasDto = new AliasDto();
+        aliasDto.setAddress(address);
+        aliasDto.setAlias(alias);
+        aliasDto.setNonce("0000000000000000");
+
+        Result result = NulsSDKTool.createAliasTxOffline(aliasDto);
+        System.out.println(result.getData());
+    }
+
+    @Test
+    public void testMultiSignAliasTx() {
+        String address = "tNULSeBaNTcZo37gNC5mNjJuB39u8zT3TAy8jy";
+        String alias = "aaddbbees";
+        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+
+        MultiSignAliasDto aliasDto = new MultiSignAliasDto();
+        aliasDto.setPubKeys(pubKeys);
+        aliasDto.setMinSigns(2);
+        aliasDto.setAddress(address);
+        aliasDto.setAlias(alias);
+        aliasDto.setNonce("e2a45f6068c4bb7a");
+
+        Result result = NulsSDKTool.createMultiSignAliasTxOffline(aliasDto);
+        System.out.println(result.getData());
+    }
+
+    @Test
+    public void testAlias() {
+        String address = "tNULSeBaMk4YTkZaUXrLXbUtaHeTWF1Bx6aiBm";
+        String alias = "ddaab";
+        Result result = NulsSDKTool.setAlias(address, alias, password);
+        System.out.println(result.getData());
+    }
 }

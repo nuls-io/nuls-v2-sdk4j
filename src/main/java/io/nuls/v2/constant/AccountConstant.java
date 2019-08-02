@@ -28,10 +28,13 @@ package io.nuls.v2.constant;
 
 import com.google.common.primitives.UnsignedBytes;
 import io.nuls.core.crypto.HexUtil;
+import io.nuls.core.model.ByteUtils;
 import io.nuls.core.rpc.model.ModuleE;
 
 import java.math.BigInteger;
 import java.util.Comparator;
+
+import static io.nuls.v2.SDKContext.DEFAULT_ENCODING;
 
 /**
  * @author: qinyifeng
@@ -107,6 +110,10 @@ public interface AccountConstant {
      * The cost of setting an alias
      */
     BigInteger ALIAS_FEE = BigInteger.valueOf(100000000);
+    /**
+     * 设置别名销毁地址公钥
+     */
+    byte[] DESTORY_PUBKEY  = HexUtil.decode("0298f88c3cae67385ce3cbee00f78816db3e56e566b62bd0f4c5b45f205d3021c3");
 
     /**
      * 导出accountkeystore文件的后缀名

@@ -23,7 +23,50 @@ public class CommonValidator {
         }
         String remark = transferDto.getRemark();
         if (!ValidateUtil.validTxRemark(remark)) {
-            throw new NulsException(AccountErrorCode.PARAMETER_ERROR);
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "remark is invalid");
+        }
+    }
+
+    public static void checkMultiSignTransferDto(MultiSignTransferDto transferDto) throws NulsException {
+        if (transferDto.getPubKeys() == null || transferDto.getPubKeys().isEmpty()) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "pubKeys is invalid");
+        }
+        if (transferDto.getMinSigns() < 1 || transferDto.getMinSigns() > transferDto.getPubKeys().size()) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "minSigns is invalid");
+        }
+        String address = null;
+        for (CoinFromDto from : transferDto.getInputs()) {
+            validateCoinFrom(from);
+            if (!AddressTool.isMultiSignAddress(from.getAddress())) {
+                throw new NulsException(AccountErrorCode.IS_NOT_MULTI_SIGNATURE_ADDRESS);
+            }
+            if (address == null) {
+                address = from.getAddress();
+            } else if (!address.equals(from.getAddress())) {
+                throw new NulsException(AccountErrorCode.ONLY_ONE_MULTI_SIGN_ADDRESS);
+            }
+        }
+        for (CoinToDto to : transferDto.getOutputs()) {
+            validateCoinTo(to);
+        }
+        String remark = transferDto.getRemark();
+        if (!ValidateUtil.validTxRemark(remark)) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "remark is invalid");
+        }
+    }
+
+    public static void checkAliasDto(AliasDto aliasDto) throws NulsException {
+        if (!AddressTool.validAddress(SDKContext.main_chain_id, aliasDto.getAddress())) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "address is invalid");
+        }
+        if (!FormatValidUtils.validAlias(aliasDto.getAlias())) {
+            throw new NulsException(AccountErrorCode.ALIAS_FORMAT_WRONG);
+        }
+        if (!ValidateUtil.validateNonce(aliasDto.getNonce())) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "from nonce [" + aliasDto.getNonce() + "] is invalid");
+        }
+        if (!ValidateUtil.validTxRemark(aliasDto.getRemark())) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "remark is invalid");
         }
     }
 
@@ -92,6 +135,18 @@ public class CommonValidator {
         }
     }
 
+    public static void validateSignDto(SignDto signDto) throws NulsException {
+        if (!AddressTool.validAddress(SDKContext.main_chain_id, signDto.getAddress())) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "address[" + signDto.getAddress() + "] is invalid");
+        }
+        if (StringUtils.isBlank(signDto.getEncryptedPrivateKey()) && StringUtils.isBlank(signDto.getPriKey())) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "privateKey or encryptedPrivateKey is at least one of the required fields");
+        }
+        if (StringUtils.isNotBlank(signDto.getEncryptedPrivateKey()) && StringUtils.isBlank(signDto.getPassword())) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "password is require when encryptedPrivateKey is not null");
+        }
+    }
+
     public static void validateConsensusDto(ConsensusDto consensusDto) throws NulsException {
         if (!AddressTool.validAddress(SDKContext.main_chain_id, consensusDto.getAgentAddress())) {
             throw new NulsException(AccountErrorCode.ADDRESS_ERROR, "agentAddress is invalid");
@@ -134,6 +189,12 @@ public class CommonValidator {
         }
         if (!AddressTool.validAddress(SDKContext.main_chain_id, dto.getAgentAddress())) {
             throw new NulsException(AccountErrorCode.ADDRESS_ERROR, "agentAddress is invalid");
+        }
+        for (StopDepositDto stopDepositDto : dto.getDepositList()) {
+            if (!ValidateUtil.validHash(stopDepositDto.getDepositHash())) {
+                throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "depositHash [" + stopDepositDto.getDepositHash() + "] is invalid");
+            }
+            validateLockCoinFrom(stopDepositDto.getInput());
         }
     }
 
@@ -192,5 +253,71 @@ public class CommonValidator {
         if (!FormatValidUtils.validPassword(form.getPassword())) {
             throw new NulsException(AccountErrorCode.PASSWORD_IS_WRONG, "password is invalid");
         }
+    }
+
+    public static void validateMultiSignConsensusDto(MultiSignConsensusDto consensusDto) throws NulsException {
+        if (consensusDto.getPubKeys() == null || consensusDto.getPubKeys().isEmpty()) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "pubKeys is invalid");
+        }
+        if (consensusDto.getMinSigns() < 1 || consensusDto.getMinSigns() > consensusDto.getPubKeys().size()) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "minSigns is invalid");
+        }
+        if (!AddressTool.isMultiSignAddress(consensusDto.getAgentAddress())) {
+            throw new NulsException(AccountErrorCode.IS_NOT_MULTI_SIGNATURE_ADDRESS);
+        }
+        CommonValidator.validateConsensusDto(consensusDto);
+    }
+
+    public static void validateMultiSignDepositDto(MultiSignDepositDto depositDto) throws NulsException {
+        if (depositDto.getPubKeys() == null || depositDto.getPubKeys().isEmpty()) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "pubKeys is invalid");
+        }
+        if (depositDto.getMinSigns() < 1 || depositDto.getMinSigns() > depositDto.getPubKeys().size()) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "minSigns is invalid");
+        }
+        if (!AddressTool.isMultiSignAddress(depositDto.getAddress())) {
+            throw new NulsException(AccountErrorCode.IS_NOT_MULTI_SIGNATURE_ADDRESS);
+        }
+        CommonValidator.validateDepositDto(depositDto);
+    }
+
+    public static void validateMultiSignWithDrawDto(MultiSignWithDrawDto withDrawDto) throws NulsException {
+        if (withDrawDto.getPubKeys() == null || withDrawDto.getPubKeys().isEmpty()) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "pubKeys is invalid");
+        }
+        if (withDrawDto.getMinSigns() < 1 || withDrawDto.getMinSigns() > withDrawDto.getPubKeys().size()) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "minSigns is invalid");
+        }
+        if (!AddressTool.isMultiSignAddress(withDrawDto.getAddress())) {
+            throw new NulsException(AccountErrorCode.IS_NOT_MULTI_SIGNATURE_ADDRESS);
+        }
+        CommonValidator.validateWithDrawDto(withDrawDto);
+    }
+
+    public static void validateMultiSignStopConsensusDto(MultiSignStopConsensusDto stopConsensusDto) throws NulsException {
+        if (stopConsensusDto.getPubKeys() == null || stopConsensusDto.getPubKeys().isEmpty()) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "pubKeys is invalid");
+        }
+        if (stopConsensusDto.getMinSigns() < 1 || stopConsensusDto.getMinSigns() > stopConsensusDto.getPubKeys().size()) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "minSigns is invalid");
+        }
+        if (!AddressTool.isMultiSignAddress(stopConsensusDto.getAgentAddress())) {
+            throw new NulsException(AccountErrorCode.IS_NOT_MULTI_SIGNATURE_ADDRESS);
+        }
+        CommonValidator.validateStopConsensusDto(stopConsensusDto);
+    }
+
+
+    public static void validateMultiSignAliasDto(MultiSignAliasDto aliasDto) throws NulsException {
+        if (aliasDto.getPubKeys() == null || aliasDto.getPubKeys().isEmpty()) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "pubKeys is invalid");
+        }
+        if (aliasDto.getMinSigns() < 1 || aliasDto.getMinSigns() > aliasDto.getPubKeys().size()) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "minSigns is invalid");
+        }
+        if (!AddressTool.isMultiSignAddress(aliasDto.getAddress())) {
+            throw new NulsException(AccountErrorCode.IS_NOT_MULTI_SIGNATURE_ADDRESS);
+        }
+        CommonValidator.checkAliasDto(aliasDto);
     }
 }

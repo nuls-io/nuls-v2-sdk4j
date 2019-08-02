@@ -1,6 +1,7 @@
 package io.nuls.v2.util;
 
 import io.nuls.core.basic.Result;
+import io.nuls.core.core.annotation.RpcMethod;
 import io.nuls.core.rpc.model.*;
 import io.nuls.v2.model.annotation.ApiOperation;
 import io.nuls.v2.model.dto.*;
@@ -118,6 +119,18 @@ public class NulsSDKTool {
         return accountService.getAccountBalance(address, chainId, assetsId);
     }
 
+    @ApiOperation(description = "设置账户别名", order = 108, detailDesc = "别名格式为1-20位小写字母和数字的组合，设置别名会销毁1个NULS")
+    @Parameters({
+            @Parameter(parameterName = "address", requestType = @TypeDescriptor(value = String.class), parameterDes = "账户地址"),
+            @Parameter(parameterName = "alias", requestType = @TypeDescriptor(value = String.class), parameterDes = "别名"),
+            @Parameter(parameterName = "password", requestType = @TypeDescriptor(value = String.class), parameterDes = "账户密码")
+    })
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "value", description = "设置别名交易的hash")
+    }))
+    public static Result setAlias(String address, String alias, String password) {
+        return accountService.setAlias(address, alias, password);
+    }
 
     @ApiOperation(description = "离线 - 批量创建账户", order = 150, detailDesc = "创建的账户不会保存到钱包中,接口直接返回账户的keystore信息")
     @Parameters(value = {
@@ -184,6 +197,19 @@ public class NulsSDKTool {
         return accountService.sign(signDtoList, txHex);
     }
 
+    @ApiOperation(description = "多签账户摘要签名", order = 154, detailDesc = "用于签名离线组装的多签账户转账交易，每次调用接口时，只能传入一个账户的私钥进行签名，签名成功后返回的交易字符串再交给第二个账户签名，依次类推")
+    @Parameters({
+            @Parameter(parameterName = "signDto", parameterDes = "摘要签名表单", requestType = @TypeDescriptor(value = SignDto.class)),
+            @Parameter(parameterName = "txHex", parameterDes = "交易序列化16进制字符串")
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "签名后的交易16进制字符串")
+    }))
+    public static Result multiSign(SignDto signDto, String txHex) {
+        return accountService.multiSign(signDto, txHex);
+    }
+
     @ApiOperation(description = "明文私钥摘要签名", order = 155)
     @Parameters({
             @Parameter(parameterName = "txHex", parameterDes = "交易序列化16进制字符串"),
@@ -213,6 +239,17 @@ public class NulsSDKTool {
         return transactionService.signTx(txHex, address, encryptedPrivateKey, password);
     }
 
+    @ApiOperation(description = "创建多签账户", order = 157, detailDesc = "根据多个账户的公钥创建多签账户，minSigns为多签账户创建交易时需要的最小签名数")
+    @Parameters(value = {
+            @Parameter(parameterName = "pubKeys", requestType = @TypeDescriptor(value = List.class), parameterDes = "账户公钥集合"),
+            @Parameter(parameterName = "minSigns", requestType = @TypeDescriptor(value = int.class), parameterDes = "最小签名数")
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "value", description = "账户的地址")
+    }))
+    public static Result createMultiSignAccount(List<String> pubKeys, int minSigns) {
+        return accountService.createMultiSignAccount(pubKeys, minSigns);
+    }
 
     @ApiOperation(description = "根据区块高度查询区块头", order = 201)
     @Parameters({
@@ -325,6 +362,52 @@ public class NulsSDKTool {
     @ResponseData(name = "返回值", description = "手续费金额", responseType = @TypeDescriptor(value = BigInteger.class))
     public static BigInteger calcTransferTxFee(TransferTxFeeDto dto) {
         return transactionService.calcTransferTxFee(dto);
+    }
+
+    @ApiOperation(description = "离线组装多签账户转账交易", order = 352, detailDesc = "根据inputs和outputs离线组装转账交易，用于单个多签账户转账。" +
+            "交易手续费为inputs里本链主资产金额总和，减去outputs里本链主资产总和")
+    @Parameters({
+            @Parameter(parameterName = "transferDto", parameterDes = "转账交易表单", requestType = @TypeDescriptor(value = MultiSignTransferDto.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化16进制字符串")
+    }))
+    public static Result createMultiSignTransferTxOffline(MultiSignTransferDto transferDto) {
+        return transactionService.createMultiSignTransferTx(transferDto);
+    }
+
+    @ApiOperation(description = "计算离线创建多签账户转账交易所需手续费", order = 353)
+    @Parameters({
+            @Parameter(parameterName = "MultiSignTransferTxFeeDto", parameterDes = "转账交易手续费", requestType = @TypeDescriptor(value = MultiSignTransferTxFeeDto.class))
+    })
+    @ResponseData(name = "返回值", description = "手续费金额", responseType = @TypeDescriptor(value = BigInteger.class))
+    public static BigInteger calcMultiSignTransferTxFee(MultiSignTransferTxFeeDto dto) {
+        return transactionService.calcMultiSignTransferTxFee(dto);
+    }
+
+    @ApiOperation(description = "离线创建设置别名交易", order = 354)
+    @Parameters({
+            @Parameter(parameterName = "AliasDto", parameterDes = "创建别名交易表单", requestType = @TypeDescriptor(value = AliasDto.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化16进制字符串")
+    }))
+    public static Result createAliasTxOffline(AliasDto dto) {
+        return transactionService.createAliasTx(dto);
+    }
+
+    @ApiOperation(description = "离线创建多签账户设置别名交易", order = 355)
+    @Parameters({
+            @Parameter(parameterName = "MultiSignAliasDto", parameterDes = "多签账户创建别名交易表单", requestType = @TypeDescriptor(value = MultiSignAliasDto.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化16进制字符串")
+    }))
+    public static Result createMultiSignAliasTxOffline(MultiSignAliasDto dto) {
+        return transactionService.createMultiSignAliasTx(dto);
     }
 
     @ApiOperation(description = "发布合约", order = 401)
@@ -706,5 +789,53 @@ public class NulsSDKTool {
     }))
     public static Result createStopConsensusTxOffline(StopConsensusDto stopConsensusDto) {
         return transactionService.createStopConsensusTx(stopConsensusDto);
+    }
+
+    @ApiOperation(description = "离线组装多签账户创建共识节点交易", order = 555, detailDesc = "参与共识所需资产可通过查询链信息接口获取(agentChainId和agentAssetId)")
+    @Parameters({
+            @Parameter(parameterName = "consensusDto", parameterDes = "多签账户创建节点交易表单", requestType = @TypeDescriptor(value = MultiSignConsensusDto.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化16进制字符串")
+    }))
+    public static Result createMultiSignConsensusTx(MultiSignConsensusDto consensusDto) {
+        return transactionService.createMultiSignConsensusTx(consensusDto);
+    }
+
+    @ApiOperation(description = "离线组装多签账户委托共识交易", order = 556, detailDesc = "参与共识所需资产可通过查询链信息接口获取(agentChainId和agentAssetId)")
+    @Parameters({
+            @Parameter(parameterName = "depositDto", parameterDes = "多签账户委托共识交易表单", requestType = @TypeDescriptor(value = MultiSignDepositDto.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化16进制字符串")
+    }))
+    public static Result createMultiSignDepositTxOffline(MultiSignDepositDto depositDto) {
+        return transactionService.createMultiSignDepositTx(depositDto);
+    }
+
+    @ApiOperation(description = "离线组装多签账户退出委托共识交易", order = 553, detailDesc = "接口的input数据，则是委托共识交易的output数据，nonce值可为空")
+    @Parameters({
+            @Parameter(parameterName = "withDrawDto", parameterDes = "多签账户退出委托交易表单", requestType = @TypeDescriptor(value = MultiSignWithDrawDto.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化16进制字符串")
+    }))
+    public static Result createMultiSignWithdrawDepositTxOffline(MultiSignWithDrawDto withDrawDto) {
+        return transactionService.createMultiSignWithdrawDepositTx(withDrawDto);
+    }
+
+    @ApiOperation(description = "离线组装多签账户注销共识节点交易", order = 554, detailDesc = "组装交易的StopDepositDto信息，可通过查询节点的委托共识列表获取，input的nonce值可为空")
+    @Parameters({
+            @Parameter(parameterName = "stopConsensusDto", parameterDes = "多签账户注销共识节点交易表单", requestType = @TypeDescriptor(value = StopConsensusDto.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化16进制字符串")
+    }))
+    public static Result createMultiSignStopConsensusTx(MultiSignStopConsensusDto stopConsensusDto) {
+        return transactionService.createMultiSignStopConsensusTx(stopConsensusDto);
     }
 }
