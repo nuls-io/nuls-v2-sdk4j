@@ -815,7 +815,7 @@ public class NulsSDKTool {
         return transactionService.createMultiSignDepositTx(depositDto);
     }
 
-    @ApiOperation(description = "离线组装多签账户退出委托共识交易", order = 553, detailDesc = "接口的input数据，则是委托共识交易的output数据，nonce值可为空")
+    @ApiOperation(description = "离线组装多签账户退出委托共识交易", order = 557, detailDesc = "接口的input数据，则是委托共识交易的output数据，nonce值可为空")
     @Parameters({
             @Parameter(parameterName = "withDrawDto", parameterDes = "多签账户退出委托交易表单", requestType = @TypeDescriptor(value = MultiSignWithDrawDto.class))
     })
@@ -827,7 +827,7 @@ public class NulsSDKTool {
         return transactionService.createMultiSignWithdrawDepositTx(withDrawDto);
     }
 
-    @ApiOperation(description = "离线组装多签账户注销共识节点交易", order = 554, detailDesc = "组装交易的StopDepositDto信息，可通过查询节点的委托共识列表获取，input的nonce值可为空")
+    @ApiOperation(description = "离线组装多签账户注销共识节点交易", order = 558, detailDesc = "组装交易的StopDepositDto信息，可通过查询节点的委托共识列表获取，input的nonce值可为空")
     @Parameters({
             @Parameter(parameterName = "stopConsensusDto", parameterDes = "多签账户注销共识节点交易表单", requestType = @TypeDescriptor(value = StopConsensusDto.class))
     })
