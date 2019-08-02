@@ -8,12 +8,15 @@ import java.math.BigInteger;
 import java.util.List;
 
 @ApiModel
-public class MultiSignWithDrawDto extends WithDrawDto{
+public class MultiSignWithDrawDto extends WithDrawDto {
 
-    @ApiModelProperty(description = "公钥集合",type = @TypeDescriptor(value = List.class, collectionElement = String.class))
+    @ApiModelProperty(description = "公钥集合", type = @TypeDescriptor(value = List.class, collectionElement = String.class))
     private List<String> pubKeys;
     @ApiModelProperty(description = "最小签名数")
     private int minSigns;
+
+    public MultiSignWithDrawDto() {
+    }
 
     public List<String> getPubKeys() {
         return pubKeys;

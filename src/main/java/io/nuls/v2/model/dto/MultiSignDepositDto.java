@@ -8,12 +8,16 @@ import java.math.BigInteger;
 import java.util.List;
 
 @ApiModel
-public class MultiSignDepositDto extends DepositDto{
+public class MultiSignDepositDto extends DepositDto {
 
-    @ApiModelProperty(description = "公钥集合",type = @TypeDescriptor(value = List.class, collectionElement = String.class))
+    @ApiModelProperty(description = "公钥集合", type = @TypeDescriptor(value = List.class, collectionElement = String.class))
     private List<String> pubKeys;
     @ApiModelProperty(description = "最小签名数")
     private int minSigns;
+
+    public MultiSignDepositDto() {
+
+    }
 
     public List<String> getPubKeys() {
         return pubKeys;
