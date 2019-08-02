@@ -10,8 +10,9 @@ import java.util.List;
 @ApiModel
 public class MultiSignStopConsensusDto extends StopConsensusDto{
 
+    @ApiModelProperty(description = "公钥集合",type = @TypeDescriptor(value = List.class, collectionElement = String.class))
     private List<String> pubKeys;
-
+    @ApiModelProperty(description = "最小签名数")
     private int minSigns;
 
     public List<String> getPubKeys() {

@@ -14,7 +14,7 @@ public class AliasDto {
     private String alias;
     @ApiModelProperty(description = "资产nonce值")
     private String nonce;
-    @ApiModelProperty(description = "交易备注")
+    @ApiModelProperty(description = "交易备注", required = false)
     private String remark;
 
     public String getAddress() {

@@ -9,8 +9,9 @@ import java.util.List;
 @ApiModel
 public class MultiSignTransferDto {
 
+    @ApiModelProperty(description = "公钥集合",type = @TypeDescriptor(value = List.class, collectionElement = String.class))
     private List<String> pubKeys;
-
+    @ApiModelProperty(description = "最小签名数")
     private int minSigns;
 
     @ApiModelProperty(description = "转账交易输入列表", type = @TypeDescriptor(value = List.class, collectionElement = CoinFromDto.class))
