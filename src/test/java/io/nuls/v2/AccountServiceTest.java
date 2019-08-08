@@ -3,11 +3,9 @@ package io.nuls.v2;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.nuls.core.basic.Result;
 import io.nuls.core.parse.JSONUtils;
-import io.nuls.v2.model.dto.AccountDto;
-import io.nuls.v2.model.dto.AliasDto;
-import io.nuls.v2.model.dto.MultiSignAliasDto;
-import io.nuls.v2.model.dto.SignDto;
+import io.nuls.v2.model.dto.*;
 import io.nuls.v2.util.NulsSDKTool;
+import org.checkerframework.checker.units.qual.A;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -94,8 +92,11 @@ public class AccountServiceTest {
 
     @Test
     public void importKeystore() {
-        String keyStore = "{\"address\":\"GJbpb61kDNUMipDrRrPeqRRdidDY9SuXeED\",\"pubKey\":\"03370c185231a54a2a9d5bf399c7d4df54f8a47fd3ac09e601ec7e9f5945c5767f\",\"prikey\":\"\",\"encryptedPrivateKey\":\"102aaff2a1e80dda9d97a333d9a23aadad15cfe84d303f85dc835217e5defc61ca94a8f09af9e8feb5787c71a7f704e4\"}";
-        Result result = NulsSDKTool.importKeystore(keyStore, password);
+        AccountKeyStoreDto dto = new AccountKeyStoreDto();
+        dto.setAddress("tNULSeBaMhZzUJghK8G8pQDwjVHwmgDSK2698F");
+        dto.setPubKey("02f8fdf297dfdb2d4dc92698d2cb8988e15f9a63b39f1db32bf8c74071b7ee2462");
+        dto.setEncryptedPrivateKey("87c7946d48e4e056aee42baa1fecab604620d55b9c44dd73b33b1bc16a12a10799cf7fc844116c6f9317c988bbcf32e2");
+        Result result = NulsSDKTool.importKeystore(dto, password);
         System.out.println(result.getData());
     }
 
@@ -161,7 +162,8 @@ public class AccountServiceTest {
     public void testMultiSignAliasTx() {
         String address = "tNULSeBaNTcZo37gNC5mNjJuB39u8zT3TAy8jy";
         String alias = "aaddbbees";
-        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+        List<String> pubKeys = new ArrayList<>();
+//                List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
 
         MultiSignAliasDto aliasDto = new MultiSignAliasDto();
         aliasDto.setPubKeys(pubKeys);

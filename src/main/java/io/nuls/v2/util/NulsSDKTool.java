@@ -93,7 +93,7 @@ public class NulsSDKTool {
     @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "value", description = "账户地址")
     }))
-    public static Result importKeystore(String keyStore, String password) {
+    public static Result importKeystore(AccountKeyStoreDto keyStore, String password) {
         return accountService.importKeystore(keyStore, password);
     }
 

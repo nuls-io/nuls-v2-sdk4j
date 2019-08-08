@@ -21,6 +21,7 @@ import io.nuls.v2.SDKContext;
 import io.nuls.v2.error.AccountErrorCode;
 import io.nuls.v2.model.Account;
 import io.nuls.v2.model.dto.AccountDto;
+import io.nuls.v2.model.dto.AccountKeyStoreDto;
 import io.nuls.v2.model.dto.RestFulResult;
 import io.nuls.v2.model.dto.SignDto;
 import io.nuls.v2.util.AccountTool;
@@ -194,20 +195,20 @@ public class AccountService {
         }
     }
 
-    public Result importKeystore(String keyStore, String password) {
+    public Result importKeystore(AccountKeyStoreDto keyStore, String password) {
         validateChainId();
         try {
-            if (StringUtils.isBlank(keyStore)) {
+            if (keyStore == null) {
                 throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "[keyStore] is invalid");
             }
             if (!FormatValidUtils.validPassword(password)) {
                 throw new NulsException(AccountErrorCode.PASSWORD_FORMAT_WRONG);
             }
             Map<String, Object> params = new HashMap<>();
-            params.put("keystoreString", keyStore);
+            params.put("keystore", keyStore);
             params.put("password", password);
             params.put("overwrite", true);
-            RestFulResult restFulResult = RestFulUtil.post("api/account/import/keystore/string", params);
+            RestFulResult restFulResult = RestFulUtil.post("api/account/import/keystore/json", params);
             Result result;
             if (restFulResult.isSuccess()) {
                 result = Result.getSuccess(restFulResult.getData());
