@@ -49,6 +49,8 @@ public class ProgramMethod {
     private boolean event;
     @ApiModelProperty(description = "是否是可接受主链资产转账的方法")
     private boolean payable;
+    @ApiModelProperty(description = "方法返回值是否JSON序列化")
+    private boolean jsonSerializable;
 
     public ProgramMethod() {
     }
@@ -60,6 +62,7 @@ public class ProgramMethod {
         this.view = (boolean) result.get("view");
         this.event = (boolean) result.get("event");
         this.payable = (boolean) result.get("payable");
+        this.jsonSerializable = (boolean) result.get("jsonSerializable");
         List<Map> args = (List<Map>) result.get("args");
         this.args = new LinkedList<>();
         if(args == null || args.isEmpty()) {
@@ -125,6 +128,14 @@ public class ProgramMethod {
 
     public void setPayable(boolean payable) {
         this.payable = payable;
+    }
+
+    public boolean isJsonSerializable() {
+        return jsonSerializable;
+    }
+
+    public void setJsonSerializable(boolean jsonSerializable) {
+        this.jsonSerializable = jsonSerializable;
     }
 
     @Override
