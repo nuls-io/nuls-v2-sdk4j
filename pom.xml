@@ -134,6 +134,7 @@
     </dependencies>
 
     <build>
+        <finalName>nuls-sdk4j-jdk8</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
