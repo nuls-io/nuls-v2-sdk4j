@@ -87,13 +87,14 @@ public class NulsSDKTool {
     @ApiOperation(description = "根据keystore导入账户", order = 105)
     @Parameters({
             @Parameter(parameterName = "address", parameterDes = "账户地址"),
+            @Parameter(parameterName = "pubKey", parameterDes = "公钥"),
             @Parameter(parameterName = "encryptedPriKey", parameterDes = "加密后的私钥"),
             @Parameter(parameterName = "password", parameterDes = "密码")
     })
     @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "value", description = "账户地址")
     }))
-    public static Result importKeystore(String keyStore, String password) {
+    public static Result importKeystore(AccountKeyStoreDto keyStore, String password) {
         return accountService.importKeystore(keyStore, password);
     }
 
