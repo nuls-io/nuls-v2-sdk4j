@@ -82,6 +82,15 @@ public class AccountServiceTest {
         System.out.println(map);
     }
 
+
+    @Test
+    public void testGetAddressByPriKey() {
+        Result result = NulsSDKTool.getAddressByPriKey("b54db432bba7e13a6c4a28f65b925b18e63bcb79143f7b894fa735d5d3d09db5");
+        Map map = (Map) result.getData();
+        System.out.println(map);
+    }
+
+
     @Test
     public void testGetPriKeyOffline() {
         Result result = NulsSDKTool.getPriKeyOffline(address, encryptedPrivateKey, password);

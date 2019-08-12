@@ -549,4 +549,21 @@ public class AccountService {
         }
     }
 
+    public Result getAddressByPriKey(String priKey) {
+        validateChainId();
+        if (!ECKey.isValidPrivteHex(priKey)) {
+            throw new NulsRuntimeException(AccountErrorCode.PRIVATE_KEY_WRONG);
+        }
+        Account account;
+        try {
+            account = AccountTool.createAccount(SDKContext.main_chain_id, priKey);
+        } catch (NulsException e) {
+            throw new NulsRuntimeException(AccountErrorCode.PRIVATE_KEY_WRONG);
+        }
+        Map<String, Object> map = new HashMap<>();
+        map.put("value", account.getAddress().getBase58());
+
+        return Result.getSuccess(map);
+    }
+
 }

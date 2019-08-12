@@ -198,7 +198,7 @@ public class NulsSDKTool {
         return accountService.sign(signDtoList, txHex);
     }
 
-    @ApiOperation(description = "多签账户摘要签名", order = 154, detailDesc = "用于签名离线组装的多签账户转账交易，每次调用接口时，只能传入一个账户的私钥进行签名，签名成功后返回的交易字符串再交给第二个账户签名，依次类推")
+    @ApiOperation(description = "多签账户摘要签名", order = 155, detailDesc = "用于签名离线组装的多签账户转账交易，每次调用接口时，只能传入一个账户的私钥进行签名，签名成功后返回的交易字符串再交给第二个账户签名，依次类推")
     @Parameters({
             @Parameter(parameterName = "signDto", parameterDes = "摘要签名表单", requestType = @TypeDescriptor(value = SignDto.class)),
             @Parameter(parameterName = "txHex", parameterDes = "交易序列化16进制字符串")
@@ -211,7 +211,7 @@ public class NulsSDKTool {
         return accountService.multiSign(signDto, txHex);
     }
 
-    @ApiOperation(description = "明文私钥摘要签名", order = 155)
+    @ApiOperation(description = "明文私钥摘要签名", order = 156)
     @Parameters({
             @Parameter(parameterName = "txHex", parameterDes = "交易序列化16进制字符串"),
             @Parameter(parameterName = "address", parameterDes = "账户地址"),
@@ -225,7 +225,7 @@ public class NulsSDKTool {
         return transactionService.signTx(txHex, address, privateKey);
     }
 
-    @ApiOperation(description = "密文私钥摘要签名", order = 156)
+    @ApiOperation(description = "密文私钥摘要签名", order = 157)
     @Parameters({
             @Parameter(parameterName = "txHex", parameterDes = "交易序列化16进制字符串"),
             @Parameter(parameterName = "address", parameterDes = "账户地址"),
@@ -240,7 +240,7 @@ public class NulsSDKTool {
         return transactionService.signTx(txHex, address, encryptedPrivateKey, password);
     }
 
-    @ApiOperation(description = "创建多签账户", order = 157, detailDesc = "根据多个账户的公钥创建多签账户，minSigns为多签账户创建交易时需要的最小签名数")
+    @ApiOperation(description = "创建多签账户", order = 158, detailDesc = "根据多个账户的公钥创建多签账户，minSigns为多签账户创建交易时需要的最小签名数")
     @Parameters(value = {
             @Parameter(parameterName = "pubKeys", requestType = @TypeDescriptor(value = List.class, collectionElement = String.class), parameterDes = "账户公钥集合"),
             @Parameter(parameterName = "minSigns", requestType = @TypeDescriptor(value = int.class), parameterDes = "最小签名数")
@@ -250,6 +250,17 @@ public class NulsSDKTool {
     }))
     public static Result createMultiSignAccount(List<String> pubKeys, int minSigns) {
         return accountService.createMultiSignAccount(pubKeys, minSigns);
+    }
+
+    @ApiOperation(description = "根据私钥获取地址", order = 159, detailDesc = "根据传入的私钥，生成对应的地址，私钥不会存储在钱包里")
+    @Parameters(value = {
+            @Parameter(parameterName = "priKey", parameterDes = "原始私钥")
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "value", description = "账户的地址")
+    }))
+    public static Result getAddressByPriKey(String priKey) {
+        return accountService.getAddressByPriKey(priKey);
     }
 
     @ApiOperation(description = "根据区块高度查询区块头", order = 201)
