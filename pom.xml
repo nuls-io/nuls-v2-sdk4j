@@ -6,11 +6,9 @@
 
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j</artifactId>
-    <version>1.0.0-beta1.2</version>
+    <version>1.0.0-beta3</version>
 
     <name>nuls-sdk4j</name>
-    <!-- FIXME change it to the project's website -->
-    <url>http://www.example.com</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
