@@ -41,4 +41,18 @@ public class AccountTxTest {
         System.out.println(result.getData());
     }
 
+    @Test
+    public void testa() {
+        double d = 100;
+
+        for(int i = 0;i <3650;i++) {
+            d = xxx(d);
+        }
+        System.out.println(d);
+    }
+
+    private double xxx(double d) {
+        return d * 1.01;
+    }
+
 }

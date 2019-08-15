@@ -113,7 +113,9 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "查询账户余额", order = 107, detailDesc = "根据资产链ID和资产ID，查询本链账户对应资产的余额与nonce值")
     @Parameters({
-            @Parameter(parameterName = "address", requestType = @TypeDescriptor(value = String.class), parameterDes = "账户地址")
+            @Parameter(parameterName = "address", requestType = @TypeDescriptor(value = String.class), parameterDes = "账户地址"),
+            @Parameter(parameterName = "chainId", requestType = @TypeDescriptor(value = int.class), parameterDes = "资产的链ID"),
+            @Parameter(parameterName = "assetsId", requestType = @TypeDescriptor(value = int.class), parameterDes = "资产ID")
     })
     @ResponseData(name = "返回值", description = "注意: 返回值是一个Map对象，内部key-value结构是[responseType]描述对象的结构", responseType = @TypeDescriptor(value = AccountBalanceDto.class))
     public static Result getAccountBalance(String address, int chainId, int assetsId) {
