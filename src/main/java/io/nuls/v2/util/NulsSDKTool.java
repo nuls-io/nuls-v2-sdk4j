@@ -3,6 +3,7 @@ package io.nuls.v2.util;
 import io.nuls.core.basic.Result;
 import io.nuls.core.core.annotation.RpcMethod;
 import io.nuls.core.rpc.model.*;
+import io.nuls.v2.SDKContext;
 import io.nuls.v2.model.annotation.ApiOperation;
 import io.nuls.v2.model.dto.*;
 import io.nuls.v2.service.*;
@@ -133,6 +134,29 @@ public class NulsSDKTool {
     }))
     public static Result setAlias(String address, String alias, String password) {
         return accountService.setAlias(address, alias, password);
+    }
+
+    @ApiOperation(description = "验证地址格式是否正确", order = 109, detailDesc = "验证本来地址格式是否正确")
+    @Parameters({
+            @Parameter(parameterName = "address", requestType = @TypeDescriptor(value = String.class), parameterDes = "账户地址")
+    })
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "value", description = "设置别名交易的hash")
+    }))
+    public static Result validateAddress(String address) {
+        return accountService.validateAddress(SDKContext.main_chain_id, address);
+    }
+
+    @ApiOperation(description = "验证地址格式是否正确", order = 110, detailDesc = "根据chainId验证地址格式是否正确")
+    @Parameters({
+            @Parameter(parameterName = "chainId", requestType = @TypeDescriptor(value = int.class), parameterDes = "账户地址"),
+            @Parameter(parameterName = "address", requestType = @TypeDescriptor(value = String.class), parameterDes = "账户地址")
+    })
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "value", description = "设置别名交易的hash")
+    }))
+    public static Result validateAddress(int chainId, String address) {
+        return accountService.validateAddress(chainId, address);
     }
 
     @ApiOperation(description = "离线 - 批量创建账户", order = 150, detailDesc = "创建的账户不会保存到钱包中,接口直接返回账户的keystore信息")

@@ -190,4 +190,11 @@ public class AccountServiceTest {
         Result result = NulsSDKTool.setAlias(address, alias, password);
         System.out.println(result.getData());
     }
+
+    @Test
+    public void testValidateAddress() {
+        String address = "tNULSeBaMk4YTkZaUXrLXbUtaHeT1WF1Bx6aiBm";
+        Result result = NulsSDKTool.validateAddress(address);
+        System.out.println(result);
+    }
 }

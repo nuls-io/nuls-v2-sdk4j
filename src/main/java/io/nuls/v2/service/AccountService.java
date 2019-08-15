@@ -297,6 +297,22 @@ public class AccountService {
         return result;
     }
 
+
+    public Result validateAddress(int chainId, String address) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("chainId", chainId);
+        params.put("address", address);
+        Result result;
+        RestFulResult restFulResult = RestFulUtil.post("api/account/address/validate", params);
+        if (restFulResult.isSuccess()) {
+            result = Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
+    }
+
     /**
      * Change the off-line account password by encryptedPriKey and passowrd
      *
