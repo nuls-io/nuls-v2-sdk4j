@@ -114,7 +114,11 @@ public class TransactionService {
             }
 
             Transaction tx = new Transaction(TxType.TRANSFER);
-            tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
+            if (transferDto.getTime() != 0) {
+                tx.setTime(transferDto.getTime());
+            } else {
+                tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
+            }
             tx.setRemark(StringUtils.bytes(transferDto.getRemark()));
 
             CoinData coinData = assemblyCoinData(transferDto.getInputs(), transferDto.getOutputs(), tx.getSize());

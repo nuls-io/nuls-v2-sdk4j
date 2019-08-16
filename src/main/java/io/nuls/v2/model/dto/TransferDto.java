@@ -14,8 +14,9 @@ public class TransferDto {
 
     @ApiModelProperty(description = "转账交易输出列表", type = @TypeDescriptor(value = List.class, collectionElement = CoinToDto.class))
     private List<CoinToDto> outputs;
-
-    @ApiModelProperty(description = "交易备注")
+    @ApiModelProperty(description = "创建时间", required = false)
+    private long time;
+    @ApiModelProperty(description = "交易备注", required = false)
     private String remark;
 
     public List<CoinFromDto> getInputs() {
@@ -40,5 +41,13 @@ public class TransferDto {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
     }
 }
