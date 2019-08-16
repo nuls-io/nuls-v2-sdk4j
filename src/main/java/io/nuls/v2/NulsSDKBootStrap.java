@@ -17,6 +17,9 @@ public class NulsSDKBootStrap {
      */
     public static void init(int chainId, String httpUrl) {
         initChainId(chainId);
+        if(!httpUrl.endsWith("/")) {
+            httpUrl += "/";
+        }
         SDKContext.wallet_url = httpUrl;
     }
 
@@ -27,6 +30,9 @@ public class NulsSDKBootStrap {
      */
     public static void initMain(String httpUrl) {
         initChainId(1);
+        if(!httpUrl.endsWith("/")) {
+            httpUrl += "/";
+        }
         SDKContext.wallet_url = httpUrl;
     }
 
@@ -37,6 +43,9 @@ public class NulsSDKBootStrap {
      */
     public static void initTest(String httpUrl) {
         initChainId(2);
+        if(!httpUrl.endsWith("/")) {
+            httpUrl += "/";
+        }
         SDKContext.wallet_url = httpUrl;
     }
 
