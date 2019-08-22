@@ -1,18 +1,17 @@
 # NULS-SDK-4J使用说明
 
-`NULS-SDK-4J`是给用JAVA对接`NULS-SDK-Provider`模块的合作伙伴提供的开发组件。在阅读此文档前，请开发人员先阅读《NULS-SDK-API使用说明》。
+`NULS-SDK-4J`是给用JAVA对接`NULS-SDK-Provider`模块的合作伙伴提供的开发组件。
 
 ## maven
 
-JDK版本：JDK-11
-
 此工程已上传到maven中央仓库，可在maven工程中使用：
+
 JDK11的版本依赖：
 ```xml
 <dependency>
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j</artifactId>
-    <version>1.0.0-beta2</version>
+    <version>1.0.0-beta4</version>
 </dependency>
 ```
 
@@ -21,11 +20,11 @@ JDK8的版本依赖：
 <dependency>
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j-jdk8</artifactId>
-    <version>1.0.0-beta2</version>
+    <version>1.0.0-beta4</version>
 </dependency>
 ```
 
-注：调用`NULS-SDK-4J`提供的在线接口时，必须先运行`NULS2.0`的`NULS-SDK-Provider`模块。
+注：调用`NULS-SDK-4J`提供的在线接口时，必须先运行`NULS2.0`的`NULS-SDK-Provider`模块。[点击进入SDK-Provider文档](https://github.com/nuls-io/nuls-v2/blob/master/module/nuls-sdk-provider/README.md)
 
 ## 初始化
 
@@ -830,7 +829,7 @@ _**详细描述: 根据inputs和outputs离线组装转账交易，用于单账�
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetId      |       int       | 资产id     |  是   |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount       |   biginteger    | 资产金额     |  是   |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lockTime     |      long       | 锁定时间     |  是   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;time                                                         |     long        | 交易时间,单位秒     |  否   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;time                                                         |      long       | 创建时间     |  否   |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remark                                                       |     string      | 交易备注     |  否   |
 
 返回值
@@ -1117,33 +1116,34 @@ _**详细描述: 获取智能合约详细信息**_
 
 返回值
 ---
-| 字段名                                                                                                      |      字段类型       | 参数描述                          |
-| -------------------------------------------------------------------------------------------------------- |:---------------:| ----------------------------- |
-| createTxHash                                                                                             |     string      | 发布合约的交易hash                   |
-| address                                                                                                  |     string      | 合约地址                          |
-| creater                                                                                                  |     string      | 合约创建者地址                       |
-| alias                                                                                                    |     string      | 合约别名                          |
-| createTime                                                                                               |      long       | 合约创建时间（单位：秒）                  |
-| blockHeight                                                                                              |      long       | 合约创建时的区块高度                    |
-| isDirectPayable                                                                                          |     boolean     | 是否接受直接转账                      |
-| isNrc20                                                                                                  |     boolean     | 是否是NRC20合约                    |
-| nrc20TokenName                                                                                           |     string      | NRC20-token名称                 |
-| nrc20TokenSymbol                                                                                         |     string      | NRC20-token符号                 |
-| decimals                                                                                                 |      long       | NRC20-token支持的小数位数            |
-| totalSupply                                                                                              |     string      | NRC20-token发行总量               |
-| status                                                                                                   |     string      | 合约状态（not_found, normal, stop） |
-| method                                                                                                   | list&lt;object> | 合约方法列表                        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name                                                     |     string      | 方法名称                          |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;desc                                                     |     string      | 方法描述                          |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;args                                                     | list&lt;object> | 方法参数列表                        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type     |     string      | 参数类型                          |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name     |     string      | 参数名称                          |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;required |     boolean     | 是否必填                          |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;returnArg                                                |     string      | 返回值类型                         |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;view                                                     |     boolean     | 是否视图方法（调用此方法数据不上链）            |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;event                                                    |     boolean     | 是否是事件                         |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;payable                                                  |     boolean     | 是否是可接受主链资产转账的方法               |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jsonSerializable                                         |     boolean     | 方法返回值是否JSON序列化                |
+| 字段名                                                                                                      |      字段类型       | 参数描述                                       |
+| -------------------------------------------------------------------------------------------------------- |:---------------:| ------------------------------------------ |
+| createTxHash                                                                                             |     string      | 发布合约的交易hash                                |
+| address                                                                                                  |     string      | 合约地址                                       |
+| creater                                                                                                  |     string      | 合约创建者地址                                    |
+| alias                                                                                                    |     string      | 合约别名                                       |
+| createTime                                                                                               |      long       | 合约创建时间（单位：秒）                               |
+| blockHeight                                                                                              |      long       | 合约创建时的区块高度                                 |
+| isDirectPayable                                                                                          |     boolean     | 是否接受直接转账                                   |
+| tokenType                                                                                                |       int       | token类型, 0 - 非token, 1 - NRC20, 2 - NRC721 |
+| isNrc20                                                                                                  |     boolean     | 是否是NRC20合约                                 |
+| nrc20TokenName                                                                                           |     string      | NRC20-token名称                              |
+| nrc20TokenSymbol                                                                                         |     string      | NRC20-token符号                              |
+| decimals                                                                                                 |      long       | NRC20-token支持的小数位数                         |
+| totalSupply                                                                                              |     string      | NRC20-token发行总量                            |
+| status                                                                                                   |     string      | 合约状态（not_found, normal, stop）              |
+| method                                                                                                   | list&lt;object> | 合约方法列表                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name                                                     |     string      | 方法名称                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;desc                                                     |     string      | 方法描述                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;args                                                     | list&lt;object> | 方法参数列表                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type     |     string      | 参数类型                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name     |     string      | 参数名称                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;required |     boolean     | 是否必填                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;returnArg                                                |     string      | 返回值类型                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;view                                                     |     boolean     | 是否视图方法（调用此方法数据不上链）                         |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;event                                                    |     boolean     | 是否是事件                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;payable                                                  |     boolean     | 是否是可接受主链资产转账的方法                            |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jsonSerializable                                         |     boolean     | 方法返回值是否JSON序列化                             |
 
 4.8 获取智能合约执行结果
 ==============

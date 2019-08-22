@@ -9,14 +9,4 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 public class BaseForm {
 
-    @JsonIgnore
-    private Integer chainId;
-
-    public Integer getChainId() {
-        return chainId;
-    }
-
-    public void setChainId(Integer chainId) {
-        this.chainId = chainId;
-    }
 }
