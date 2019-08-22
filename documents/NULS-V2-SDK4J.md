@@ -1,22 +1,30 @@
 # NULS-SDK-4J使用说明
 
-`NULS-SDK-4J`是给用JAVA对接`NULS-SDK-Provider`模块的合作伙伴提供的开发组件。在阅读此文档前，请开发人员先阅读《NULS-SDK-API使用说明》。
+`NULS-SDK-4J`是给用JAVA对接`NULS-SDK-Provider`模块的合作伙伴提供的开发组件。
 
 ## maven
 
-JDK版本：JDK-11
-
 此工程已上传到maven中央仓库，可在maven工程中使用：
 
+JDK11的版本依赖：
 ```xml
 <dependency>
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j</artifactId>
-    <version>1.0.0-beta1.2</version>
+    <version>1.0.0-beta4</version>
 </dependency>
 ```
 
-注：调用`NULS-SDK-4J`提供的在线接口时，必须先运行`NULS2.0`的`NULS-SDK-Provider`模块。
+JDK8的版本依赖：
+```xml
+<dependency>
+    <groupId>io.nuls.v2</groupId>
+    <artifactId>sdk4j-jdk8</artifactId>
+    <version>1.0.0-beta4</version>
+</dependency>
+```
+
+注：调用`NULS-SDK-4J`提供的在线接口时，必须先运行`NULS2.0`的`NULS-SDK-Provider`模块。[点击进入SDK-Provider文档](https://github.com/nuls-io/nuls-v2/blob/master/module/nuls-sdk-provider/README.md)
 
 ## 初始化
 
@@ -151,6 +159,7 @@ _**详细描述: 根据keystore导入账户**_
 | 参数名             |  参数类型  | 参数描述   | 是否必填 |
 | --------------- |:------:| ------ |:----:|
 | address         | string | 账户地址   |  是   |
+| pubKey          | string | 公钥     |  是   |
 | encryptedPriKey | string | 加密后的私钥 |  是   |
 | password        | string | 密码     |  是   |
 
@@ -188,9 +197,11 @@ _**详细描述: 根据资产链ID和资产ID，查询本链账户对应资产�
 
 参数列表
 ----
-| 参数名     |  参数类型  | 参数描述 | 是否必填 |
-| ------- |:------:| ---- |:----:|
-| address | string | 账户地址 |  是   |
+| 参数名      |  参数类型  | 参数描述   | 是否必填 |
+| -------- |:------:| ------ |:----:|
+| address  | string | 账户地址   |  是   |
+| chainId  |  int   | 资产的链ID |  是   |
+| assetsId |  int   | 资产ID   |  是   |
 
 返回值
 ---
@@ -204,8 +215,65 @@ _**详细描述: 根据资产链ID和资产ID，查询本链账户对应资产�
 | nonce         | string | 账户资产nonce值                |
 | nonceType     |  int   | 1：已确认的nonce值,0：未确认的nonce值 |
 
-1.8 离线 - 批量创建账户
+1.8 设置账户别名
+==========
+Method: NulsSDKTool#setAlias
+----------------------------
+_**详细描述: 别名格式为1-20位小写字母和数字的组合，设置别名会销毁1个NULS**_
+
+参数列表
+----
+| 参数名      |  参数类型  | 参数描述 | 是否必填 |
+| -------- |:------:| ---- |:----:|
+| address  | string | 账户地址 |  是   |
+| alias    | string | 别名   |  是   |
+| password | string | 账户密码 |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述        |
+| ----- |:------:| ----------- |
+| value | string | 设置别名交易的hash |
+
+1.9 验证地址格式是否正确
+==============
+Method: NulsSDKTool#validateAddress
+-----------------------------------
+_**详细描述: 验证本来地址格式是否正确**_
+
+参数列表
+----
+| 参数名     |  参数类型  | 参数描述 | 是否必填 |
+| ------- |:------:| ---- |:----:|
+| address | string | 账户地址 |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述        |
+| ----- |:------:| ----------- |
+| value | string | 设置别名交易的hash |
+
+1.10 验证地址格式是否正确
 ===============
+Method: NulsSDKTool#validateAddress
+-----------------------------------
+_**详细描述: 根据chainId验证地址格式是否正确**_
+
+参数列表
+----
+| 参数名     |  参数类型  | 参数描述 | 是否必填 |
+| ------- |:------:| ---- |:----:|
+| chainId |  int   | 账户地址 |  是   |
+| address | string | 账户地址 |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述        |
+| ----- |:------:| ----------- |
+| value | string | 设置别名交易的hash |
+
+1.11 离线 - 批量创建账户
+================
 Method: NulsSDKTool#createOffLineAccount
 ----------------------------------------
 _**详细描述: 创建的账户不会保存到钱包中,接口直接返回账户的keystore信息**_
@@ -226,8 +294,31 @@ _**详细描述: 创建的账户不会保存到钱包中,接口直接返回账�
 | prikey              | string | 明文私钥   |
 | encryptedPrivateKey | string | 加密后的私钥 |
 
-1.9 离线修改账户密码
-============
+1.12 离线 - 批量创建地址带固定前缀的账户
+========================
+Method: NulsSDKTool#createOffLineAccount
+----------------------------------------
+_**详细描述: 创建的账户不会保存到钱包中,接口直接返回账户的keystore信息**_
+
+参数列表
+----
+| 参数名      |  参数类型  | 参数描述 | 是否必填 |
+| -------- |:------:| ---- |:----:|
+| count    |  int   | 创建数量 |  是   |
+| prefix   | string | 地址前缀 |  否   |
+| password | string | 密码   |  是   |
+
+返回值
+---
+| 字段名                 |  字段类型  | 参数描述   |
+| ------------------- |:------:| ------ |
+| address             | string | 账户地址   |
+| pubKey              | string | 公钥     |
+| prikey              | string | 明文私钥   |
+| encryptedPrivateKey | string | 加密后的私钥 |
+
+1.13 离线修改账户密码
+=============
 Method: NulsSDKTool#resetPasswordOffline
 ----------------------------------------
 _**详细描述: 离线修改账户密码**_
@@ -247,7 +338,7 @@ _**详细描述: 离线修改账户密码**_
 | ----- |:------:| ---------- |
 | value | string | 重置密码后的加密私钥 |
 
-1.10 离线获取账户明文私钥
+1.14 离线获取账户明文私钥
 ===============
 Method: NulsSDKTool#getPriKeyOffline
 ------------------------------------
@@ -267,7 +358,7 @@ _**详细描述: 离线获取账户明文私钥**_
 | ----- |:------:| ---- |
 | value | string | 明文私钥 |
 
-1.11 多账户摘要签名
+1.15 多账户摘要签名
 ============
 Method: NulsSDKTool#sign
 ------------------------
@@ -291,7 +382,31 @@ _**详细描述: 用于签名离线组装的多账户转账交易，调用接口
 | hash  | string | 交易hash        |
 | txHex | string | 签名后的交易16进制字符串 |
 
-1.12 明文私钥摘要签名
+1.16 多签账户摘要签名
+=============
+Method: NulsSDKTool#multiSign
+-----------------------------
+_**详细描述: 用于签名离线组装的多签账户转账交易，每次调用接口时，只能传入一个账户的私钥进行签名，签名成功后返回的交易字符串再交给第二个账户签名，依次类推**_
+
+参数列表
+----
+| 参数名                                                                 |  参数类型   | 参数描述         | 是否必填 |
+| ------------------------------------------------------------------- |:-------:| ------------ |:----:|
+| signDto                                                             | signdto | 摘要签名表单       |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address             | string  | 地址           |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;priKey              | string  | 明文私钥         |  否   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;encryptedPrivateKey | string  | 加密私钥         |  否   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;password            | string  | 密码           |  否   |
+| txHex                                                               | string  | 交易序列化16进制字符串 |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述          |
+| ----- |:------:| ------------- |
+| hash  | string | 交易hash        |
+| txHex | string | 签名后的交易16进制字符串 |
+
+1.17 明文私钥摘要签名
 =============
 Method: NulsSDKTool#sign
 ------------------------
@@ -312,7 +427,7 @@ _**详细描述: 明文私钥摘要签名**_
 | hash  | string | 交易hash        |
 | txHex | string | 签名后的交易16进制字符串 |
 
-1.13 密文私钥摘要签名
+1.18 密文私钥摘要签名
 =============
 Method: NulsSDKTool#sign
 ------------------------
@@ -333,6 +448,44 @@ _**详细描述: 密文私钥摘要签名**_
 | ----- |:------:| ------------- |
 | hash  | string | 交易hash        |
 | txHex | string | 签名后的交易16进制字符串 |
+
+1.19 创建多签账户
+===========
+Method: NulsSDKTool#createMultiSignAccount
+------------------------------------------
+_**详细描述: 根据多个账户的公钥创建多签账户，minSigns为多签账户创建交易时需要的最小签名数**_
+
+参数列表
+----
+| 参数名                                                     |      参数类型       | 参数描述   | 是否必填 |
+| ------------------------------------------------------- |:---------------:| ------ |:----:|
+| pubKeys                                                 |      list       | 账户公钥集合 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pubKeys | list&lt;string> | 账户公钥集合 |  是   |
+| minSigns                                                |       int       | 最小签名数  |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述  |
+| ----- |:------:| ----- |
+| value | string | 账户的地址 |
+
+1.20 根据私钥获取地址
+=============
+Method: NulsSDKTool#getAddressByPriKey
+--------------------------------------
+_**详细描述: 根据传入的私钥，生成对应的地址，私钥不会存储在钱包里**_
+
+参数列表
+----
+| 参数名    |  参数类型  | 参数描述 | 是否必填 |
+| ------ |:------:| ---- |:----:|
+| priKey | string | 原始私钥 |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述  |
+| ----- |:------:| ----- |
+| value | string | 账户的地址 |
 
 2.1 根据区块高度查询区块头
 ===============
@@ -676,7 +829,8 @@ _**详细描述: 根据inputs和outputs离线组装转账交易，用于单账�
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetId      |       int       | 资产id     |  是   |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount       |   biginteger    | 资产金额     |  是   |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lockTime     |      long       | 锁定时间     |  是   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remark                                                       |     string      | 交易备注     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;time                                                         |      long       | 创建时间     |  否   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remark                                                       |     string      | 交易备注     |  否   |
 
 返回值
 ---
@@ -707,6 +861,107 @@ _**详细描述: 计算离线创建转账交易所需手续费**_
 | 字段名 |    字段类型    | 参数描述  |
 | --- |:----------:| ----- |
 | 返回值 | biginteger | 手续费金额 |
+
+3.7 离线组装多签账户转账交易
+================
+Method: NulsSDKTool#createMultiSignTransferTxOffline
+----------------------------------------------------
+_**详细描述: 根据inputs和outputs离线组装转账交易，用于单个多签账户转账。交易手续费为inputs里本链主资产金额总和，减去outputs里本链主资产总和**_
+
+参数列表
+----
+| 参数名                                                                                                          |         参数类型         | 参数描述     | 是否必填 |
+| ------------------------------------------------------------------------------------------------------------ |:--------------------:| -------- |:----:|
+| transferDto                                                                                                  | multisigntransferdto | 转账交易表单   |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pubKeys                                                      |   list&lt;string>    | 公钥集合     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minSigns                                                     |         int          | 最小签名数    |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inputs                                                       |   list&lt;object>    | 转账交易输入列表 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address      |        string        | 账户地址     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetChainId |         int          | 资产的链id   |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetId      |         int          | 资产id     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount       |      biginteger      | 资产金额     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nonce        |        string        | 资产nonce值 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;outputs                                                      |   list&lt;object>    | 转账交易输出列表 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address      |        string        | 账户地址     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetChainId |         int          | 资产的链id   |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetId      |         int          | 资产id     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount       |      biginteger      | 资产金额     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lockTime     |         long         | 锁定时间     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remark                                                       |        string        | 交易备注     |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述         |
+| ----- |:------:| ------------ |
+| hash  | string | 交易hash       |
+| txHex | string | 交易序列化16进制字符串 |
+
+3.8 计算离线创建多签账户转账交易所需手续费
+=======================
+Method: NulsSDKTool#calcMultiSignTransferTxFee
+----------------------------------------------
+_**详细描述: 计算离线创建多签账户转账交易所需手续费**_
+
+参数列表
+----
+| 参数名                                                         |           参数类型            | 参数描述       | 是否必填 |
+| ----------------------------------------------------------- |:-------------------------:| ---------- |:----:|
+| MultiSignTransferTxFeeDto                                   | multisigntransfertxfeedto | 转账交易手续费    |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pubKeyCount |            int            | 多签地址对应公钥数量 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fromLength  |            int            | 转账输入长度     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;toLength    |            int            | 转账输出长度     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remark      |          string           | 交易备注       |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;price       |        biginteger         | 手续费单价      |  否   |
+
+返回值
+---
+| 字段名 |    字段类型    | 参数描述  |
+| --- |:----------:| ----- |
+| 返回值 | biginteger | 手续费金额 |
+
+3.9 离线创建设置别名交易
+==============
+Method: NulsSDKTool#createAliasTxOffline
+----------------------------------------
+_**详细描述: 离线创建设置别名交易**_
+
+参数列表
+----
+| 参数名                                                     |   参数类型   | 参数描述     | 是否必填 |
+| ------------------------------------------------------- |:--------:| -------- |:----:|
+| AliasDto                                                | aliasdto | 创建别名交易表单 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address |  string  | 账户地址     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alias   |  string  | 别名       |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nonce   |  string  | 资产nonce值 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remark  |  string  | 交易备注     |  否   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述         |
+| ----- |:------:| ------------ |
+| hash  | string | 交易hash       |
+| txHex | string | 交易序列化16进制字符串 |
+
+3.10 离线创建多签账户设置别名交易
+===================
+Method: NulsSDKTool#createMultiSignAliasTxOffline
+-------------------------------------------------
+_**详细描述: 离线创建多签账户设置别名交易**_
+
+参数列表
+----
+| 参数名                                                      |       参数类型        | 参数描述         | 是否必填 |
+| -------------------------------------------------------- |:-----------------:| ------------ |:----:|
+| MultiSignAliasDto                                        | multisignaliasdto | 多签账户创建别名交易表单 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pubKeys  |  list&lt;string>  | 公钥集合         |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minSigns |        int        | 最小签名数        |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述         |
+| ----- |:------:| ------------ |
+| hash  | string | 交易hash       |
+| txHex | string | 交易序列化16进制字符串 |
 
 4.1 发布合约
 ========
@@ -861,32 +1116,34 @@ _**详细描述: 获取智能合约详细信息**_
 
 返回值
 ---
-| 字段名                                                                                                      |      字段类型       | 参数描述                          |
-| -------------------------------------------------------------------------------------------------------- |:---------------:| ----------------------------- |
-| createTxHash                                                                                             |     string      | 发布合约的交易hash                   |
-| address                                                                                                  |     string      | 合约地址                          |
-| creater                                                                                                  |     string      | 合约创建者地址                       |
-| alias                                                                                                    |     string      | 合约别名                          |
-| createTime                                                                                               |      long       | 合约创建时间（单位：秒）                  |
-| blockHeight                                                                                              |      long       | 合约创建时的区块高度                    |
-| isDirectPayable                                                                                          |     boolean     | 是否接受直接转账                      |
-| isNrc20                                                                                                  |     boolean     | 是否是NRC20合约                    |
-| nrc20TokenName                                                                                           |     string      | NRC20-token名称                 |
-| nrc20TokenSymbol                                                                                         |     string      | NRC20-token符号                 |
-| decimals                                                                                                 |      long       | NRC20-token支持的小数位数            |
-| totalSupply                                                                                              |     string      | NRC20-token发行总量               |
-| status                                                                                                   |     string      | 合约状态（not_found, normal, stop） |
-| method                                                                                                   | list&lt;object> | 合约方法列表                        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name                                                     |     string      | 方法名称                          |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;desc                                                     |     string      | 方法描述                          |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;args                                                     | list&lt;object> | 方法参数列表                        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type     |     string      | 参数类型                          |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name     |     string      | 参数名称                          |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;required |     boolean     | 是否必填                          |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;returnArg                                                |     string      | 返回值类型                         |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;view                                                     |     boolean     | 是否视图方法（调用此方法数据不上链）            |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;event                                                    |     boolean     | 是否是事件                         |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;payable                                                  |     boolean     | 是否是可接受主链资产转账的方法               |
+| 字段名                                                                                                      |      字段类型       | 参数描述                                       |
+| -------------------------------------------------------------------------------------------------------- |:---------------:| ------------------------------------------ |
+| createTxHash                                                                                             |     string      | 发布合约的交易hash                                |
+| address                                                                                                  |     string      | 合约地址                                       |
+| creater                                                                                                  |     string      | 合约创建者地址                                    |
+| alias                                                                                                    |     string      | 合约别名                                       |
+| createTime                                                                                               |      long       | 合约创建时间（单位：秒）                               |
+| blockHeight                                                                                              |      long       | 合约创建时的区块高度                                 |
+| isDirectPayable                                                                                          |     boolean     | 是否接受直接转账                                   |
+| tokenType                                                                                                |       int       | token类型, 0 - 非token, 1 - NRC20, 2 - NRC721 |
+| isNrc20                                                                                                  |     boolean     | 是否是NRC20合约                                 |
+| nrc20TokenName                                                                                           |     string      | NRC20-token名称                              |
+| nrc20TokenSymbol                                                                                         |     string      | NRC20-token符号                              |
+| decimals                                                                                                 |      long       | NRC20-token支持的小数位数                         |
+| totalSupply                                                                                              |     string      | NRC20-token发行总量                            |
+| status                                                                                                   |     string      | 合约状态（not_found, normal, stop）              |
+| method                                                                                                   | list&lt;object> | 合约方法列表                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name                                                     |     string      | 方法名称                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;desc                                                     |     string      | 方法描述                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;args                                                     | list&lt;object> | 方法参数列表                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type     |     string      | 参数类型                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name     |     string      | 参数名称                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;required |     boolean     | 是否必填                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;returnArg                                                |     string      | 返回值类型                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;view                                                     |     boolean     | 是否视图方法（调用此方法数据不上链）                         |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;event                                                    |     boolean     | 是否是事件                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;payable                                                  |     boolean     | 是否是可接受主链资产转账的方法                            |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jsonSerializable                                         |     boolean     | 方法返回值是否JSON序列化                             |
 
 4.8 获取智能合约执行结果
 ==============
@@ -969,6 +1226,7 @@ _**详细描述: 根据合约代码获取合约构造函数详情**_
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;view                                                     |     boolean     | 是否视图方法（调用此方法数据不上链） |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;event                                                    |     boolean     | 是否是事件              |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;payable                                                  |     boolean     | 是否是可接受主链资产转账的方法    |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jsonSerializable                                         |     boolean     | 方法返回值是否JSON序列化     |
 | nrc20                                                                                                    |     boolean     | 是否是NRC20合约         |
 
 4.10 获取已发布合约指定函数的信息
@@ -1000,6 +1258,7 @@ _**详细描述: 获取已发布合约指定函数的信息**_
 | view                                                     |     boolean     | 是否视图方法（调用此方法数据不上链） |
 | event                                                    |     boolean     | 是否是事件              |
 | payable                                                  |     boolean     | 是否是可接受主链资产转账的方法    |
+| jsonSerializable                                         |     boolean     | 方法返回值是否JSON序列化     |
 
 4.11 获取已发布合约指定函数的参数类型列表
 =======================
@@ -1515,6 +1774,100 @@ _**详细描述: 组装交易的StopDepositDto信息，可通过查询节点的�
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetId      |       int        | 资产id        |  是   |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount       |    biginteger    | 资产金额        |  是   |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nonce        |      string      | 资产nonce值    |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述         |
+| ----- |:------:| ------------ |
+| hash  | string | 交易hash       |
+| txHex | string | 交易序列化16进制字符串 |
+
+5.10 离线组装多签账户创建共识节点交易
+=====================
+Method: NulsSDKTool#createMultiSignConsensusTx
+----------------------------------------------
+_**详细描述: 参与共识所需资产可通过查询链信息接口获取(agentChainId和agentAssetId)**_
+
+参数列表
+----
+| 参数名                                                      |         参数类型          | 参数描述         | 是否必填 |
+| -------------------------------------------------------- |:---------------------:| ------------ |:----:|
+| consensusDto                                             | multisignconsensusdto | 多签账户创建节点交易表单 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pubKeys  |    list&lt;string>    | 公钥集合         |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minSigns |          int          | 最小签名数        |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述         |
+| ----- |:------:| ------------ |
+| hash  | string | 交易hash       |
+| txHex | string | 交易序列化16进制字符串 |
+
+5.11 离线组装多签账户委托共识交易
+===================
+Method: NulsSDKTool#createMultiSignDepositTxOffline
+---------------------------------------------------
+_**详细描述: 参与共识所需资产可通过查询链信息接口获取(agentChainId和agentAssetId)**_
+
+参数列表
+----
+| 参数名                                                      |        参数类型         | 参数描述         | 是否必填 |
+| -------------------------------------------------------- |:-------------------:| ------------ |:----:|
+| depositDto                                               | multisigndepositdto | 多签账户委托共识交易表单 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pubKeys  |   list&lt;string>   | 公钥集合         |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minSigns |         int         | 最小签名数        |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述         |
+| ----- |:------:| ------------ |
+| hash  | string | 交易hash       |
+| txHex | string | 交易序列化16进制字符串 |
+
+5.12 离线组装多签账户退出委托共识交易
+=====================
+Method: NulsSDKTool#createMultiSignWithdrawDepositTxOffline
+-----------------------------------------------------------
+_**详细描述: 接口的input数据，则是委托共识交易的output数据，nonce值可为空**_
+
+参数列表
+----
+| 参数名                                                      |         参数类型         | 参数描述         | 是否必填 |
+| -------------------------------------------------------- |:--------------------:| ------------ |:----:|
+| withDrawDto                                              | multisignwithdrawdto | 多签账户退出委托交易表单 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pubKeys  |   list&lt;string>    | 公钥集合         |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minSigns |         int          | 最小签名数        |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述         |
+| ----- |:------:| ------------ |
+| hash  | string | 交易hash       |
+| txHex | string | 交易序列化16进制字符串 |
+
+5.13 离线组装多签账户注销共识节点交易
+=====================
+Method: NulsSDKTool#createMultiSignStopConsensusTx
+--------------------------------------------------
+_**详细描述: 组装交易的StopDepositDto信息，可通过查询节点的委托共识列表获取，input的nonce值可为空**_
+
+参数列表
+----
+| 参数名                                                                                                                                                          |       参数类型       | 参数描述           | 是否必填 |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------ |:----------------:| -------------- |:----:|
+| stopConsensusDto                                                                                                                                             | stopconsensusdto | 多签账户注销共识节点交易表单 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;agentHash                                                                                                    |      string      | 创建节点的交易hash    |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;agentAddress                                                                                                 |      string      | 节点地址           |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deposit                                                                                                      |    biginteger    | 创建节点的保证金       |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;price                                                                                                        |    biginteger    | 手续费单价          |  否   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;depositList                                                                                                  | list&lt;object>  | 停止委托列表         |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;depositHash                                                  |      string      | 委托共识的交易hash    |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;input                                                        |      object      | 交易输入信息         |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address      |      string      | 账户地址           |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetChainId |       int        | 资产的链id         |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetId      |       int        | 资产id           |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount       |    biginteger    | 资产金额           |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nonce        |      string      | 资产nonce值       |  是   |
 
 返回值
 ---

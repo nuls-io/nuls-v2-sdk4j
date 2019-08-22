@@ -168,11 +168,11 @@ public class ContractServiceTest {
         String signedTxHex = (String) resultData.get("txHex");
 
         // 在线接口 - 广播交易
-        //Result<Map> broadcaseTxR = transactionService.broadcastTx(signedTxHex);
-        //Assert.assertTrue(JSONUtils.obj2PrettyJson(broadcaseTxR), broadcaseTxR.isSuccess());
-        //Map data = broadcaseTxR.getData();
-        //String hash1 = (String) data.get("hash");
-        //Assert.assertEquals("hash不一致", hash, hash1);
+        Result<Map> broadcaseTxR = transactionService.broadcastTx(signedTxHex);
+        Assert.assertTrue(JSONUtils.obj2PrettyJson(broadcaseTxR), broadcaseTxR.isSuccess());
+        Map data = broadcaseTxR.getData();
+        String hash1 = (String) data.get("hash");
+        Assert.assertEquals("hash不一致", hash, hash1);
         System.out.println(String.format("hash: %s", hash));
     }
 
