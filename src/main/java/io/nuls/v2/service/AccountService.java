@@ -106,7 +106,7 @@ public class AccountService {
                 if (StringUtils.isBlank(prefix)) {
                     account = AccountTool.createAccount(SDKContext.main_chain_id);
                 } else {
-                    account = AccountTool.createAccount(SDKContext.main_chain_id, prefix, null);
+                    account = AccountTool.createAccount(SDKContext.main_chain_id, null, prefix);
                 }
                 if (StringUtils.isNotBlank(password)) {
                     account.encrypt(password);
@@ -280,7 +280,7 @@ public class AccountService {
         }
     }
 
-    public Result setAlias(String address, String alias ,String password) {
+    public Result setAlias(String address, String alias, String password) {
         Map<String, Object> params = new HashMap<>();
         params.put("password", password);
         params.put("address", address);
@@ -446,15 +446,15 @@ public class AccountService {
             transactionSignature.parse(new NulsByteBuffer(tx.getTransactionSignature()));
             boolean hasPubKey = false;
             for (byte[] bytes : transactionSignature.getPubKeyList()) {
-                if(Arrays.equals(bytes, account.getPubKey())) {
+                if (Arrays.equals(bytes, account.getPubKey())) {
                     hasPubKey = true;
                 }
             }
-            if(!hasPubKey) {
+            if (!hasPubKey) {
                 throw new NulsRuntimeException(AccountErrorCode.ADDRESS_ERROR, account.getAddress() + " not one of the multiSign address");
             }
             List<P2PHKSignature> p2PHKSignatures = transactionSignature.getP2PHKSignatures();
-            if(p2PHKSignatures == null) {
+            if (p2PHKSignatures == null) {
                 p2PHKSignatures = new ArrayList<>();
             }
             for (P2PHKSignature p2PHKSignature : p2PHKSignatures) {
