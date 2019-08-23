@@ -106,7 +106,7 @@ public class AccountService {
                 if (StringUtils.isBlank(prefix)) {
                     account = AccountTool.createAccount(SDKContext.main_chain_id);
                 } else {
-                    account = AccountTool.createAccount(SDKContext.main_chain_id, prefix);
+                    account = AccountTool.createAccount(SDKContext.main_chain_id, prefix, null);
                 }
                 if (StringUtils.isNotBlank(password)) {
                     account.encrypt(password);
