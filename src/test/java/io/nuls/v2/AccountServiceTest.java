@@ -26,7 +26,7 @@ public class AccountServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.initTest("http://127.0.0.1:18004/");
+        NulsSDKBootStrap.init(3,"http://127.0.0.1:18004/");
     }
 
     @Test
@@ -42,7 +42,7 @@ public class AccountServiceTest {
     public void testCreateOfflineAccount() {
         int count = 2;
 
-        Result<List<AccountDto>> result = NulsSDKTool.createOffLineAccount(count, password);
+        Result<List<AccountDto>> result = NulsSDKTool.createOffLineAccount(count,"VIVI", password);
 
         for (AccountDto accountDto : result.getData()) {
             try {

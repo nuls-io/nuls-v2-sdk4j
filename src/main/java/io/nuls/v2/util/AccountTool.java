@@ -93,6 +93,7 @@ public class AccountTool {
         account.setEncryptedPriKey(new byte[0]);
         account.setCreateTime(NulsDateUtils.getCurrentTimeMillis());
         account.setEcKey(key);
+
         return account;
     }
 
