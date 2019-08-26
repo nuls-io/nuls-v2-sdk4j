@@ -5,7 +5,6 @@ import io.nuls.core.basic.Result;
 import io.nuls.core.parse.JSONUtils;
 import io.nuls.v2.model.dto.*;
 import io.nuls.v2.util.NulsSDKTool;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,7 +26,7 @@ public class AccountServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.initTest("http://127.0.0.1:18004/");
+        NulsSDKBootStrap.init(3,"http://127.0.0.1:18004/");
     }
 
     @Test
@@ -43,7 +42,7 @@ public class AccountServiceTest {
     public void testCreateOfflineAccount() {
         int count = 2;
 
-        Result<List<AccountDto>> result = NulsSDKTool.createOffLineAccount(count, password);
+        Result<List<AccountDto>> result = NulsSDKTool.createOffLineAccount(count,"NBKS", password);
 
         for (AccountDto accountDto : result.getData()) {
             try {
