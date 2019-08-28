@@ -136,25 +136,21 @@ public class NulsSDKTool {
         return accountService.setAlias(address, alias, password);
     }
 
-    @ApiOperation(description = "验证地址格式是否正确", order = 109, detailDesc = "验证本来地址格式是否正确")
+    @ApiOperation(description = "验证地址格式是否正确", order = 109, detailDesc = "验证本链地址格式是否正确")
     @Parameters({
             @Parameter(parameterName = "address", requestType = @TypeDescriptor(value = String.class), parameterDes = "账户地址")
     })
-    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
-            @Key(name = "value", description = "设置别名交易的hash")
-    }))
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class))
     public static Result validateAddress(String address) {
         return accountService.validateAddress(SDKContext.main_chain_id, address);
     }
 
     @ApiOperation(description = "验证地址格式是否正确", order = 110, detailDesc = "根据chainId验证地址格式是否正确")
     @Parameters({
-            @Parameter(parameterName = "chainId", requestType = @TypeDescriptor(value = int.class), parameterDes = "账户地址"),
+            @Parameter(parameterName = "chainId", requestType = @TypeDescriptor(value = int.class), parameterDes = "链ID"),
             @Parameter(parameterName = "address", requestType = @TypeDescriptor(value = String.class), parameterDes = "账户地址")
     })
-    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
-            @Key(name = "value", description = "设置别名交易的hash")
-    }))
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class))
     public static Result validateAddress(int chainId, String address) {
         return accountService.validateAddress(chainId, address);
     }
@@ -287,6 +283,17 @@ public class NulsSDKTool {
     }))
     public static Result getAddressByPriKey(String priKey) {
         return accountService.getAddressByPriKey(priKey);
+    }
+
+    @ApiOperation(description = "转换NULS1.0地址为NULS2.0地址", order = 160, detailDesc = "转换NULS1.0地址为NULS2.0地址")
+    @Parameters({
+            @Parameter(parameterName = "v1Address", requestType = @TypeDescriptor(value = String.class), parameterDes = "NULS1.0账户地址")
+    })
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "value", description = "NULS2.0地址")
+    }))
+    public static Result changeV1addressToV2address(String v1Address) {
+        return accountService.changeV1addressToV2address(v1Address);
     }
 
     @ApiOperation(description = "根据区块高度查询区块头", order = 201)
@@ -876,4 +883,6 @@ public class NulsSDKTool {
     public static Result createMultiSignStopConsensusTx(MultiSignStopConsensusDto stopConsensusDto) {
         return transactionService.createMultiSignStopConsensusTx(stopConsensusDto);
     }
+
+
 }

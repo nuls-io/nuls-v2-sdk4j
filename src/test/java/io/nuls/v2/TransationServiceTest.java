@@ -31,6 +31,9 @@ public class TransationServiceTest {
 
     @Test
     public void testCreateTransferTx() {
+        String fromAddress = "tNULSeBaMss7ZU7tHw2vjUrTtvbLYcqjU5b9XN";
+        String toAddress = "tNULSeBaMsEfHKEXvaFPPpQomXipeCYrru6t81";
+
         TransferTxFeeDto feeDto = new TransferTxFeeDto();
         feeDto.setAddressCount(1);
         feeDto.setFromLength(1);
@@ -42,16 +45,16 @@ public class TransationServiceTest {
         List<CoinFromDto> inputs = new ArrayList<>();
 
         CoinFromDto from = new CoinFromDto();
-        from.setAddress(address);
+        from.setAddress(fromAddress);
         from.setAmount(new BigInteger("10000000").add(fee));
         from.setAssetChainId(SDKContext.main_chain_id);
         from.setAssetId(SDKContext.main_asset_id);
-        from.setNonce("6db83fdd14f6f233");
+        from.setNonce("0000000000000000");
         inputs.add(from);
 
         List<CoinToDto> outputs = new ArrayList<>();
         CoinToDto to = new CoinToDto();
-        to.setAddress("8CPcA7kaXSHbWb3GHP7bd5hRLFu8RZv57rY9w");
+        to.setAddress(toAddress);
         to.setAmount(new BigInteger("10000000"));
         to.setAssetChainId(SDKContext.main_chain_id);
         to.setAssetId(SDKContext.main_asset_id);
@@ -60,9 +63,18 @@ public class TransationServiceTest {
         transferDto.setInputs(inputs);
         transferDto.setOutputs(outputs);
 
-        Result result = NulsSDKTool.createTransferTxOffline(transferDto);
-        //d3de15b1d1746732510610a102c2189da970df534ea9407c48d0b7838eeb5b8e
-        System.out.println(result.getData());
+        Result<Map> result = NulsSDKTool.createTransferTxOffline(transferDto);
+        String txHex = (String) result.getData().get("txHex");
+
+        //签名
+        String encryptedPrivateKey = "";
+        String password = "";
+        result = NulsSDKTool.sign(txHex, fromAddress, encryptedPrivateKey, password);
+        txHex = (String) result.getData().get("txHex");
+
+        String txHash = (String) result.getData().get("hash");
+        //广播
+        result = NulsSDKTool.broadcast(txHex);
     }
 
     @Test

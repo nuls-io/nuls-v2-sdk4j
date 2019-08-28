@@ -26,7 +26,7 @@ public class AccountServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.init(3,"http://127.0.0.1:18004/");
+        NulsSDKBootStrap.init(2, "http://127.0.0.1:18004/");
     }
 
     @Test
@@ -42,7 +42,7 @@ public class AccountServiceTest {
     public void testCreateOfflineAccount() {
         int count = 2;
 
-        Result<List<AccountDto>> result = NulsSDKTool.createOffLineAccount(count,"VIVI", password);
+        Result<List<AccountDto>> result = NulsSDKTool.createOffLineAccount(count, password);
 
         for (AccountDto accountDto : result.getData()) {
             try {
@@ -193,8 +193,16 @@ public class AccountServiceTest {
 
     @Test
     public void testValidateAddress() {
-        String address = "tNULSeBaMk4YTkZaUXrLXbUtaHeT1WF1Bx6aiBm";
-        Result result = NulsSDKTool.validateAddress(address);
+        String address = "tNULSeBaMk4YTkZaUXrLXbUtaHeTWF1Bx6aiBm";
+        Result result = NulsSDKTool.validateAddress(2, address);
         System.out.println(result);
     }
+
+    @Test
+    public void testChangeV1addressToV2address() {
+        String address = "Nse5oPtPjgbyHujSxXu2YbWRmmf3ksCo";
+        Result result = NulsSDKTool.changeV1addressToV2address(address);
+        System.out.println(result);
+    }
+
 }

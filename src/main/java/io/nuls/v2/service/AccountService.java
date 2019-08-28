@@ -2,14 +2,17 @@ package io.nuls.v2.service;
 
 import io.nuls.base.basic.AddressTool;
 import io.nuls.base.basic.NulsByteBuffer;
+import io.nuls.base.data.Address;
 import io.nuls.base.data.MultiSigAccount;
 import io.nuls.base.data.Transaction;
 import io.nuls.base.signture.MultiSignTxSignature;
 import io.nuls.base.signture.P2PHKSignature;
 import io.nuls.base.signture.SignatureUtil;
 import io.nuls.core.basic.Result;
+import io.nuls.core.constant.BaseConstant;
 import io.nuls.core.constant.ErrorCode;
 import io.nuls.core.crypto.AESEncrypt;
+import io.nuls.core.crypto.Base58;
 import io.nuls.core.crypto.ECKey;
 import io.nuls.core.crypto.HexUtil;
 import io.nuls.core.exception.CryptoException;
@@ -297,20 +300,13 @@ public class AccountService {
         return result;
     }
 
-
     public Result validateAddress(int chainId, String address) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("chainId", chainId);
-        params.put("address", address);
-        Result result;
-        RestFulResult restFulResult = RestFulUtil.post("api/account/address/validate", params);
-        if (restFulResult.isSuccess()) {
-            result = Result.getSuccess(restFulResult.getData());
-        } else {
-            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
-            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        boolean b = AddressTool.validAddress(chainId, address);
+        if(!b) {
+            return Result.getFailed(AccountErrorCode.ADDRESS_ERROR);
+        }else {
+            return Result.getSuccess(null);
         }
-        return result;
     }
 
     /**
@@ -582,4 +578,35 @@ public class AccountService {
         return Result.getSuccess(map);
     }
 
+    public Result changeV1addressToV2address(String v1Address) {
+        byte[] addressV1 = getAddress(v1Address);
+        if (addressV1 == null) {
+            return Result.getFailed(AccountErrorCode.ADDRESS_ERROR);
+        }
+        byte[] bytesV1 = new byte[20];
+        System.arraycopy(addressV1, 3, bytesV1, 0, 20);
+        byte[] addressV2;
+        if (SDKContext.main_chain_id == 1) {
+            addressV2 = new Address(1, "NULS", BaseConstant.DEFAULT_ADDRESS_TYPE, bytesV1).getAddressBytes();
+        } else {
+            addressV2 = new Address(2, "tNULS", BaseConstant.DEFAULT_ADDRESS_TYPE, bytesV1).getAddressBytes();
+        }
+        Address address = Address.fromHashs(addressV2);
+        Map<String, Object> map = new HashMap<>();
+        map.put("value", address.getBase58());
+        return Result.getSuccess(map);
+    }
+
+    public static byte[] getAddress(String addressString) {
+        byte[] bytes;
+        try {
+            bytes = Base58.decode(addressString);
+        } catch (Exception var3) {
+            return null;
+        }
+
+        byte[] result = new byte[23];
+        System.arraycopy(bytes, 0, result, 0, 23);
+        return result;
+    }
 }
