@@ -47,4 +47,23 @@ public class JsonRpcUtil {
         return rpcResult;
     }
 
+    public static RpcResult request(String requestURL, String method, List<Object> params) {
+        RpcResult rpcResult;
+        CloseableHttpClient httpClient = null;
+        CloseableHttpResponse response = null;
+        try {
+            Map<String, Object> map = new HashMap<>(8);
+            map.put(ID, DEFAULT_ID);
+            map.put(JSONRPC, JSONRPC_VERSION);
+            map.put(METHOD, method);
+            map.put(PARAMS, params);
+            String resultStr = HttpClientUtil.post(requestURL, map);
+            rpcResult = JSONUtils.json2pojo(resultStr, RpcResult.class);
+        } catch (Exception e) {
+            Log.error(e);
+            rpcResult = RpcResult.failed(new RpcResultError(CommonCodeConstanst.DATA_ERROR.getCode(), e.getMessage(), null));
+        }
+        return rpcResult;
+    }
+
 }
