@@ -6,7 +6,7 @@
 
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j-jdk8</artifactId>
-    <version>1.0.0-beta4</version>
+    <version>1.0.0-beta5</version>
 
     <name>nuls-sdk4j-jdk8</name>
 
