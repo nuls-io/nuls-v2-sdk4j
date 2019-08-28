@@ -11,7 +11,7 @@ JDK11的版本依赖：
 <dependency>
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j</artifactId>
-    <version>1.0.0-beta4</version>
+    <version>1.0.0-beta5</version>
 </dependency>
 ```
 
@@ -20,7 +20,7 @@ JDK8的版本依赖：
 <dependency>
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j-jdk8</artifactId>
-    <version>1.0.0-beta4</version>
+    <version>1.0.0-beta5</version>
 </dependency>
 ```
 
