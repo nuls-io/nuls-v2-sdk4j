@@ -86,6 +86,9 @@ public class NulsOutputStreamBuffer {
         SerializeUtils.int16ToByteStreamLE(val, out);
     }
 
+    public void writeUint8(short val) throws IOException {
+        SerializeUtils.uint8ToByteStreamLE(val, out);
+    }
     public void writeUint16(int val) throws IOException {
         SerializeUtils.uint16ToByteStreamLE(val, out);
     }

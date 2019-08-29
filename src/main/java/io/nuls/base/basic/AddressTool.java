@@ -211,8 +211,8 @@ public class AddressTool {
      * @param chainId
      * @return
      */
-    public static byte[] getAddressByPubKeyStr(String publicKeyStr, int chainId, String charsetName) {
-        byte[] publicKey = ByteUtils.toBytes(publicKeyStr, charsetName);
+    public static byte[] getAddressByPubKeyStr(String publicKeyStr, int chainId) {
+        byte[] publicKey = HexUtil.decode(publicKeyStr);
         return getAddress(publicKey, chainId);
     }
 
