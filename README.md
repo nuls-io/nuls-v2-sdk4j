@@ -1,6 +1,6 @@
 # NULS-SDK-4J使用说明
 
-`NULS-SDK-4J`是给用JAVA对接`NULS-SDK-Provider`模块的合作伙伴提供的开发组件。
+`NULS-SDK-4J`是给用JAVA对接`NULS-API`模块的合作伙伴提供的开发组件。
 
 ## maven
 
@@ -11,7 +11,7 @@ JDK11的版本依赖：
 <dependency>
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j</artifactId>
-    <version>1.0.0-beta5</version>
+    <version>1.0.0-beta6</version>
 </dependency>
 ```
 
@@ -20,15 +20,15 @@ JDK8的版本依赖：
 <dependency>
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j-jdk8</artifactId>
-    <version>1.0.0-beta5</version>
+    <version>1.0.0-beta6</version>
 </dependency>
 ```
 
-注：调用`NULS-SDK-4J`提供的在线接口时，必须先运行`NULS2.0`的`NULS-SDK-Provider`模块。[点击进入SDK-Provider文档](https://github.com/nuls-io/nuls-v2/blob/master/module/nuls-sdk-provider/README.md)
+注：调用`NULS-SDK-4J`提供的在线接口时，必须先运行`NULS2.0`的`NULS-API`模块。[点击进入NULS-API文档](https://github.com/nuls-io/nuls-v2/blob/release/module/nuls-api/README.md)
 
 ## 初始化
 
-`NULS-SDK-4J`正常使用之前，需要先初始化，提供当前对接链的链ID和钱包provider模块的url访问地址。SDK提供了三种初始化接口：
+`NULS-SDK-4J`正常使用之前，需要先初始化，提供当前对接链的链ID和钱包NULS-API模块的url访问地址。SDK提供了三种初始化接口：
 
 NulsSDKBootStrap.init(chianId, httpUrl);     //NULS-SDK工具根据chainId和Url初始化
 
