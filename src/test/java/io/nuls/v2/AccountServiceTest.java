@@ -16,7 +16,6 @@ import java.util.Map;
  * Unit test for simple SDKContext.
  */
 public class AccountServiceTest {
-
     static String address = "tNULSeBaMkm6c3ShAFMzfDX8RKdapZdUcseSw8";
     static String pubKey = "03ac18d40eb3131f934441f81c631b3898097b606a84893da1559de61fe3d3cfe9";
     static String priKey = "6df381435098e47b685cdc00fa1d7c66fa2ba9cc441179c6dd1a5686153fb0ee";
@@ -26,12 +25,12 @@ public class AccountServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.init(3,"http://127.0.0.1:18004/");
+        NulsSDKBootStrap.init(2, "http://39.98.226.51:18004");
     }
 
     @Test
     public void testCreateAccount() {
-        int count = 2;
+        int count = 1;
         Result<List<String>> result = NulsSDKTool.createAccount(count, password);
         for (String address : result.getData()) {
             System.out.println(address);
@@ -42,7 +41,7 @@ public class AccountServiceTest {
     public void testCreateOfflineAccount() {
         int count = 2;
 
-        Result<List<AccountDto>> result = NulsSDKTool.createOffLineAccount(count,"NBKS", password);
+        Result<List<AccountDto>> result = NulsSDKTool.createOffLineAccount(count, password);
 
         for (AccountDto accountDto : result.getData()) {
             try {
@@ -77,10 +76,19 @@ public class AccountServiceTest {
 
     @Test
     public void testGetPriKey() {
-        Result result = NulsSDKTool.getPriKey(address, password);
+        Result result = NulsSDKTool.getPriKey("tNULSeBaMhUxmEFAiHj1ysd9UXYbFRnZ5yknq1", password);
         Map map = (Map) result.getData();
         System.out.println(map);
     }
+
+
+    @Test
+    public void testGetAddressByPriKey() {
+        Result result = NulsSDKTool.getAddressByPriKey("b54db432bba7e13a6c4a28f65b925b18e63bcb79143f7b894fa735d5d3d09db5");
+        Map map = (Map) result.getData();
+        System.out.println(map);
+    }
+
 
     @Test
     public void testGetPriKeyOffline() {
@@ -162,8 +170,8 @@ public class AccountServiceTest {
         String address = "tNULSeBaNTcZo37gNC5mNjJuB39u8zT3TAy8jy";
         String alias = "aaddbbees";
         List<String> pubKeys = new ArrayList<>();
-//                List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
-
+        pubKeys.add("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db");
+        pubKeys.add("03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
         MultiSignAliasDto aliasDto = new MultiSignAliasDto();
         aliasDto.setPubKeys(pubKeys);
         aliasDto.setMinSigns(2);
@@ -192,7 +200,7 @@ public class AccountServiceTest {
 
     @Test
     public void testChangeV1addressToV2address() {
-        String address = "Nse5oPtPjgbyHujSxXu2YbWRmmf3ksCo";
+        String address = "Nsdwnd4auFisFJKU6iDvBxTdPkeg8qkB";
         Result result = NulsSDKTool.changeV1addressToV2address(address);
         System.out.println(result);
     }

@@ -25,11 +25,14 @@ public class TransationServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.initTest("");
+        NulsSDKBootStrap.initTest("http://39.98.226.51:18004");
     }
 
     @Test
     public void testCreateTransferTx() {
+        String fromAddress = "tNULSeBaMss7ZU7tHw2vjUrTtvbLYcqjU5b9XN";
+        String toAddress = "tNULSeBaMsEfHKEXvaFPPpQomXipeCYrru6t81";
+
         TransferTxFeeDto feeDto = new TransferTxFeeDto();
         feeDto.setAddressCount(1);
         feeDto.setFromLength(1);
@@ -41,16 +44,16 @@ public class TransationServiceTest {
         List<CoinFromDto> inputs = new ArrayList<>();
 
         CoinFromDto from = new CoinFromDto();
-        from.setAddress(address);
+        from.setAddress(fromAddress);
         from.setAmount(new BigInteger("10000000").add(fee));
         from.setAssetChainId(SDKContext.main_chain_id);
         from.setAssetId(SDKContext.main_asset_id);
-        from.setNonce("6db83fdd14f6f233");
+        from.setNonce("0000000000000000");
         inputs.add(from);
 
         List<CoinToDto> outputs = new ArrayList<>();
         CoinToDto to = new CoinToDto();
-        to.setAddress("8CPcA7kaXSHbWb3GHP7bd5hRLFu8RZv57rY9w");
+        to.setAddress(toAddress);
         to.setAmount(new BigInteger("10000000"));
         to.setAssetChainId(SDKContext.main_chain_id);
         to.setAssetId(SDKContext.main_asset_id);
@@ -59,9 +62,17 @@ public class TransationServiceTest {
         transferDto.setInputs(inputs);
         transferDto.setOutputs(outputs);
 
-        Result result = NulsSDKTool.createTransferTxOffline(transferDto);
-        //d3de15b1d1746732510610a102c2189da970df534ea9407c48d0b7838eeb5b8e
-        System.out.println(result.getData());
+        Result<Map> result = NulsSDKTool.createTransferTxOffline(transferDto);
+        String txHex = (String) result.getData().get("txHex");
+
+        //签名
+        String prikey = "";
+        result = NulsSDKTool.sign(txHex, fromAddress, prikey);
+        txHex = (String) result.getData().get("txHex");
+
+        String txHash = (String) result.getData().get("hash");
+        //广播
+        result = NulsSDKTool.broadcast(txHex);
     }
 
     @Test
@@ -72,7 +83,8 @@ public class TransationServiceTest {
         MultiSignTransferDto transferDto = new MultiSignTransferDto();
 
         List<String> pubKeys = new ArrayList<>();
-        //List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+        pubKeys.add("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db");
+        pubKeys.add("03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
         transferDto.setPubKeys(pubKeys);
         transferDto.setMinSigns(2);
 
@@ -224,13 +236,19 @@ public class TransationServiceTest {
 
     @Test
     public void testGetTx() {
-        String hash = "526d8e25bb7843518b7722a97f01b6d2fb2c46afc60121e869788659d202de92";
-        Result result = NulsSDKTool.getTx(hash);
-        Map<String, Object> map = (Map<String, Object>) result.getData();
-
-        TransactionDto tx = JSONUtils.map2pojo(map, TransactionDto.class);
+        String hash = "8e4e864b2345518163c3dd46c08b2f9a66a496ed65840a5bc12be2335ca524e9";
+        Result<TransactionDto> result = NulsSDKTool.getTx(hash);
+        TransactionDto tx = result.getData();
+        System.out.println(tx.getInBlockIndex());
     }
 
+    @Test
+    public void getTransaction() {
+        String hash = "8e4e864b2345518163c3dd46c08b2f9a66a496ed65840a5bc12be2335ca524e9";
+        Result<TransactionDto> result = NulsSDKTool.getTransaction(hash);
+        TransactionDto tx = result.getData();
+        System.out.println(tx.getBlockHash());
+    }
 
     @Test
     public void testMultiCreateAgentTx() {
@@ -238,9 +256,10 @@ public class TransationServiceTest {
         BigInteger deposit = new BigInteger("2000000000000");
         BigInteger fee = SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE;
 
+//        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
         List<String> pubKeys = new ArrayList<>();
-        //List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
-
+        pubKeys.add("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db");
+        pubKeys.add("03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
         MultiSignConsensusDto dto = new MultiSignConsensusDto();
         dto.setAgentAddress("tNULSeBaNTcZo37gNC5mNjJuB39u8zT3TAy8jy");
         dto.setPackingAddress("tNULSeBaMowgMLTbRUngAuj2BvGy2RmVLt3okv");
@@ -270,8 +289,8 @@ public class TransationServiceTest {
         BigInteger deposit = new BigInteger("200000000000");
         BigInteger fee = SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE;
         List<String> pubKeys = new ArrayList<>();
-        //List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
-
+        pubKeys.add("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db");
+        pubKeys.add("03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
         MultiSignDepositDto depositDto = new MultiSignDepositDto();
         depositDto.setPubKeys(pubKeys);
         depositDto.setMinSigns(2);
@@ -299,8 +318,8 @@ public class TransationServiceTest {
         BigInteger deposit = new BigInteger("200000000000");
         BigInteger price = SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE;
         List<String> pubKeys = new ArrayList<>();
-        //List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
-
+        pubKeys.add("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db");
+        pubKeys.add("03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
         MultiSignWithDrawDto drawDto = new MultiSignWithDrawDto();
         drawDto.setPubKeys(pubKeys);
         drawDto.setMinSigns(2);
@@ -326,7 +345,8 @@ public class TransationServiceTest {
     public void testMultiSignStopConsensusTx() {
         MultiSignStopConsensusDto dto = new MultiSignStopConsensusDto();
         List<String> pubKeys = new ArrayList<>();
-//                List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+        pubKeys.add("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db");
+        pubKeys.add("03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
         dto.setPubKeys(pubKeys);
         dto.setMinSigns(2);
         dto.setAgentHash("e67ed0f09cea8bd4e2ad3b4b6d83a39841f9f83dd2a9e5737b73b4d5ad203537");

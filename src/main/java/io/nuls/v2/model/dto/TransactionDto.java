@@ -23,11 +23,14 @@
  */
 package io.nuls.v2.model.dto;
 
+import io.nuls.core.parse.JSONUtils;
 import io.nuls.core.rpc.model.ApiModel;
 import io.nuls.core.rpc.model.ApiModelProperty;
 import io.nuls.core.rpc.model.TypeDescriptor;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: PierreLuo
@@ -44,6 +47,8 @@ public class TransactionDto {
     private String time;
     @ApiModelProperty(description = "区块高度")
     private long blockHeight = -1L;
+    @ApiModelProperty(description = "区块hash")
+    private String blockHash;
     @ApiModelProperty(description = "交易备注")
     private String remark;
     @ApiModelProperty(description = "交易签名")
@@ -155,5 +160,47 @@ public class TransactionDto {
 
     public void setTo(List<CoinTosDto> to) {
         this.to = to;
+    }
+
+    public String getBlockHash() {
+        return blockHash;
+    }
+
+    public void setBlockHash(String blockHash) {
+        this.blockHash = blockHash;
+    }
+
+    public static TransactionDto mapToPojo(Map map) {
+        TransactionDto tx = new TransactionDto();
+        tx.hash = (String) map.get("hash");
+        tx.type = (int) map.get("type");
+        tx.time = (String) map.get("time");
+        tx.blockHeight = Long.parseLong(map.get("blockHeight").toString());
+        tx.remark = (String) map.get("remark");
+        tx.transactionSignature = (String) map.get("transactionSignature");
+        tx.txDataHex = (String) map.get("txDataHex");
+        tx.status = (int) map.get("status");
+        tx.size = (int) map.get("size");
+        tx.inBlockIndex = (int) map.get("inBlockIndex");
+        List<Map<String, Object>> fromMaps = (List<Map<String, Object>>) map.get("from");
+        List<CoinFromsDto> fromsDtos = new ArrayList<>();
+        if (fromMaps != null) {
+            for (Map<String, Object> fmap : fromMaps) {
+                CoinFromsDto from = JSONUtils.map2pojo(fmap, CoinFromsDto.class);
+                fromsDtos.add(from);
+            }
+        }
+        tx.setForm(fromsDtos);
+
+        List<Map<String, Object>> toMaps = (List<Map<String, Object>>) map.get("to");
+        List<CoinTosDto> toDtos = new ArrayList<>();
+        if (toDtos != null) {
+            for (Map<String, Object> tmap : toMaps) {
+                CoinTosDto to = JSONUtils.map2pojo(tmap, CoinTosDto.class);
+                toDtos.add(to);
+            }
+        }
+        tx.setTo(toDtos);
+        return tx;
     }
 }

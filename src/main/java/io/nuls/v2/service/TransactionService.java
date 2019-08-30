@@ -43,7 +43,31 @@ public class TransactionService {
         RestFulResult restFulResult = RestFulUtil.get("api/tx/" + txHash);
         Result result;
         if (restFulResult.isSuccess()) {
-            result = Result.getSuccess(restFulResult.getData());
+            result = Result.getSuccess(null);
+            Map<String, Object> map = (Map<String, Object>) restFulResult.getData();
+            TransactionDto tx = TransactionDto.mapToPojo(map);
+            result.setData(tx);
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
+    }
+
+    public Result getTransaction(String txHash) {
+        validateChainId();
+        RestFulResult restFulResult = RestFulUtil.get("api/tx/" + txHash);
+        Result result;
+        if (restFulResult.isSuccess()) {
+            result = Result.getSuccess(null);
+            Map<String, Object> map = (Map<String, Object>) restFulResult.getData();
+            TransactionDto tx = TransactionDto.mapToPojo(map);
+            restFulResult = RestFulUtil.get("api/block/header/height/" + tx.getBlockHeight());
+            if (restFulResult.isSuccess()) {
+                map = (Map<String, Object>) restFulResult.getData();
+                tx.setBlockHash((String) map.get("hash"));
+            }
+            result.setData(tx);
         } else {
             ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
             result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
