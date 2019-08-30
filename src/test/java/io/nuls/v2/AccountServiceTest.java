@@ -26,12 +26,12 @@ public class AccountServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.init(2, "http://127.0.0.1:18004/");
+        NulsSDKBootStrap.init(2, "http://39.98.226.51:18004");
     }
 
     @Test
     public void testCreateAccount() {
-        int count = 2;
+        int count = 1;
         Result<List<String>> result = NulsSDKTool.createAccount(count, password);
         for (String address : result.getData()) {
             System.out.println(address);
@@ -77,7 +77,7 @@ public class AccountServiceTest {
 
     @Test
     public void testGetPriKey() {
-        Result result = NulsSDKTool.getPriKey(address, password);
+        Result result = NulsSDKTool.getPriKey("tNULSeBaMhUxmEFAiHj1ysd9UXYbFRnZ5yknq1", password);
         Map map = (Map) result.getData();
         System.out.println(map);
     }
@@ -200,7 +200,7 @@ public class AccountServiceTest {
 
     @Test
     public void testChangeV1addressToV2address() {
-        String address = "Nse5oPtPjgbyHujSxXu2YbWRmmf3ksCo";
+        String address = "Nsdwnd4auFisFJKU6iDvBxTdPkeg8qkB";
         Result result = NulsSDKTool.changeV1addressToV2address(address);
         System.out.println(result);
     }

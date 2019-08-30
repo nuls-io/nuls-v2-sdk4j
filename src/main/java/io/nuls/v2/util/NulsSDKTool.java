@@ -353,6 +353,10 @@ public class NulsSDKTool {
         return transactionService.getTx(txHash);
     }
 
+    public static Result getTransaction(String txHash) {
+        return transactionService.getTransaction(txHash);
+    }
+
     @ApiOperation(description = "验证交易", order = 302, detailDesc = "验证离线组装的交易,验证成功返回交易hash值,失败返回错误提示信息")
     @Parameters({
             @Parameter(parameterName = "txHex", parameterDes = "交易序列化16进制字符串")

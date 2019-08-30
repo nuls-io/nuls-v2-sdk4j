@@ -29,6 +29,9 @@ package io.nuls.v2.model.dto;
 import io.nuls.core.rpc.model.ApiModel;
 import io.nuls.core.rpc.model.ApiModelProperty;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author: Niels Wang
  */
@@ -75,13 +78,16 @@ public class BlockHeaderDto {
     private int packingIndexOfRound;
 
     @ApiModelProperty(description = "主网当前生效的版本")
-    private short mainVersion;
+    private int mainVersion;
 
     @ApiModelProperty(description = "区块的版本，可以理解为本地钱包的版本")
-    private short blockVersion;
+    private int blockVersion;
 
     @ApiModelProperty(description = "智能合约世界状态根")
     private String stateRoot;
+
+    @ApiModelProperty(description = "区块打包交易的hash集合")
+    private List<String> txHashList;
 
     public String getHash() {
         return hash;
@@ -187,19 +193,19 @@ public class BlockHeaderDto {
         this.packingIndexOfRound = packingIndexOfRound;
     }
 
-    public short getMainVersion() {
+    public int getMainVersion() {
         return mainVersion;
     }
 
-    public void setMainVersion(short mainVersion) {
+    public void setMainVersion(int mainVersion) {
         this.mainVersion = mainVersion;
     }
 
-    public short getBlockVersion() {
+    public int getBlockVersion() {
         return blockVersion;
     }
 
-    public void setBlockVersion(short blockVersion) {
+    public void setBlockVersion(int blockVersion) {
         this.blockVersion = blockVersion;
     }
 
@@ -209,5 +215,35 @@ public class BlockHeaderDto {
 
     public void setStateRoot(String stateRoot) {
         this.stateRoot = stateRoot;
+    }
+
+    public static BlockHeaderDto mapToPojo(Map map) {
+        BlockHeaderDto dto = new BlockHeaderDto();
+        dto.hash = (String) map.get("hash");
+        dto.preHash = (String) map.get("preHash");
+        dto.merkleHash = (String) map.get("merkleHash");
+        dto.time = (String) map.get("time");
+        dto.height = Long.parseLong(map.get("height").toString());
+        dto.txCount = (int) map.get("txCount");
+        dto.blockSignature = (String) map.get("blockSignature");
+        dto.size = (int) map.get("size");
+        dto.packingAddress = (String) map.get("packingAddress");
+        dto.roundIndex = Long.parseLong(map.get("roundIndex").toString());
+        dto.consensusMemberCount = (int) map.get("consensusMemberCount");
+        dto.roundStartTime = (String) map.get("roundStartTime");
+        dto.packingIndexOfRound = (int) map.get("packingIndexOfRound");
+        dto.mainVersion = (int) map.get("mainVersion");
+        dto.blockVersion = (int) map.get("blockVersion");
+        dto.stateRoot = (String) map.get("stateRoot");
+        dto.setTxHashList((List<String>) map.get("txHashList"));
+        return dto;
+    }
+
+    public List<String> getTxHashList() {
+        return txHashList;
+    }
+
+    public void setTxHashList(List<String> txHashList) {
+        this.txHashList = txHashList;
     }
 }

@@ -4,7 +4,6 @@ import io.nuls.core.basic.Result;
 import io.nuls.core.parse.JSONUtils;
 import io.nuls.v2.model.dto.*;
 import io.nuls.v2.util.NulsSDKTool;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,7 +25,7 @@ public class TransationServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.initTest("");
+        NulsSDKBootStrap.initTest("http://39.98.226.51:18004");
     }
 
     @Test
@@ -67,9 +66,8 @@ public class TransationServiceTest {
         String txHex = (String) result.getData().get("txHex");
 
         //签名
-        String encryptedPrivateKey = "";
-        String password = "";
-        result = NulsSDKTool.sign(txHex, fromAddress, encryptedPrivateKey, password);
+        String prikey = "";
+        result = NulsSDKTool.sign(txHex, fromAddress, prikey);
         txHex = (String) result.getData().get("txHex");
 
         String txHash = (String) result.getData().get("hash");
@@ -236,13 +234,19 @@ public class TransationServiceTest {
 
     @Test
     public void testGetTx() {
-        String hash = "526d8e25bb7843518b7722a97f01b6d2fb2c46afc60121e869788659d202de92";
-        Result result = NulsSDKTool.getTx(hash);
-        Map<String, Object> map = (Map<String, Object>) result.getData();
-
-        TransactionDto tx = JSONUtils.map2pojo(map, TransactionDto.class);
+        String hash = "8e4e864b2345518163c3dd46c08b2f9a66a496ed65840a5bc12be2335ca524e9";
+        Result<TransactionDto> result = NulsSDKTool.getTx(hash);
+        TransactionDto tx = result.getData();
+        System.out.println(tx.getInBlockIndex());
     }
 
+    @Test
+    public void getTransaction() {
+        String hash = "8e4e864b2345518163c3dd46c08b2f9a66a496ed65840a5bc12be2335ca524e9";
+        Result<TransactionDto> result = NulsSDKTool.getTransaction(hash);
+        TransactionDto tx = result.getData();
+        System.out.println(tx.getBlockHash());
+    }
 
     @Test
     public void testMultiCreateAgentTx() {

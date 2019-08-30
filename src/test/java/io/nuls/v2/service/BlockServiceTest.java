@@ -15,16 +15,15 @@ public class BlockServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.initTest("http://127.0.0.1:9898/");
+        NulsSDKBootStrap.initTest("http://39.98.226.51:18004");
     }
 
     @Test
     public void testGetHeaderHeight() {
         long height = 1;
-        Result result = NulsSDKTool.getBlockHeader(height);
-        Map<String,Object> map = (Map<String, Object>) result.getData();
-        BlockHeaderDto dto = JSONUtils.map2pojo(map, BlockHeaderDto.class);
-        System.out.println(result.getData());
+        Result<BlockHeaderDto> result = NulsSDKTool.getBlockHeader(height);
+        BlockHeaderDto dto = result.getData();
+        System.out.println(dto.getHash());
     }
 
     @Test
@@ -36,16 +35,15 @@ public class BlockServiceTest {
 
     @Test
     public void testGetBlock() {
-        long height = 900L;
-        Result result = NulsSDKTool.getBlock(height);
-        Map<String,Object> map = (Map<String, Object>) result.getData();
-        BlockDto dto = JSONUtils.map2pojo(map, BlockDto.class);
-        System.out.println(result.getData());
+        long height = 1L;
+        Result<BlockDto> result = NulsSDKTool.getBlock(height);
+        BlockDto dto = result.getData();
+        System.out.println(dto.getHeader().getHash());
     }
 
     @Test
     public void testGetBlockHash() {
-        String hash = "63516e4b16530cc1bf4de51bc39abfdebeaec5fced287f015842043e2fb4dce6";
+        String hash = "7fcbd32ffcbaefd8e1cad77140cead4fd50d9beb01fe388328e615f5b03c4462";
         Result result = NulsSDKTool.getBlock(hash);
         System.out.println(result.getData());
     }

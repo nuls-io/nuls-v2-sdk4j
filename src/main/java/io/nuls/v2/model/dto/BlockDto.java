@@ -27,7 +27,9 @@ import io.nuls.core.rpc.model.ApiModel;
 import io.nuls.core.rpc.model.ApiModelProperty;
 import io.nuls.core.rpc.model.TypeDescriptor;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: PierreLuo
@@ -55,5 +57,20 @@ public class BlockDto {
 
     public void setTxs(List<TransactionDto> txs) {
         this.txs = txs;
+    }
+
+    public static BlockDto mapToPojo(Map map) {
+        BlockDto dto = new BlockDto();
+        BlockHeaderDto headerDto = BlockHeaderDto.mapToPojo((Map) map.get("header"));
+        List<Map<String, Object>> txMaps = (List<Map<String, Object>>) map.get("txs");
+        List<TransactionDto> txList = new ArrayList<>();
+        for (Map<String, Object> txMap : txMaps) {
+            TransactionDto tx = TransactionDto.mapToPojo(txMap);
+            txList.add(tx);
+        }
+        dto.setHeader(headerDto);
+        dto.setTxs(txList);
+
+        return dto;
     }
 }
