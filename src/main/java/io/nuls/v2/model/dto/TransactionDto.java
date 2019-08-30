@@ -194,7 +194,7 @@ public class TransactionDto {
 
         List<Map<String, Object>> toMaps = (List<Map<String, Object>>) map.get("to");
         List<CoinTosDto> toDtos = new ArrayList<>();
-        if (toDtos != null) {
+        if (toMaps != null) {
             for (Map<String, Object> tmap : toMaps) {
                 CoinTosDto to = JSONUtils.map2pojo(tmap, CoinTosDto.class);
                 toDtos.add(to);
