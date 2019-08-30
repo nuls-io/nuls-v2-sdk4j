@@ -1,6 +1,6 @@
 # NULS-SDK-4J使用说明
 
-`NULS-SDK-4J`是给用JAVA对接`NULS-SDK-Provider`模块的合作伙伴提供的开发组件。
+`NULS-SDK-4J`是给用JAVA对接`NULS-API`模块的合作伙伴提供的开发组件。
 
 ## maven
 
@@ -11,7 +11,7 @@ JDK11的版本依赖：
 <dependency>
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j</artifactId>
-    <version>1.0.0-beta4</version>
+    <version>1.0.0-beta7</version>
 </dependency>
 ```
 
@@ -20,15 +20,15 @@ JDK8的版本依赖：
 <dependency>
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j-jdk8</artifactId>
-    <version>1.0.0-beta4</version>
+    <version>1.0.0-beta7</version>
 </dependency>
 ```
 
-注：调用`NULS-SDK-4J`提供的在线接口时，必须先运行`NULS2.0`的`NULS-SDK-Provider`模块。[点击进入SDK-Provider文档](https://github.com/nuls-io/nuls-v2/blob/master/module/nuls-sdk-provider/README.md)
+注：调用`NULS-SDK-4J`提供的在线接口时，必须先运行`NULS2.0`的`NULS-API`模块。[点击进入NULS-API文档](https://github.com/nuls-io/nuls-v2/blob/release/module/nuls-api/README.md)
 
 ## 初始化
 
-`NULS-SDK-4J`正常使用之前，需要先初始化，提供当前对接链的链ID和钱包provider模块的url访问地址。SDK提供了三种初始化接口：
+`NULS-SDK-4J`正常使用之前，需要先初始化，提供当前对接链的链ID和钱包NULS-API模块的url访问地址。SDK提供了三种初始化接口：
 
 NulsSDKBootStrap.init(chianId, httpUrl);     //NULS-SDK工具根据chainId和Url初始化
 
@@ -39,9 +39,9 @@ NulsSDKBootStrap.initTest(httpUrl);            //NULS-SDK工具连接NULS测试�
 ```
 //示例
 public void initialNulsSDK() {
-    // 模块NULS-SDK-Provider服务的IP和Port
-    String sdkProviderUrl = "http://127.0.0.1:9898/";
-    NulsSDKBootStrap.initMain(sdkProviderUrl);
+    // 模块NULS-API服务的IP和Port
+    String nulsApiUrl = "http://127.0.0.1:18004/";
+    NulsSDKBootStrap.initMain(nulsApiUrl);
 }
 ```
 
@@ -239,7 +239,7 @@ _**详细描述: 别名格式为1-20位小写字母和数字的组合，设置�
 ==============
 Method: NulsSDKTool#validateAddress
 -----------------------------------
-_**详细描述: 验证本来地址格式是否正确**_
+_**详细描述: 验证本链地址格式是否正确**_
 
 参数列表
 ----
@@ -249,9 +249,8 @@ _**详细描述: 验证本来地址格式是否正确**_
 
 返回值
 ---
-| 字段名   |  字段类型  | 参数描述        |
-| ----- |:------:| ----------- |
-| value | string | 设置别名交易的hash |
+| 字段名 | 字段类型 | 参数描述 || --- |:----:| ---- |
+
 
 1.10 验证地址格式是否正确
 ===============
@@ -263,14 +262,13 @@ _**详细描述: 根据chainId验证地址格式是否正确**_
 ----
 | 参数名     |  参数类型  | 参数描述 | 是否必填 |
 | ------- |:------:| ---- |:----:|
-| chainId |  int   | 账户地址 |  是   |
+| chainId |  int   | 链ID  |  是   |
 | address | string | 账户地址 |  是   |
 
 返回值
 ---
-| 字段名   |  字段类型  | 参数描述        |
-| ----- |:------:| ----------- |
-| value | string | 设置别名交易的hash |
+| 字段名 | 字段类型 | 参数描述 || --- |:----:| ---- |
+
 
 1.11 离线 - 批量创建账户
 ================
@@ -486,6 +484,24 @@ _**详细描述: 根据传入的私钥，生成对应的地址，私钥不会存
 | 字段名   |  字段类型  | 参数描述  |
 | ----- |:------:| ----- |
 | value | string | 账户的地址 |
+
+1.21 转换NULS1.0地址为NULS2.0地址
+==========================
+Method: NulsSDKTool#changeV1addressToV2address
+----------------------------------------------
+_**详细描述: 转换NULS1.0地址为NULS2.0地址**_
+
+参数列表
+----
+| 参数名       |  参数类型  | 参数描述        | 是否必填 |
+| --------- |:------:| ----------- |:----:|
+| v1Address | string | NULS1.0账户地址 |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述      |
+| ----- |:------:| --------- |
+| value | string | NULS2.0地址 |
 
 2.1 根据区块高度查询区块头
 ===============
