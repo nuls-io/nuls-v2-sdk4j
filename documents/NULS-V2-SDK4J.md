@@ -11,7 +11,7 @@ JDK11的版本依赖：
 <dependency>
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j</artifactId>
-    <version>1.0.0-beta6</version>
+    <version>1.0.0-beta7</version>
 </dependency>
 ```
 
@@ -20,7 +20,7 @@ JDK8的版本依赖：
 <dependency>
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j-jdk8</artifactId>
-    <version>1.0.0-beta6</version>
+    <version>1.0.0-beta7</version>
 </dependency>
 ```
 
@@ -39,9 +39,9 @@ NulsSDKBootStrap.initTest(httpUrl);            //NULS-SDK工具连接NULS测试�
 ```
 //示例
 public void initialNulsSDK() {
-    // 模块NULS-SDK-Provider服务的IP和Port
-    String sdkProviderUrl = "http://127.0.0.1:9898/";
-    NulsSDKBootStrap.initMain(sdkProviderUrl);
+    // 模块NULS-API服务的IP和Port
+    String nulsApiUrl = "http://127.0.0.1:18004/";
+    NulsSDKBootStrap.initMain(nulsApiUrl);
 }
 ```
 
