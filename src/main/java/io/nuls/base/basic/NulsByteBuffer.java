@@ -70,6 +70,15 @@ public class NulsByteBuffer {
             throw new NulsException(e);
         }
     }
+    public short readUint8() throws NulsException {
+        try {
+            short val = SerializeUtils.readUint8LE(payload, cursor);
+            cursor += 1;
+            return val;
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new NulsException(e);
+        }
+    }
 
     public int readUint16() throws NulsException {
         try {
