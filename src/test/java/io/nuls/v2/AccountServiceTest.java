@@ -25,7 +25,7 @@ public class AccountServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.init(2, "http://39.98.226.51:18004");
+        NulsSDKBootStrap.init(1, "http://39.98.226.51:18004");
     }
 
     @Test
@@ -200,7 +200,7 @@ public class AccountServiceTest {
 
     @Test
     public void testChangeV1addressToV2address() {
-        String address = "Nsdwnd4auFisFJKU6iDvBxTdPkeg8qkB";
+        String address = "Nse6Qqteaid77Htn9S7vgW7guN4Q5MVs";
         Result result = NulsSDKTool.changeV1addressToV2address(address);
         System.out.println(result);
     }
