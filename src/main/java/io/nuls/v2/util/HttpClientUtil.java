@@ -87,6 +87,7 @@ public class HttpClientUtil {
                 httpClient = httpClientMap.get(address);
                 if (httpClient == null) {
                     httpClient = createHttpClient(200, 40, 100, hostname, port);
+                    httpClientMap.put(address, httpClient);
                 }
             }
         }
@@ -109,7 +110,7 @@ public class HttpClientUtil {
         CloseableHttpClient client = httpClientMap.remove(address);
         try {
             client.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         getHttpClient(url);
