@@ -17,7 +17,7 @@ public class NulsSDKBootStrap {
      */
     public static void init(int chainId, String httpUrl) {
         initChainId(chainId);
-        if(!httpUrl.endsWith("/")) {
+        if (httpUrl != null && !httpUrl.endsWith("/")) {
             httpUrl += "/";
         }
         SDKContext.wallet_url = httpUrl;
@@ -26,11 +26,12 @@ public class NulsSDKBootStrap {
     /**
      * NULS-SDK工具连接NULS主网钱包初始化
      * 设置主网钱包NULS-SDK-Provider模块的url访问地址
+     *
      * @param httpUrl 钱包url访问地址(ip + port)
      */
     public static void initMain(String httpUrl) {
         initChainId(1);
-        if(!httpUrl.endsWith("/")) {
+        if (httpUrl != null && !httpUrl.endsWith("/")) {
             httpUrl += "/";
         }
         SDKContext.wallet_url = httpUrl;
@@ -39,11 +40,12 @@ public class NulsSDKBootStrap {
     /**
      * NULS-SDK工具连接NULS测试网钱包初始化
      * 设置测试网钱包NULS-SDK-Provider模块的url访问地址
+     *
      * @param httpUrl 钱包url访问地址(ip + port)
      */
     public static void initTest(String httpUrl) {
         initChainId(2);
-        if(!httpUrl.endsWith("/")) {
+        if (httpUrl != null && !httpUrl.endsWith("/")) {
             httpUrl += "/";
         }
         SDKContext.wallet_url = httpUrl;
