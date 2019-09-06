@@ -115,7 +115,7 @@ public class ContractService {
         createContractData.setCode(contractCodeBytes);
         createContractData.setAlias(alias);
         if (finalArgs != null) {
-            createContractData.setArgsCount((byte) finalArgs.length);
+            createContractData.setArgsCount((short) finalArgs.length);
             createContractData.setArgs(finalArgs);
         }
         // 获取交易创建者的nonce值
@@ -194,7 +194,7 @@ public class ContractService {
         createContractData.setCode(contractCodeBytes);
         createContractData.setAlias(alias);
         if (finalArgs != null) {
-            createContractData.setArgsCount((byte) finalArgs.length);
+            createContractData.setArgsCount((short) finalArgs.length);
             createContractData.setArgs(finalArgs);
         }
         // 生成交易
@@ -277,7 +277,7 @@ public class ContractService {
         callContractData.setMethodName(methodName);
         callContractData.setMethodDesc(methodDesc);
         if (finalArgs != null) {
-            callContractData.setArgsCount((byte) finalArgs.length);
+            callContractData.setArgsCount((short) finalArgs.length);
             callContractData.setArgs(finalArgs);
         }
 
@@ -362,7 +362,7 @@ public class ContractService {
         callContractData.setMethodName(methodName);
         callContractData.setMethodDesc(methodDesc);
         if (finalArgs != null) {
-            callContractData.setArgsCount((byte) finalArgs.length);
+            callContractData.setArgsCount((short) finalArgs.length);
             callContractData.setArgs(finalArgs);
         }
 

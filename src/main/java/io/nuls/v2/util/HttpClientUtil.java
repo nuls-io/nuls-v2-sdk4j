@@ -28,6 +28,7 @@ import java.io.InterruptedIOException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * HttpClient工具类
@@ -40,7 +41,9 @@ public class HttpClientUtil {
 
     private static final int timeOut = 10 * 1000;
 
-    private static CloseableHttpClient httpClient = null;
+    //private static CloseableHttpClient httpClient = null;
+
+    private static final Map<String, CloseableHttpClient> httpClientMap = new ConcurrentHashMap<>();
 
     private final static Object syncLock = new Object();
 
@@ -77,14 +80,40 @@ public class HttpClientUtil {
             hostname = arr[0];
             port = Integer.parseInt(arr[1]);
         }
+        String address = hostname + ":" + port;
+        CloseableHttpClient httpClient = httpClientMap.get(address);
         if (httpClient == null) {
             synchronized (syncLock) {
+                httpClient = httpClientMap.get(address);
                 if (httpClient == null) {
                     httpClient = createHttpClient(200, 40, 100, hostname, port);
+                    httpClientMap.put(address, httpClient);
                 }
             }
         }
         return httpClient;
+    }
+
+    /**
+     * 重置httpClient对象
+     * @param url
+     */
+    public static void resetHttpClient(String url) {
+        String hostname = url.split("/")[2];
+        int port = 80;
+        if (hostname.contains(":")) {
+            String[] arr = hostname.split(":");
+            hostname = arr[0];
+            port = Integer.parseInt(arr[1]);
+        }
+        String address = hostname + ":" + port;
+        CloseableHttpClient client = httpClientMap.remove(address);
+        try {
+            client.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        getHttpClient(url);
     }
 
     /**
