@@ -28,7 +28,6 @@ import io.nuls.core.constant.ToolsConstant;
 import io.nuls.core.exception.NulsException;
 import io.nuls.core.log.Log;
 import io.nuls.core.model.StringUtils;
-import sun.tools.jar.resources.jar;
 
 import java.io.*;
 import java.net.URL;
