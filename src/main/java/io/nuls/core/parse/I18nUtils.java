@@ -28,6 +28,7 @@ import io.nuls.core.constant.ToolsConstant;
 import io.nuls.core.exception.NulsException;
 import io.nuls.core.log.Log;
 import io.nuls.core.model.StringUtils;
+import sun.tools.jar.resources.jar;
 
 import java.io.*;
 import java.net.URL;
@@ -95,6 +96,7 @@ public class I18nUtils {
      * @param defaultLanguage
      */
     private static void load(Class c, String folder, String defaultLanguage) {
+        InputStream in = null;
         try {
             if (StringUtils.isBlank(folder)) {
                 folder = FOLDER;
@@ -103,9 +105,9 @@ public class I18nUtils {
                 key = defaultLanguage;
             }
             URL furl = I18nUtils.class.getClassLoader().getResource(folder);
-            if (furl == null){
+            if (furl == null) {
                 Log.warn("language folder not exists");
-                return ;
+                return;
             }
             if (null != furl) {
                 File folderFile = new File(furl.getPath());
@@ -116,6 +118,7 @@ public class I18nUtils {
                         Properties prop = new Properties();
                         prop.load(new InputStreamReader(is, ToolsConstant.DEFAULT_ENCODING));
                         String key = file.getName().replace(".properties", "");
+                        Log.info("key[0]={}", key);
                         if (ALL_MAPPING.containsKey(key)) {
                             ALL_MAPPING.get(key).putAll(prop);
                         } else {
@@ -132,12 +135,12 @@ public class I18nUtils {
                                 JarEntry jar = entrys.nextElement();
                                 if (jar.getName().indexOf(folder + "/") == 0 && jar.getName().length() > (folder + "/").length()) {
                                     Log.info(jar.getName());
-                                    InputStream in = I18nUtils.class.getClassLoader().getResourceAsStream(jar.getName());
+                                    in = I18nUtils.class.getClassLoader().getResourceAsStream(jar.getName());
                                     Properties prop = new Properties();
                                     prop.load(in);
                                     String key = jar.getName().replace(".properties", "");
                                     key = key.replace(folder + "/", "");
-                                    Log.info("key={}", key);
+                                    Log.info("key[1]={}", key);
                                     if (ALL_MAPPING.containsKey(key)) {
                                         ALL_MAPPING.get(key).putAll(prop);
                                     } else {
@@ -150,39 +153,28 @@ public class I18nUtils {
                             e.printStackTrace();
                         }
                     } else {
-                        String jarPath=url.getPath();
-                        Log.info( "jarPath=" +  jarPath);
-                        if(url.getPath().indexOf("!")>0){
-                            jarPath=url.getPath().substring(0,url.getPath().indexOf("!"));
-                        }
-                        URL newUrl=new URL(jarPath);
-                        Log.info( "newUrl.getFile=" + newUrl.getPath());
-                        if(newUrl.getPath().endsWith(".jar")){
-                            //springboot jar包的资源加载
+                        boolean isSuccess = false;
+                        String jarPath = url.getPath();
+                        if (jarPath.indexOf("!") > 0) {
                             try {
-                                JarFile jarFile = new JarFile(newUrl.getFile());
-                                Enumeration<JarEntry> entrys = jarFile.entries();
-                                while (entrys.hasMoreElements()) {
-                                    JarEntry jar = entrys.nextElement();
-                                    if(jar.getName().indexOf("languages" + "/")>0&&jar.getName().endsWith(".properties")){
-                                        Log.info(jar.getName());
-                                        InputStream in = I18nUtils.class.getClassLoader().getResourceAsStream(jar.getName());
-                                        Properties prop = new Properties();
-                                        prop.load(in);
-                                        String key = jar.getName().replace(".properties", "");
-                                        key = key.replace("BOOT-INF/classes/"+folder + "/", "");
-                                        Log.info("key={}", key);
-                                        if (ALL_MAPPING.containsKey(key)) {
-                                            ALL_MAPPING.get(key).putAll(prop);
-                                        } else {
-                                            ALL_MAPPING.put(key, prop);
-                                        }
-                                    }
+                                String filePath = folder + File.separator + defaultLanguage + ".properties";
+                                Log.info("filePath[2]={}", filePath);
+                                in = I18nUtils.class.getClassLoader().getResourceAsStream(filePath);
+                                Properties prop = new Properties();
+                                prop.load(in);
+                                String key = defaultLanguage;
+                                Log.info("key[2]={}, load properties size={}", key, prop.size());
+                                if (ALL_MAPPING.containsKey(key)) {
+                                    ALL_MAPPING.get(key).putAll(prop);
+                                } else {
+                                    ALL_MAPPING.put(key, prop);
                                 }
+                                isSuccess = true;
                             } catch (Exception e) {
                                 Log.error(e.getMessage());
                             }
-                        } else {
+                        }
+                        if(!isSuccess) {
                             Log.error("unSupport loadLanguage!");
                         }
                     }
@@ -190,6 +182,14 @@ public class I18nUtils {
             }
         } catch (IOException e) {
             Log.error(e.getMessage());
+        } finally {
+            if(in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
     }
@@ -206,7 +206,7 @@ public class I18nUtils {
         }
         key = lang;
         nowMapping = ALL_MAPPING.get(lang);
-        if(nowMapping == null){
+        if (nowMapping == null) {
             throw new IllegalArgumentException("config error, can't found language package : " + lang);
         }
     }
@@ -233,7 +233,7 @@ public class I18nUtils {
      * @return 判断结果/Determine the results
      */
     public static boolean hasLanguage(String lang) {
-        Objects.requireNonNull(lang,"must be enter language");
+        Objects.requireNonNull(lang, "must be enter language");
         return ALL_MAPPING.containsKey(lang);
     }
 
