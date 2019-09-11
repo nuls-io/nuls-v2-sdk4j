@@ -11,7 +11,7 @@ JDK11的版本依赖：
 <dependency>
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j</artifactId>
-    <version>1.0.0-beta7</version>
+    <version>1.0.0.RELEASE</version>
 </dependency>
 ```
 
@@ -20,7 +20,7 @@ JDK8的版本依赖：
 <dependency>
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j-jdk8</artifactId>
-    <version>1.0.0-beta7</version>
+    <version>1.0.0.RELEASE</version>
 </dependency>
 ```
 
@@ -455,11 +455,10 @@ _**详细描述: 根据多个账户的公钥创建多签账户，minSigns为多�
 
 参数列表
 ----
-| 参数名                                                     |      参数类型       | 参数描述   | 是否必填 |
-| ------------------------------------------------------- |:---------------:| ------ |:----:|
-| pubKeys                                                 |      list       | 账户公钥集合 |  是   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pubKeys | list&lt;string> | 账户公钥集合 |  是   |
-| minSigns                                                |       int       | 最小签名数  |  是   |
+| 参数名      |      参数类型       | 参数描述   | 是否必填 |
+| -------- |:---------------:| ------ |:----:|
+| pubKeys  | list&lt;string> | 账户公钥集合 |  是   |
+| minSigns |       int       | 最小签名数  |  是   |
 
 返回值
 ---
@@ -532,9 +531,10 @@ _**详细描述: 根据区块高度查询区块头**_
 | consensusMemberCount |  int   | 参与共识成员数量             |
 | roundStartTime       | string | 当前共识轮开始时间            |
 | packingIndexOfRound  |  int   | 当前轮次打包出块的名次          |
-| mainVersion          | short  | 主网当前生效的版本            |
-| blockVersion         | short  | 区块的版本，可以理解为本地钱包的版本   |
+| mainVersion          |  int   | 主网当前生效的版本            |
+| blockVersion         |  int   | 区块的版本，可以理解为本地钱包的版本   |
 | stateRoot            | string | 智能合约世界状态根            |
+| txHashList           |  list  | 区块打包交易的hash集合        |
 
 2.2 根据区块hash查询区块头
 =================
@@ -565,9 +565,10 @@ _**详细描述: 根据区块hash查询区块头**_
 | consensusMemberCount |  int   | 参与共识成员数量             |
 | roundStartTime       | string | 当前共识轮开始时间            |
 | packingIndexOfRound  |  int   | 当前轮次打包出块的名次          |
-| mainVersion          | short  | 主网当前生效的版本            |
-| blockVersion         | short  | 区块的版本，可以理解为本地钱包的版本   |
+| mainVersion          |  int   | 主网当前生效的版本            |
+| blockVersion         |  int   | 区块的版本，可以理解为本地钱包的版本   |
 | stateRoot            | string | 智能合约世界状态根            |
+| txHashList           |  list  | 区块打包交易的hash集合        |
 
 2.3 根据区块高度查询区块，包含区块打包的所有交易信息，此接口返回数据量较多，谨慎调用
 ============================================
@@ -598,9 +599,10 @@ _**详细描述: 根据区块高度查询区块，包含区块打包的所有交
 | consensusMemberCount |  int   | 参与共识成员数量             |
 | roundStartTime       | string | 当前共识轮开始时间            |
 | packingIndexOfRound  |  int   | 当前轮次打包出块的名次          |
-| mainVersion          | short  | 主网当前生效的版本            |
-| blockVersion         | short  | 区块的版本，可以理解为本地钱包的版本   |
+| mainVersion          |  int   | 主网当前生效的版本            |
+| blockVersion         |  int   | 区块的版本，可以理解为本地钱包的版本   |
 | stateRoot            | string | 智能合约世界状态根            |
+| txHashList           |  list  | 区块打包交易的hash集合        |
 
 2.4 根据区块hash查询区块，包含区块打包的所有交易信息，此接口返回数据量较多，谨慎调用
 ==============================================
@@ -631,9 +633,10 @@ _**详细描述: 根据区块hash查询区块，包含区块打包的所有交�
 | consensusMemberCount |  int   | 参与共识成员数量             |
 | roundStartTime       | string | 当前共识轮开始时间            |
 | packingIndexOfRound  |  int   | 当前轮次打包出块的名次          |
-| mainVersion          | short  | 主网当前生效的版本            |
-| blockVersion         | short  | 区块的版本，可以理解为本地钱包的版本   |
+| mainVersion          |  int   | 主网当前生效的版本            |
+| blockVersion         |  int   | 区块的版本，可以理解为本地钱包的版本   |
 | stateRoot            | string | 智能合约世界状态根            |
+| txHashList           |  list  | 区块打包交易的hash集合        |
 
 2.5 查询最新区块头信息
 =============
@@ -662,9 +665,10 @@ _**详细描述: 查询最新区块头信息**_
 | consensusMemberCount |  int   | 参与共识成员数量             |
 | roundStartTime       | string | 当前共识轮开始时间            |
 | packingIndexOfRound  |  int   | 当前轮次打包出块的名次          |
-| mainVersion          | short  | 主网当前生效的版本            |
-| blockVersion         | short  | 区块的版本，可以理解为本地钱包的版本   |
+| mainVersion          |  int   | 主网当前生效的版本            |
+| blockVersion         |  int   | 区块的版本，可以理解为本地钱包的版本   |
 | stateRoot            | string | 智能合约世界状态根            |
+| txHashList           |  list  | 区块打包交易的hash集合        |
 
 2.6 查询最新区块
 ==========
@@ -694,14 +698,16 @@ _**详细描述: 查询最新区块**_
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;consensusMemberCount                                          |       int       | 参与共识成员数量                                  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;roundStartTime                                                |     string      | 当前共识轮开始时间                                 |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;packingIndexOfRound                                           |       int       | 当前轮次打包出块的名次                               |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mainVersion                                                   |      short      | 主网当前生效的版本                                 |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blockVersion                                                  |      short      | 区块的版本，可以理解为本地钱包的版本                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mainVersion                                                   |       int       | 主网当前生效的版本                                 |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blockVersion                                                  |       int       | 区块的版本，可以理解为本地钱包的版本                        |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stateRoot                                                     |     string      | 智能合约世界状态根                                 |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;txHashList                                                    |      list       | 区块打包交易的hash集合                             |
 | txs                                                                                                           | list&lt;object> | 交易列表                                      |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hash                                                          |     string      | 交易的hash值                                  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type                                                          |       int       | 交易类型                                      |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;time                                                          |     string      | 交易时间                                      |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blockHeight                                                   |      long       | 区块高度                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;blockHash                                                     |     string      | 区块hash                                    |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remark                                                        |     string      | 交易备注                                      |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;transactionSignature                                          |     string      | 交易签名                                      |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;txDataHex                                                     |     string      | 交易业务数据序列化字符串                              |
@@ -742,6 +748,7 @@ _**详细描述: 根据hash查询交易详情**_
 | type                                                          |       int       | 交易类型                                      |
 | time                                                          |     string      | 交易时间                                      |
 | blockHeight                                                   |      long       | 区块高度                                      |
+| blockHash                                                     |     string      | 区块hash                                    |
 | remark                                                        |     string      | 交易备注                                      |
 | transactionSignature                                          |     string      | 交易签名                                      |
 | txDataHex                                                     |     string      | 交易业务数据序列化字符串                              |
