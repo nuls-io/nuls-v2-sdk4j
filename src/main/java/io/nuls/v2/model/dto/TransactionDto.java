@@ -62,7 +62,7 @@ public class TransactionDto {
     @ApiModelProperty(description = "在区块中的顺序，存储在rocksDB中是无序的，保存区块时赋值，取出后根据此值排序")
     private int inBlockIndex;
     @ApiModelProperty(description = "输入", type = @TypeDescriptor(value = List.class, collectionElement = CoinFromsDto.class))
-    private List<CoinFromsDto> form;
+    private List<CoinFromsDto> from;
     @ApiModelProperty(description = "输出", type = @TypeDescriptor(value = List.class, collectionElement = CoinTosDto.class))
     private List<CoinTosDto> to;
 
@@ -146,12 +146,12 @@ public class TransactionDto {
         this.inBlockIndex = inBlockIndex;
     }
 
-    public List<CoinFromsDto> getForm() {
-        return form;
+    public List<CoinFromsDto> getFrom() {
+        return from;
     }
 
-    public void setForm(List<CoinFromsDto> form) {
-        this.form = form;
+    public void setFrom(List<CoinFromsDto> from) {
+        this.from = from;
     }
 
     public List<CoinTosDto> getTo() {
@@ -190,7 +190,7 @@ public class TransactionDto {
                 fromsDtos.add(from);
             }
         }
-        tx.setForm(fromsDtos);
+        tx.setFrom(fromsDtos);
 
         List<Map<String, Object>> toMaps = (List<Map<String, Object>>) map.get("to");
         List<CoinTosDto> toDtos = new ArrayList<>();
