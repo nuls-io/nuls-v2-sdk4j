@@ -217,6 +217,10 @@ public class NulsSDKTool {
         return accountService.sign(signDtoList, txHex);
     }
 
+    public static Result sign1(List<SignDto> signDtoList, String txHex) {
+        return accountService.sign1(signDtoList, txHex);
+    }
+
     @ApiOperation(description = "多签账户摘要签名", order = 155, detailDesc = "用于签名离线组装的多签账户转账交易，每次调用接口时，只能传入一个账户的私钥进行签名，签名成功后返回的交易字符串再交给第二个账户签名，依次类推")
     @Parameters({
             @Parameter(parameterName = "signDto", parameterDes = "摘要签名表单", requestType = @TypeDescriptor(value = SignDto.class)),
@@ -242,6 +246,10 @@ public class NulsSDKTool {
     }))
     public static Result sign(String txHex, String address, String privateKey) {
         return transactionService.signTx(txHex, address, privateKey);
+    }
+
+    public static Result sign1(String txHex, String address, String privateKey) {
+        return transactionService.signTx1(txHex, address, privateKey);
     }
 
     @ApiOperation(description = "密文私钥摘要签名", order = 157)
@@ -280,6 +288,10 @@ public class NulsSDKTool {
     }))
     public static Result getAddressByPriKey(String priKey) {
         return accountService.getAddressByPriKey(priKey);
+    }
+
+    public static Result getAddressByPriKey1(String priKey) {
+        return accountService.getAddressByPriKey1(priKey);
     }
 
     @ApiOperation(description = "转换NULS1.0地址为NULS2.0地址", order = 160, detailDesc = "转换NULS1.0地址为NULS2.0地址")

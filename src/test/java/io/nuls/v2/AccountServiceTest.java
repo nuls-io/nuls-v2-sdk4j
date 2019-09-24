@@ -1,13 +1,19 @@
 package io.nuls.v2;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.nuls.base.data.Address;
 import io.nuls.core.basic.Result;
+import io.nuls.core.constant.BaseConstant;
+import io.nuls.core.crypto.ECKey;
+import io.nuls.core.crypto.HexUtil;
 import io.nuls.core.parse.JSONUtils;
+import io.nuls.core.parse.SerializeUtils;
 import io.nuls.v2.model.dto.*;
 import io.nuls.v2.util.NulsSDKTool;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +31,7 @@ public class AccountServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.init(1, "http://39.98.226.51:18004");
+        NulsSDKBootStrap.init(1, "http://seeda.nuls.io:8004");
     }
 
     @Test
@@ -84,7 +90,7 @@ public class AccountServiceTest {
 
     @Test
     public void testGetAddressByPriKey() {
-        Result result = NulsSDKTool.getAddressByPriKey("b54db432bba7e13a6c4a28f65b925b18e63bcb79143f7b894fa735d5d3d09db5");
+        Result result = NulsSDKTool.getAddressByPriKey("1b8ad2542a16be8f1ccaf8606dbd4e18357b533c3a76a8a2b910b075c5ca3a0d");
         Map map = (Map) result.getData();
         System.out.println(map);
     }
@@ -148,7 +154,7 @@ public class AccountServiceTest {
 
     @Test
     public void testBalance() {
-        Result result = NulsSDKTool.getAccountBalance("tNULSeBaMshNPEnuqiDhMdSA4iNs6LMgjY6tcL", 2, 1);
+        Result result = NulsSDKTool.getAccountBalance("NULSd6HgdUsxSLpu4Y4LFpCKwkDy1o7QoS95Z", 1, 1);
         System.out.println(result);
     }
 
@@ -200,9 +206,68 @@ public class AccountServiceTest {
 
     @Test
     public void testChangeV1addressToV2address() {
-        String address = "Nse6Qqteaid77Htn9S7vgW7guN4Q5MVs";
+        String address = "Nse1YSGrKU3xGCg5g53huNdU9oTGdzMi";
         Result result = NulsSDKTool.changeV1addressToV2address(address);
         System.out.println(result);
     }
 
+
+    @Test
+    public void testPriKey() {
+        ECKey ecKey0 = ECKey.fromPrivate(BigInteger.valueOf(-1L));
+        ECKey ecKey1 = ECKey.fromPrivate(new BigInteger(1, BigInteger.valueOf(-1L).toByteArray()));
+
+
+        System.out.println(ecKey0.getPublicKeyAsHex());
+        System.out.println(ecKey1.getPublicKeyAsHex());
+        System.out.println(ecKey0.getPrivateKeyAsHex());
+        System.out.println(ecKey1.getPrivateKeyAsHex());
+
+        byte[] hash = "qwer1234".getBytes();
+
+        byte[] sign0 = ecKey0.sign(hash);
+        byte[] sign1 = ecKey1.sign(hash);
+
+        System.out.println(HexUtil.encode(sign0));
+        System.out.println(HexUtil.encode(sign1));
+
+        System.out.println(ecKey0.verify(hash, sign0));
+        System.out.println(ecKey0.verify(hash, sign1));
+        System.out.println(ecKey1.verify(hash, sign0));
+        System.out.println(ecKey1.verify(hash, sign1));
+        System.out.println("模拟验证：");
+        ecKey0 = ECKey.fromPublicOnly(HexUtil.decode(ecKey0.getPublicKeyAsHex()));
+        ecKey1 = ECKey.fromPublicOnly(HexUtil.decode(ecKey1.getPublicKeyAsHex()));
+
+        System.out.println(ecKey0.verify(hash, sign0));
+        System.out.println(ecKey0.verify(hash, sign1));
+        System.out.println(ecKey1.verify(hash, sign0));
+        System.out.println(ecKey1.verify(hash, sign1));
+    }
+
+    @Test
+    public void testPriKeyAccount() {
+        String prikey = "fe7273c6e6356aff39e8a410ff53d309bc9e1ba855a7e36e19eff5486b278996";
+        ECKey ecKey0 = ECKey.fromPrivate(new BigInteger(HexUtil.decode(prikey)));
+        Address address = new Address(1, BaseConstant.DEFAULT_ADDRESS_TYPE, SerializeUtils.sha256hash160(ecKey0.getPubKey()));
+        System.out.println(address.toString());
+
+        ECKey ecKey1 = ECKey.fromPrivate(new BigInteger(1,HexUtil.decode(prikey)));
+        Address address1 = new Address(1, BaseConstant.DEFAULT_ADDRESS_TYPE, SerializeUtils.sha256hash160(ecKey1.getPubKey()));
+        System.out.println(address1.toString());
+    }
+
+
+    @Test
+    public void testEckey() {
+        for (int i = 0; i < 10000; i++) {
+            ECKey ecKey1 = new ECKey();
+            String priKey = ecKey1.getPrivateKeyAsHex();
+            ECKey ecKey2 = ECKey.fromPrivate(new BigInteger(HexUtil.decode(priKey)));
+            if (!ecKey1.getPublicKeyAsHex().equals(ecKey2.getPublicKeyAsHex())) {
+                System.out.println(ecKey1.getPrivateKeyAsHex());
+                System.out.println(ecKey2.getPrivateKeyAsHex());
+            }
+        }
+    }
 }

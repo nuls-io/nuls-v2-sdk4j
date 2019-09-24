@@ -1,7 +1,6 @@
 package io.nuls.v2;
 
 import io.nuls.core.basic.Result;
-import io.nuls.core.parse.JSONUtils;
 import io.nuls.v2.model.dto.*;
 import io.nuls.v2.util.NulsSDKTool;
 import org.junit.Before;
@@ -25,13 +24,13 @@ public class TransationServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.initTest("http://39.98.226.51:18004");
+        NulsSDKBootStrap.init(1, "http://seeda.nuls.io:8004");
     }
 
     @Test
     public void testCreateTransferTx() {
-        String fromAddress = "tNULSeBaMss7ZU7tHw2vjUrTtvbLYcqjU5b9XN";
-        String toAddress = "tNULSeBaMsEfHKEXvaFPPpQomXipeCYrru6t81";
+        String fromAddress = "NULSd6HgdUsxSLpu4Y4LFpCKwkDy1o7QoS95Z";
+        String toAddress = "NULSd6HgXY3zLvEoCRUa6yFXwpnF8gqrDeToT";
 
         TransferTxFeeDto feeDto = new TransferTxFeeDto();
         feeDto.setAddressCount(1);
@@ -45,7 +44,7 @@ public class TransationServiceTest {
 
         CoinFromDto from = new CoinFromDto();
         from.setAddress(fromAddress);
-        from.setAmount(new BigInteger("10000000").add(fee));
+        from.setAmount(new BigInteger("1000000").add(fee));
         from.setAssetChainId(SDKContext.main_chain_id);
         from.setAssetId(SDKContext.main_asset_id);
         from.setNonce("0000000000000000");
@@ -54,7 +53,7 @@ public class TransationServiceTest {
         List<CoinToDto> outputs = new ArrayList<>();
         CoinToDto to = new CoinToDto();
         to.setAddress(toAddress);
-        to.setAmount(new BigInteger("10000000"));
+        to.setAmount(new BigInteger("1000000"));
         to.setAssetChainId(SDKContext.main_chain_id);
         to.setAssetId(SDKContext.main_asset_id);
         outputs.add(to);
@@ -66,13 +65,18 @@ public class TransationServiceTest {
         String txHex = (String) result.getData().get("txHex");
 
         //签名
-        String prikey = "";
-        result = NulsSDKTool.sign(txHex, fromAddress, prikey);
+        String prikey = "fe7273c6e6356aff39e8a410ff53d309bc9e1ba855a7e36e19eff5486b278996";
+        result = NulsSDKTool.sign1(txHex, fromAddress, prikey);
         txHex = (String) result.getData().get("txHex");
 
-        String txHash = (String) result.getData().get("hash");
-        //广播
-        result = NulsSDKTool.broadcast(txHex);
+        result = NulsSDKTool.validateTx(txHex);
+        String txHash = (String) result.getData().get("value");
+        System.out.println(txHash);
+        if (result.isSuccess()) {
+            //广播
+            result = NulsSDKTool.broadcast(txHex);
+            System.out.println(result.getData());
+        }
     }
 
     @Test

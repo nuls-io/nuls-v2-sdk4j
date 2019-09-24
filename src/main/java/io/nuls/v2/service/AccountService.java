@@ -133,6 +133,47 @@ public class AccountService {
     }
 
 
+    public Result<List<AccountDto>> createOffLineAccount1(int count, String prefix, String password) {
+        validateChainId();
+
+        List<AccountDto> list = new ArrayList<>();
+        try {
+            if (!FormatValidUtils.validPassword(password)) {
+                throw new NulsException(AccountErrorCode.PASSWORD_FORMAT_WRONG);
+            }
+            if (count < 1) {
+                count = 1;
+            }
+            for (int i = 0; i < count; i++) {
+                //create account
+                Account account;
+                if (StringUtils.isBlank(prefix)) {
+                    account = AccountTool.createAccount1(SDKContext.main_chain_id);
+                } else {
+                    account = AccountTool.createAccount1(SDKContext.main_chain_id, null, prefix);
+                }
+                if (StringUtils.isNotBlank(password)) {
+                    account.encrypt(password);
+                }
+                AccountDto accountDto = new AccountDto();
+                accountDto.setAddress(account.getAddress().toString());
+                accountDto.setPubKey(HexUtil.encode(account.getPubKey()));
+                if (account.isEncrypted()) {
+                    accountDto.setPrikey("");
+                    accountDto.setEncryptedPrivateKey(HexUtil.encode(account.getEncryptedPriKey()));
+                } else {
+                    accountDto.setPrikey(HexUtil.encode(account.getPriKey()));
+                    accountDto.setEncryptedPrivateKey("");
+                }
+                list.add(accountDto);
+            }
+        } catch (NulsException e) {
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
+        }
+        return Result.getSuccess(list);
+    }
+
+
     public Result getPriKey(String address, String password) {
         validateChainId();
         try {
@@ -410,6 +451,56 @@ public class AccountService {
         }
     }
 
+
+    public Result sign1(List<SignDto> signDtoList, String txHex) {
+        validateChainId();
+        try {
+            CommonValidator.validateSignDto(signDtoList);
+            if (StringUtils.isBlank(txHex)) {
+                throw new NulsRuntimeException(AccountErrorCode.PARAMETER_ERROR, "txHex is invalid");
+            }
+
+            List<ECKey> signEcKeys = new ArrayList<>();
+            for (SignDto signDto : signDtoList) {
+                byte[] priKeyBytes;
+                if (StringUtils.isNotBlank(signDto.getPriKey())) {
+                    if (!ECKey.isValidPrivteHex(signDto.getPriKey())) {
+                        throw new NulsRuntimeException(AccountErrorCode.PRIVATE_KEY_WRONG, signDto.getPriKey() + " is invalid");
+                    }
+                    priKeyBytes = HexUtil.decode(signDto.getPriKey());
+
+                } else {
+                    try {
+                        priKeyBytes = AESEncrypt.decrypt(HexUtil.decode(signDto.getEncryptedPrivateKey()), signDto.getPassword());
+                        if (!ECKey.isValidPrivteHex(HexUtil.encode(priKeyBytes))) {
+                            throw new NulsRuntimeException(AccountErrorCode.PRIVATE_KEY_WRONG, signDto.getEncryptedPrivateKey() + " is invalid");
+                        }
+                    } catch (CryptoException e) {
+                        throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "encryptedPrivateKey[" + signDto.getEncryptedPrivateKey() + "] password error");
+                    }
+                }
+                Account account = AccountTool.createAccount1(SDKContext.main_chain_id, HexUtil.encode(priKeyBytes));
+                if (!signDto.getAddress().equals(account.getAddress().getBase58())) {
+                    throw new NulsRuntimeException(AccountErrorCode.ADDRESS_ERROR, account.getAddress() + " and private key do not match");
+                }
+                ECKey ecKey = account.getEcKey1(signDto.getPassword());
+                signEcKeys.add(ecKey);
+            }
+            Transaction tx = new Transaction();
+            tx.parse(new NulsByteBuffer(HexUtil.decode(txHex)));
+            SignatureUtil.createTransactionSignture(tx, signEcKeys);
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("hash", tx.getHash().toHex());
+            map.put("txHex", HexUtil.encode(tx.serialize()));
+            return Result.getSuccess(map);
+        } catch (NulsException e) {
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
+        } catch (IOException e) {
+            return Result.getFailed(AccountErrorCode.SERIALIZE_ERROR).setMsg(AccountErrorCode.SERIALIZE_ERROR.getMsg());
+        }
+    }
+
     public Result multiSign(SignDto signDto, String txHex) {
         validateChainId();
         try {
@@ -575,6 +666,23 @@ public class AccountService {
         Account account;
         try {
             account = AccountTool.createAccount(SDKContext.main_chain_id, priKey);
+        } catch (NulsException e) {
+            throw new NulsRuntimeException(AccountErrorCode.PRIVATE_KEY_WRONG);
+        }
+        Map<String, Object> map = new HashMap<>();
+        map.put("value", account.getAddress().getBase58());
+
+        return Result.getSuccess(map);
+    }
+
+    public Result getAddressByPriKey1(String priKey) {
+        validateChainId();
+        if (!ECKey.isValidPrivteHex(priKey)) {
+            throw new NulsRuntimeException(AccountErrorCode.PRIVATE_KEY_WRONG);
+        }
+        Account account;
+        try {
+            account = AccountTool.createAccount1(SDKContext.main_chain_id, priKey);
         } catch (NulsException e) {
             throw new NulsRuntimeException(AccountErrorCode.PRIVATE_KEY_WRONG);
         }

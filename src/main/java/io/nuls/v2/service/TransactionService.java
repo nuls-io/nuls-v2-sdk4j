@@ -682,6 +682,15 @@ public class TransactionService {
         return NulsSDKTool.sign(signDtoList, txHex);
     }
 
+    public Result signTx1(String txHex, String address, String privateKey) {
+        List<SignDto> signDtoList = new ArrayList<>();
+        SignDto signDto = new SignDto();
+        signDto.setAddress(address);
+        signDto.setPriKey(privateKey);
+        signDtoList.add(signDto);
+        return NulsSDKTool.sign1(signDtoList, txHex);
+    }
+
     /**
      * 广播交易
      *
