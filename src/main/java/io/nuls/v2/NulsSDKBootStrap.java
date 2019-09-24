@@ -4,7 +4,7 @@ import io.nuls.core.parse.I18nUtils;
 
 public class NulsSDKBootStrap {
 
-    private static final String LANGUAGE = "sdk4j_en";
+    private static final String LANGUAGE = "en";
     private static final String LANGUAGE_PATH = "languages";
 
 
