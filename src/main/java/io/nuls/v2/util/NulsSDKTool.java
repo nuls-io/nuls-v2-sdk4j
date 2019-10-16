@@ -1,7 +1,11 @@
 package io.nuls.v2.util;
 
+import io.nuls.base.basic.NulsByteBuffer;
+import io.nuls.base.data.Transaction;
 import io.nuls.core.basic.Result;
 import io.nuls.core.core.annotation.RpcMethod;
+import io.nuls.core.crypto.HexUtil;
+import io.nuls.core.exception.NulsException;
 import io.nuls.core.rpc.model.*;
 import io.nuls.v2.SDKContext;
 import io.nuls.v2.model.annotation.ApiOperation;
@@ -888,5 +892,19 @@ public class NulsSDKTool {
         return transactionService.createMultiSignStopConsensusTx(stopConsensusDto);
     }
 
-
+    /**
+     * 根据交易的hex ,反序列化成交易实体类
+     *
+     * @param txHex
+     * @return
+     */
+    public static Result deserializeTxHex(String txHex) {
+        Transaction tx = new Transaction();
+        try {
+            tx.parse(new NulsByteBuffer(HexUtil.decode(txHex)));
+            return Result.getSuccess(tx);
+        } catch (NulsException e) {
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
+        }
+    }
 }
