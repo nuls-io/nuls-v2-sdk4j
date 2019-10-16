@@ -29,8 +29,8 @@ public class TransationServiceTest {
 
     @Test
     public void testCreateTransferTx() {
-        String fromAddress = "NULSd6HgdUsxSLpu4Y4LFpCKwkDy1o7QoS95Z";
-        String toAddress = "NULSd6HgXY3zLvEoCRUa6yFXwpnF8gqrDeToT";
+        String fromAddress = "NULSd6HggMezjc4qosG39fJ33rUaCS8eCodmK";
+        String toAddress = "NULSd6Hgb4T72E3R1insQ66LFK8LkNfdi9jBE";
 
         TransferTxFeeDto feeDto = new TransferTxFeeDto();
         feeDto.setAddressCount(1);
@@ -44,7 +44,7 @@ public class TransationServiceTest {
 
         CoinFromDto from = new CoinFromDto();
         from.setAddress(fromAddress);
-        from.setAmount(new BigInteger("1000000").add(fee));
+        from.setAmount(new BigInteger("1035780572679").add(fee));
         from.setAssetChainId(SDKContext.main_chain_id);
         from.setAssetId(SDKContext.main_asset_id);
         from.setNonce("0000000000000000");
@@ -53,7 +53,7 @@ public class TransationServiceTest {
         List<CoinToDto> outputs = new ArrayList<>();
         CoinToDto to = new CoinToDto();
         to.setAddress(toAddress);
-        to.setAmount(new BigInteger("1000000"));
+        to.setAmount(new BigInteger("1035780572679"));
         to.setAssetChainId(SDKContext.main_chain_id);
         to.setAssetId(SDKContext.main_asset_id);
         outputs.add(to);
@@ -65,18 +65,18 @@ public class TransationServiceTest {
         String txHex = (String) result.getData().get("txHex");
 
         //签名
-        String prikey = "fe7273c6e6356aff39e8a410ff53d309bc9e1ba855a7e36e19eff5486b278996";
+        String prikey = "7dd7d92703858c270abcbc62cceffc9e6045bc9aacd9afdc1e04af38ecbe88f";
         result = NulsSDKTool.sign1(txHex, fromAddress, prikey);
         txHex = (String) result.getData().get("txHex");
-
+        System.out.println(txHex);
         result = NulsSDKTool.validateTx(txHex);
         String txHash = (String) result.getData().get("value");
         System.out.println(txHash);
-        if (result.isSuccess()) {
-            //广播
-            result = NulsSDKTool.broadcast(txHex);
-            System.out.println(result.getData());
-        }
+//        if (result.isSuccess()) {
+//            //广播
+//            result = NulsSDKTool.broadcast(txHex);
+//            System.out.println(result.getData());
+//        }
     }
 
     @Test
@@ -343,6 +343,13 @@ public class TransationServiceTest {
         System.out.println(result.getData());
         //txHex：06005ae5155d0020f0065601e5b94a4c9fa6be808d67bfbc80e74a6afd631232622f795c2196d64f8c011764000115423f8fc2f9f62496cb98d43e3347bd7996327d6400010000d0ed902e00000000000000000000000000000000000000000000000000000008622f795c2196d64fff011764000115423f8fc2f9f62496cb98d43e3347bd7996327d64000100c08dde902e000000000000000000000000000000000000000000000000000000000000000000000000
         //hash：84fd9e76616f6ff6ac82628bc99d20ebff20da7478df79743724bf007e4c2805
+    }
+
+    @Test
+    public void deserializeTxHex() {
+        String txHex = "06005ae5155d0020f0065601e5b94a4c9fa6be808d67bfbc80e74a6afd631232622f795c2196d64f8c011764000115423f8fc2f9f62496cb98d43e3347bd7996327d6400010000d0ed902e00000000000000000000000000000000000000000000000000000008622f795c2196d64fff011764000115423f8fc2f9f62496cb98d43e3347bd7996327d64000100c08dde902e000000000000000000000000000000000000000000000000000000000000000000000000";
+        Result result = NulsSDKTool.deserializeTxHex(txHex);
+        System.out.println(result.getData());
     }
 
     @Test
