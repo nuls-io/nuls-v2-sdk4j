@@ -17,7 +17,7 @@ public class ConsensusServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.initTest("http://127.0.0.1:9898/");
+        NulsSDKBootStrap.initTest("http://beta.api.nuls.io/");
     }
 
     @Test
@@ -65,6 +65,13 @@ public class ConsensusServiceTest {
         form.setPassword(password);
 
         Result result = NulsSDKTool.stopAgent(form);
+        System.out.println(result.getData());
+    }
+
+    @Test
+    public void testDepositList() {
+        String txHash = "ad74b5a061a065ee4b228d822e8b72b0bf43cf79996798b6aa117354b68a2164";
+        Result result = NulsSDKTool.getDepositList(txHash);
         System.out.println(result.getData());
     }
 

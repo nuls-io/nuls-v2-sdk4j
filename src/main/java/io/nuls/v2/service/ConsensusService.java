@@ -127,15 +127,10 @@ public class ConsensusService {
     }
 
     public Result getDepositList(String agentHash) {
-        if (ValidateUtil.validHash(agentHash)) {
+        if (!ValidateUtil.validHash(agentHash)) {
             return Result.getFailed(AccountErrorCode.PARAMETER_ERROR);
         }
-        Map<String, Object> map = new HashMap<>();
-        map.put("chainId", SDKContext.main_chain_id);
-        map.put("pageNumber", 1);
-        map.put("pageSize", 300);
-        map.put("agentHash", agentHash);
-        RestFulResult restFulResult = RestFulUtil.post("api/consensus/withdraw", map);
+        RestFulResult restFulResult = RestFulUtil.getList("api/consensus/list/deposit/" + agentHash, null);
         Result result;
         if (restFulResult.isSuccess()) {
             result = io.nuls.core.basic.Result.getSuccess(restFulResult.getData());

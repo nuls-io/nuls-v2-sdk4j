@@ -66,7 +66,7 @@ public class TransationServiceTest {
 
         //签名
         String prikey = "7dd7d92703858c270abcbc62cceffc9e6045bc9aacd9afdc1e04af38ecbe88f";
-        result = NulsSDKTool.sign1(txHex, fromAddress, prikey);
+        result = NulsSDKTool.sign(txHex, fromAddress, prikey);
         txHex = (String) result.getData().get("txHex");
         System.out.println(txHex);
         result = NulsSDKTool.validateTx(txHex);

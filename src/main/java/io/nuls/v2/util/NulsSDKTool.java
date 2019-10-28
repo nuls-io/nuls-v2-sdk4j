@@ -92,6 +92,7 @@ public class NulsSDKTool {
     @ApiOperation(description = "根据keystore导入账户", order = 105)
     @Parameters({
             @Parameter(parameterName = "address", parameterDes = "账户地址"),
+            @Parameter(parameterName = "pubKey", parameterDes = "公钥"),
             @Parameter(parameterName = "encryptedPriKey", parameterDes = "加密后的私钥"),
             @Parameter(parameterName = "password", parameterDes = "密码")
     })
@@ -117,7 +118,9 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "查询账户余额", order = 107, detailDesc = "根据资产链ID和资产ID，查询本链账户对应资产的余额与nonce值")
     @Parameters({
-            @Parameter(parameterName = "address", requestType = @TypeDescriptor(value = String.class), parameterDes = "账户地址")
+            @Parameter(parameterName = "address", requestType = @TypeDescriptor(value = String.class), parameterDes = "账户地址"),
+            @Parameter(parameterName = "chainId", requestType = @TypeDescriptor(value = int.class), parameterDes = "资产的链ID"),
+            @Parameter(parameterName = "assetsId", requestType = @TypeDescriptor(value = int.class), parameterDes = "资产ID")
     })
     @ResponseData(name = "返回值", description = "注意: 返回值是一个Map对象，内部key-value结构是[responseType]描述对象的结构", responseType = @TypeDescriptor(value = AccountBalanceDto.class))
     public static Result getAccountBalance(String address, int chainId, int assetsId) {
@@ -195,6 +198,21 @@ public class NulsSDKTool {
         return accountService.resetPasswordOffline(address, encryptedPriKey, password, newPassword);
     }
 
+    @ApiOperation(description = "离线修改账户密码", order = 152)
+    @Parameters(value = {
+            @Parameter(parameterName = "address", parameterDes = "账户地址"),
+            @Parameter(parameterName = "prefix", parameterDes = "地址前缀"),
+            @Parameter(parameterName = "encryptedPriKey", parameterDes = "加密后的私钥"),
+            @Parameter(parameterName = "oldPassword", parameterDes = "原密码"),
+            @Parameter(parameterName = "newPassword", parameterDes = "新密码")
+    })
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "value", description = "重置密码后的加密私钥")
+    }))
+    public static Result resetPasswordOffline(String address, String prefix, String encryptedPriKey, String password, String newPassword) {
+        return accountService.resetPasswordOffline(address, prefix, encryptedPriKey, password, newPassword);
+    }
+
     @ApiOperation(description = "离线获取账户明文私钥", order = 153)
     @Parameters({
             @Parameter(parameterName = "address", parameterDes = "账户地址"),
@@ -208,6 +226,20 @@ public class NulsSDKTool {
         return accountService.getPriKeyOffline(address, encryptedPriKey, password);
     }
 
+    @ApiOperation(description = "离线获取账户明文私钥", order = 153)
+    @Parameters({
+            @Parameter(parameterName = "address", parameterDes = "账户地址"),
+            @Parameter(parameterName = "prefix", parameterDes = "地址前缀"),
+            @Parameter(parameterName = "encryptedPriKey", parameterDes = "加密后的私钥"),
+            @Parameter(parameterName = "password", parameterDes = "密码")
+    })
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "value", description = "明文私钥")
+    }))
+    public static Result getPriKeyOffline(String address, String prefix, String encryptedPriKey, String password) {
+        return accountService.getPriKeyOffline(address, prefix, encryptedPriKey, password);
+    }
+
     @ApiOperation(description = "多账户摘要签名", order = 154, detailDesc = "用于签名离线组装的多账户转账交易，调用接口时，参数可以传地址和私钥，或者传地址和加密私钥和加密密码")
     @Parameters({
             @Parameter(parameterName = "signDtoList", parameterDes = "摘要签名表单", requestType = @TypeDescriptor(value = SignDto.class)),
@@ -219,10 +251,6 @@ public class NulsSDKTool {
     }))
     public static Result sign(List<SignDto> signDtoList, String txHex) {
         return accountService.sign(signDtoList, txHex);
-    }
-
-    public static Result sign1(List<SignDto> signDtoList, String txHex) {
-        return accountService.sign1(signDtoList, txHex);
     }
 
     @ApiOperation(description = "多签账户摘要签名", order = 155, detailDesc = "用于签名离线组装的多签账户转账交易，每次调用接口时，只能传入一个账户的私钥进行签名，签名成功后返回的交易字符串再交给第二个账户签名，依次类推")
@@ -252,10 +280,6 @@ public class NulsSDKTool {
         return transactionService.signTx(txHex, address, privateKey);
     }
 
-    public static Result sign1(String txHex, String address, String privateKey) {
-        return transactionService.signTx1(txHex, address, privateKey);
-    }
-
     @ApiOperation(description = "密文私钥摘要签名", order = 157)
     @Parameters({
             @Parameter(parameterName = "txHex", parameterDes = "交易序列化16进制字符串"),
@@ -273,7 +297,7 @@ public class NulsSDKTool {
 
     @ApiOperation(description = "创建多签账户", order = 158, detailDesc = "根据多个账户的公钥创建多签账户，minSigns为多签账户创建交易时需要的最小签名数")
     @Parameters(value = {
-            @Parameter(parameterName = "pubKeys", requestType = @TypeDescriptor(value = List.class), parameterDes = "账户公钥集合"),
+            @Parameter(parameterName = "pubKeys", requestType = @TypeDescriptor(value = List.class, collectionElement = String.class), parameterDes = "账户公钥集合"),
             @Parameter(parameterName = "minSigns", requestType = @TypeDescriptor(value = int.class), parameterDes = "最小签名数")
     })
     @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
@@ -294,8 +318,16 @@ public class NulsSDKTool {
         return accountService.getAddressByPriKey(priKey);
     }
 
-    public static Result getAddressByPriKey1(String priKey) {
-        return accountService.getAddressByPriKey1(priKey);
+    @ApiOperation(description = "根据私钥获取地址", order = 159, detailDesc = "根据传入的私钥，生成对应的地址，私钥不会存储在钱包里")
+    @Parameters(value = {
+            @Parameter(parameterName = "priKey", parameterDes = "原始私钥"),
+            @Parameter(parameterName = "prefix", parameterDes = "地址前缀")
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "value", description = "账户的地址")
+    }))
+    public static Result getAddressByPriKey(String priKey, String prefix) {
+        return accountService.getAddressByPriKey(priKey, prefix);
     }
 
     @ApiOperation(description = "转换NULS1.0地址为NULS2.0地址", order = 160, detailDesc = "转换NULS1.0地址为NULS2.0地址")

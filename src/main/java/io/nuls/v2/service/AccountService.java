@@ -133,47 +133,6 @@ public class AccountService {
     }
 
 
-    public Result<List<AccountDto>> createOffLineAccount1(int count, String prefix, String password) {
-        validateChainId();
-
-        List<AccountDto> list = new ArrayList<>();
-        try {
-            if (!FormatValidUtils.validPassword(password)) {
-                throw new NulsException(AccountErrorCode.PASSWORD_FORMAT_WRONG);
-            }
-            if (count < 1) {
-                count = 1;
-            }
-            for (int i = 0; i < count; i++) {
-                //create account
-                Account account;
-                if (StringUtils.isBlank(prefix)) {
-                    account = AccountTool.createAccount1(SDKContext.main_chain_id);
-                } else {
-                    account = AccountTool.createAccount1(SDKContext.main_chain_id, null, prefix);
-                }
-                if (StringUtils.isNotBlank(password)) {
-                    account.encrypt(password);
-                }
-                AccountDto accountDto = new AccountDto();
-                accountDto.setAddress(account.getAddress().toString());
-                accountDto.setPubKey(HexUtil.encode(account.getPubKey()));
-                if (account.isEncrypted()) {
-                    accountDto.setPrikey("");
-                    accountDto.setEncryptedPrivateKey(HexUtil.encode(account.getEncryptedPriKey()));
-                } else {
-                    accountDto.setPrikey(HexUtil.encode(account.getPriKey()));
-                    accountDto.setEncryptedPrivateKey("");
-                }
-                list.add(accountDto);
-            }
-        } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
-        }
-        return Result.getSuccess(list);
-    }
-
-
     public Result getPriKey(String address, String password) {
         validateChainId();
         try {
@@ -239,6 +198,36 @@ public class AccountService {
         }
     }
 
+    public Result getPriKeyOffline(String address, String prefix, String encryptedPriKey, String password) {
+        validateChainId();
+        try {
+            if (!AddressTool.validAddress(SDKContext.main_chain_id, address)) {
+                throw new NulsException(AccountErrorCode.ADDRESS_ERROR);
+            }
+            if (StringUtils.isBlank(encryptedPriKey)) {
+                throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "encryptedPriKey is invalid");
+            }
+            if (!FormatValidUtils.validPassword(password)) {
+                throw new NulsException(AccountErrorCode.PASSWORD_FORMAT_WRONG);
+            }
+            byte[] priKeyBytes = AESEncrypt.decrypt(HexUtil.decode(encryptedPriKey), password);
+            if (!ECKey.isValidPrivteHex(HexUtil.encode(priKeyBytes))) {
+                throw new NulsException(AccountErrorCode.PRIVATE_KEY_WRONG);
+            }
+            Account account = AccountTool.createAccount(SDKContext.main_chain_id, HexUtil.encode(priKeyBytes), prefix);
+            if (!address.equals(account.getAddress().getBase58())) {
+                throw new NulsException(AccountErrorCode.ADDRESS_ERROR);
+            }
+            Map<String, Object> map = new HashMap<>();
+            map.put("priKey", HexUtil.encode(account.getPriKey()));
+            return Result.getSuccess(map);
+        } catch (NulsException e) {
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
+        } catch (CryptoException e) {
+            return Result.getFailed(AccountErrorCode.PASSWORD_IS_WRONG).setMsg(AccountErrorCode.PASSWORD_IS_WRONG.getMsg());
+        }
+    }
+
     public Result importKeystore(AccountKeyStoreDto keyStore, String password) {
         validateChainId();
         try {
@@ -249,10 +238,10 @@ public class AccountService {
                 throw new NulsException(AccountErrorCode.PASSWORD_FORMAT_WRONG);
             }
             Map<String, Object> params = new HashMap<>();
-            params.put("keystore", keyStore);
+            params.put("keystoreString", keyStore);
             params.put("password", password);
             params.put("overwrite", true);
-            RestFulResult restFulResult = RestFulUtil.post("api/account/import/keystore/json", params);
+            RestFulResult restFulResult = RestFulUtil.post("api/account/import/keystore/string", params);
             Result result;
             if (restFulResult.isSuccess()) {
                 result = Result.getSuccess(restFulResult.getData());
@@ -342,18 +331,12 @@ public class AccountService {
     }
 
     public Result validateAddress(int chainId, String address) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("chainId", chainId);
-        params.put("address", address);
-        Result result;
-        RestFulResult restFulResult = RestFulUtil.post("api/account/address/validate", params);
-        if (restFulResult.isSuccess()) {
-            result = Result.getSuccess(restFulResult.getData());
+        boolean b = AddressTool.validAddress(chainId, address);
+        if (!b) {
+            return Result.getFailed(AccountErrorCode.ADDRESS_ERROR);
         } else {
-            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
-            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+            return Result.getSuccess(null);
         }
-        return result;
     }
 
     /**
@@ -382,6 +365,37 @@ public class AccountService {
                 throw new NulsException(AccountErrorCode.PRIVATE_KEY_WRONG);
             }
             Account account = AccountTool.createAccount(SDKContext.main_chain_id, HexUtil.encode(priKeyBytes));
+            if (!address.equals(account.getAddress().getBase58())) {
+                throw new NulsException(AccountErrorCode.ADDRESS_ERROR);
+            }
+            account.encrypt(newPassword);
+            Map<String, Object> map = new HashMap<>();
+            map.put("newEncryptedPriKey", HexUtil.encode(account.getEncryptedPriKey()));
+            return Result.getSuccess(map);
+        } catch (NulsException e) {
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
+        } catch (CryptoException e) {
+            return Result.getFailed(AccountErrorCode.PASSWORD_IS_WRONG).setMsg(AccountErrorCode.PASSWORD_IS_WRONG.getMsg());
+        }
+    }
+
+    public Result resetPasswordOffline(String address, String prefix, String encryptedPriKey, String oldPassword, String newPassword) {
+        validateChainId();
+        try {
+            if (!AddressTool.validAddress(SDKContext.main_chain_id, address)) {
+                throw new NulsException(AccountErrorCode.ADDRESS_ERROR);
+            }
+            if (StringUtils.isBlank(encryptedPriKey)) {
+                throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "encryptedPriKey is invalid");
+            }
+            if (!FormatValidUtils.validPassword(oldPassword) || !FormatValidUtils.validPassword(newPassword)) {
+                throw new NulsException(AccountErrorCode.PASSWORD_FORMAT_WRONG);
+            }
+            byte[] priKeyBytes = AESEncrypt.decrypt(HexUtil.decode(encryptedPriKey), oldPassword);
+            if (!ECKey.isValidPrivteHex(HexUtil.encode(priKeyBytes))) {
+                throw new NulsException(AccountErrorCode.PRIVATE_KEY_WRONG);
+            }
+            Account account = AccountTool.createAccount(SDKContext.main_chain_id, HexUtil.encode(priKeyBytes), prefix);
             if (!address.equals(account.getAddress().getBase58())) {
                 throw new NulsException(AccountErrorCode.ADDRESS_ERROR);
             }
@@ -434,56 +448,6 @@ public class AccountService {
                     throw new NulsRuntimeException(AccountErrorCode.ADDRESS_ERROR, account.getAddress() + " and private key do not match");
                 }
                 ECKey ecKey = account.getEcKey(signDto.getPassword());
-                signEcKeys.add(ecKey);
-            }
-            Transaction tx = new Transaction();
-            tx.parse(new NulsByteBuffer(HexUtil.decode(txHex)));
-            SignatureUtil.createTransactionSignture(tx, signEcKeys);
-
-            Map<String, Object> map = new HashMap<>();
-            map.put("hash", tx.getHash().toHex());
-            map.put("txHex", HexUtil.encode(tx.serialize()));
-            return Result.getSuccess(map);
-        } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
-        } catch (IOException e) {
-            return Result.getFailed(AccountErrorCode.SERIALIZE_ERROR).setMsg(AccountErrorCode.SERIALIZE_ERROR.getMsg());
-        }
-    }
-
-
-    public Result sign1(List<SignDto> signDtoList, String txHex) {
-        validateChainId();
-        try {
-            CommonValidator.validateSignDto(signDtoList);
-            if (StringUtils.isBlank(txHex)) {
-                throw new NulsRuntimeException(AccountErrorCode.PARAMETER_ERROR, "txHex is invalid");
-            }
-
-            List<ECKey> signEcKeys = new ArrayList<>();
-            for (SignDto signDto : signDtoList) {
-                byte[] priKeyBytes;
-                if (StringUtils.isNotBlank(signDto.getPriKey())) {
-                    if (!ECKey.isValidPrivteHex(signDto.getPriKey())) {
-                        throw new NulsRuntimeException(AccountErrorCode.PRIVATE_KEY_WRONG, signDto.getPriKey() + " is invalid");
-                    }
-                    priKeyBytes = HexUtil.decode(signDto.getPriKey());
-
-                } else {
-                    try {
-                        priKeyBytes = AESEncrypt.decrypt(HexUtil.decode(signDto.getEncryptedPrivateKey()), signDto.getPassword());
-                        if (!ECKey.isValidPrivteHex(HexUtil.encode(priKeyBytes))) {
-                            throw new NulsRuntimeException(AccountErrorCode.PRIVATE_KEY_WRONG, signDto.getEncryptedPrivateKey() + " is invalid");
-                        }
-                    } catch (CryptoException e) {
-                        throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "encryptedPrivateKey[" + signDto.getEncryptedPrivateKey() + "] password error");
-                    }
-                }
-                Account account = AccountTool.createAccount1(SDKContext.main_chain_id, HexUtil.encode(priKeyBytes));
-                if (!signDto.getAddress().equals(account.getAddress().getBase58())) {
-                    throw new NulsRuntimeException(AccountErrorCode.ADDRESS_ERROR, account.getAddress() + " and private key do not match");
-                }
-                ECKey ecKey = account.getEcKey1(signDto.getPassword());
                 signEcKeys.add(ecKey);
             }
             Transaction tx = new Transaction();
@@ -675,14 +639,14 @@ public class AccountService {
         return Result.getSuccess(map);
     }
 
-    public Result getAddressByPriKey1(String priKey) {
+    public Result getAddressByPriKey(String priKey, String prefix) {
         validateChainId();
         if (!ECKey.isValidPrivteHex(priKey)) {
             throw new NulsRuntimeException(AccountErrorCode.PRIVATE_KEY_WRONG);
         }
         Account account;
         try {
-            account = AccountTool.createAccount1(SDKContext.main_chain_id, priKey);
+            account = AccountTool.createAccount(SDKContext.main_chain_id, priKey, prefix);
         } catch (NulsException e) {
             throw new NulsRuntimeException(AccountErrorCode.PRIVATE_KEY_WRONG);
         }

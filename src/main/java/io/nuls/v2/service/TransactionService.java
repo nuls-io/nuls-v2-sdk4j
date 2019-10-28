@@ -688,7 +688,7 @@ public class TransactionService {
         signDto.setAddress(address);
         signDto.setPriKey(privateKey);
         signDtoList.add(signDto);
-        return NulsSDKTool.sign1(signDtoList, txHex);
+        return NulsSDKTool.sign(signDtoList, txHex);
     }
 
     /**
