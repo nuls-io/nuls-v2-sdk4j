@@ -7,6 +7,7 @@ import io.nuls.v2.SDKContext;
 import io.nuls.v2.model.dto.RestFulResult;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,6 +39,25 @@ public class RestFulUtil {
             url = SDKContext.wallet_url + url;
             String resultStr = HttpClientUtil.get(url, params);
             RestFulResult<Map<String, Object>> result = toResult(resultStr);
+            return result;
+        } catch (Exception e) {
+            Log.error(e);
+            return RestFulResult.failed(CommonCodeConstanst.DATA_ERROR.getCode(), e.getMessage(), null);
+        }
+    }
+
+    /**
+     * 发送get请求
+     *
+     * @param url
+     * @param params
+     * @return
+     */
+    public static RestFulResult<List<Object>> getList(String url, Map<String, Object> params) {
+        try {
+            url = SDKContext.wallet_url + url;
+            String resultStr = HttpClientUtil.get(url, params);
+            RestFulResult<List<Object>> result = toResultList(resultStr);
             return result;
         } catch (Exception e) {
             Log.error(e);
@@ -100,6 +120,23 @@ public class RestFulUtil {
         }
         return result;
     }
+
+    private static RestFulResult toResultList(String str) throws IOException {
+        Map<String, Object> resultMap = JSONUtils.json2map(str);
+        RestFulResult<List<Object>> result = null;
+        Boolean b = (Boolean) resultMap.get("success");
+        if (b) {
+            List<Object> data = (List<Object>) resultMap.get("data");
+            result = RestFulResult.success(data);
+        } else {
+            Map<String, Object> data = (Map<String, Object>) resultMap.get("data");
+            if (data != null) {
+                result = RestFulResult.failed(data.get("code").toString(), data.get("msg").toString());
+            }
+        }
+        return result;
+    }
+
 //    public static String sendGet(String url, Map<String, String> map) {
 //
 //        String resulrStr = null;

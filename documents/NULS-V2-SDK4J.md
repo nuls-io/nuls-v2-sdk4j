@@ -11,7 +11,7 @@ JDK11的版本依赖：
 <dependency>
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j</artifactId>
-    <version>1.0.0.RELEASE</version>
+    <version>1.0.3.RELEASE</version>
 </dependency>
 ```
 

@@ -1,6 +1,12 @@
 package io.nuls.v2;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.nuls.base.basic.AddressTool;
+import io.nuls.base.basic.NulsByteBuffer;
+import io.nuls.base.data.*;
 import io.nuls.core.basic.Result;
+import io.nuls.core.crypto.HexUtil;
+import io.nuls.core.exception.NulsException;
 import io.nuls.core.parse.JSONUtils;
 import io.nuls.v2.model.dto.*;
 import io.nuls.v2.util.NulsSDKTool;
@@ -373,5 +379,28 @@ public class TransationServiceTest {
 
         //txHex：090081fd165d0020584ae3c9af9a42c4e68fcde0736fce670a913262346ed10f827dfaef75714ebdfd5c01031764000115423f8fc2f9f62496cb98d43e3347bd7996327d6400010000204aa9d101000000000000000000000000000000000000000000000000000008827dfaef75714ebdff1764000115423f8fc2f9f62496cb98d43e3347bd7996327d6400010000d0ed902e000000000000000000000000000000000000000000000000000000086db83fdd14f6f233ff1764000115423f8fc2f9f62496cb98d43e3347bd7996327d6400010000d0ed902e0000000000000000000000000000000000000000000000000000000863b6e201aa9af5f0ff021764000115423f8fc2f9f62496cb98d43e3347bd7996327d64000100609948a9d1010000000000000000000000000000000000000000000000000000990b175d000000001764000115423f8fc2f9f62496cb98d43e3347bd7996327d6400010000a0db215d000000000000000000000000000000000000000000000000000000000000000000000000
         //txHash：d86502a23ab0e18ab78a43fce3fc302dc70d93467bc52922eb96ecf00d630f58
+    }
+
+    @Test
+    public void testTx() {
+        String txHex = "0200ae72a15d03616161008c01170100010d262dc199d59c308508f8164332fde386712dba01000100f049020000000000000000000000000000000000000000000000000000000000087b20aa4f664fa3500001170100011da94fec6480c9f0a32b262af7582bdaaf50fe090100010050c30000000000000000000000000000000000000000000000000000000000000000000000000000692102a902a6135c48ff24a9549c94c37e7cb297a2af4d7a66b0156d2918ba60c830ab4630440220571453f3c01c225bc5dc46dcf05b26c809550543f01b7a5cb6d14f359bdd9b7a022005190fce55e7b2a4ccac4b739026affd90b58cf55c650712ba89177e33cb0caf";
+
+        try {
+            Result result = NulsSDKTool.deserializeTxHex(txHex);
+            Transaction tx = (Transaction) result.getData();
+
+            CoinData coinData = tx.getCoinDataInstance();
+            for (CoinFrom from : coinData.getFrom()) {
+                String fromAddress = AddressTool.getStringAddressByBytes(from.getAddress());
+                System.out.println(fromAddress);
+                System.out.println(from.getAmount().toString());
+            }
+            for (CoinTo to : coinData.getTo()) {
+                String toAddress = AddressTool.getStringAddressByBytes(to.getAddress());
+                System.out.println(toAddress);
+            }
+        } catch (NulsException e) {
+            e.printStackTrace();
+        }
     }
 }
