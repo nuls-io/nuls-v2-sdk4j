@@ -20,7 +20,7 @@ JDK8的版本依赖：
 <dependency>
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j-jdk8</artifactId>
-    <version>1.0.0.RELEASE</version>
+    <version>1.0.4.RELEASE</version>
 </dependency>
 ```
 
