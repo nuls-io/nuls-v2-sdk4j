@@ -1,6 +1,8 @@
 package io.nuls.v2;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.nuls.core.basic.Result;
+import io.nuls.core.parse.JSONUtils;
 import io.nuls.v2.model.dto.*;
 import io.nuls.v2.util.NulsSDKTool;
 import org.junit.Before;
@@ -24,7 +26,7 @@ public class TransationServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.init(1, "http://seeda.nuls.io:8004");
+        NulsSDKBootStrap.initTest( "http://127.0.0.1:18004/");
     }
 
     @Test
@@ -130,14 +132,13 @@ public class TransationServiceTest {
         BigInteger fee = SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE;
 
         ConsensusDto dto = new ConsensusDto();
-        dto.setAgentAddress(address);
-        dto.setPackingAddress(packingAddress);
+        dto.setAgentAddress("tNULSeBaMuUcKTDkhAgCBdqSrYJgcpn32K9iE5");
         dto.setCommissionRate(10);
         dto.setDeposit(deposit);
 
         CoinFromDto fromDto = new CoinFromDto();
-        fromDto.setAddress(address);
-        fromDto.setAssetChainId(SDKContext.main_chain_id);
+        fromDto.setAddress("tNULSeBaMuUcKTDkhAgCBdqSrYJgcpn32K9iE5");
+        fromDto.setAssetChainId(2);
         fromDto.setAssetId(SDKContext.main_asset_id);
         fromDto.setAmount(deposit.add(fee));
         fromDto.setNonce("0000000000000000");
@@ -203,39 +204,37 @@ public class TransationServiceTest {
     @Test
     public void testStopConsensusTx() {
         StopConsensusDto dto = new StopConsensusDto();
-        dto.setAgentHash("584ae3c9af9a42c4e68fcde0736fce670a913262346ed10f827dfaef75714ebd");
-        dto.setAgentAddress("8CPcA7kaUfbmbNhT6pHGvBhhK1NSKfCrQjdSL");
+        dto.setAgentHash("49ffb342519fd965126467a0e20c15c553643cc73007d2093962799e276b75bb");
+        dto.setAgentAddress("tNULSeBaMuUcKTDkhAgCBdqSrYJgcpn32K9iE5");
         dto.setDeposit(new BigInteger("2000000000000"));
         dto.setPrice(new BigInteger("100000"));
         List<StopDepositDto> list = new ArrayList<>();
 
         StopDepositDto depositDto1 = new StopDepositDto();
-        depositDto1.setDepositHash("8ada2c25024ee0559b3d78c8e7695184b1c73b42b3a0ba586db83fdd14f6f233");
+        depositDto1.setDepositHash("33c9ca8284216132f7bf4c8f51ec71fb131b6bfb0a866f4c7a459904d0448adc");
         CoinFromDto fromDto1 = new CoinFromDto();
-        fromDto1.setAddress("8CPcA7kaUfbmbNhT6pHGvBhhK1NSKfCrQjdSL");
-        fromDto1.setAssetChainId(SDKContext.main_chain_id);
-        fromDto1.setAssetId(SDKContext.main_asset_id);
-        fromDto1.setAmount(new BigInteger("200000000000"));
+        fromDto1.setAddress("tNULSeBaMgSVD53hrN7PaDw3vPSXZeB9GLHTTh");
+        fromDto1.setAssetChainId(2);
+        fromDto1.setAssetId(1);
+        fromDto1.setAmount(new BigInteger("20100000000000"));
         depositDto1.setInput(fromDto1);
         list.add(depositDto1);
 
-        StopDepositDto depositDto2 = new StopDepositDto();
-        depositDto2.setDepositHash("02d6b74d99c8406e30f9267c8e79f69b318f9a12a162063d63b6e201aa9af5f0");
-        CoinFromDto fromDto2 = new CoinFromDto();
-        fromDto2.setAddress("8CPcA7kaUfbmbNhT6pHGvBhhK1NSKfCrQjdSL");
-        fromDto2.setAssetChainId(SDKContext.main_chain_id);
-        fromDto2.setAssetId(SDKContext.main_asset_id);
-        fromDto2.setAmount(new BigInteger("200000000000"));
-        depositDto2.setInput(fromDto2);
-        list.add(depositDto2);
-
         dto.setDepositList(list);
-
+        try {
+            System.out.println(JSONUtils.obj2json(dto));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
         Result result = NulsSDKTool.createStopConsensusTxOffline(dto);
         System.out.println(result.getData());
+    }
 
-        //txHex：090081fd165d0020584ae3c9af9a42c4e68fcde0736fce670a913262346ed10f827dfaef75714ebdfd5c01031764000115423f8fc2f9f62496cb98d43e3347bd7996327d6400010000204aa9d101000000000000000000000000000000000000000000000000000008827dfaef75714ebdff1764000115423f8fc2f9f62496cb98d43e3347bd7996327d6400010000d0ed902e000000000000000000000000000000000000000000000000000000086db83fdd14f6f233ff1764000115423f8fc2f9f62496cb98d43e3347bd7996327d6400010000d0ed902e0000000000000000000000000000000000000000000000000000000863b6e201aa9af5f0ff021764000115423f8fc2f9f62496cb98d43e3347bd7996327d64000100609948a9d1010000000000000000000000000000000000000000000000000000990b175d000000001764000115423f8fc2f9f62496cb98d43e3347bd7996327d6400010000a0db215d000000000000000000000000000000000000000000000000000000000000000000000000
-        //txHash：d86502a23ab0e18ab78a43fce3fc302dc70d93467bc52922eb96ecf00d630f58
+    @Test
+    public void test() {
+        String a = "090008e4bf5d002049ffb342519fd965126467a0e20c15c553643cc73007d2093962799e276b75bbfd16010217020001eb8272032257427b1f12516226a04355a08422450200010000204aa9d1010000000000000000000000000000000000000000000000000000083962799e276b75bbff170200011780d642f03b7123002199491c776eaa9cec097a0200010000285ce547120000000000000000000000000000000000000000000000000000087a459904d0448adcff0217020001eb8272032257427b1f12516226a04355a084224502000100609948a9d101000000000000000000000000000000000000000000000000000018f2bf5d00000000170200011780d642f03b7123002199491c776eaa9cec097a0200010000285ce547120000000000000000000000000000000000000000000000000000000000000000000000";
+        String b = "09004fe4bf5d002049ffb342519fd965126467a0e20c15c553643cc73007d2093962799e276b75bbfd16010217020001eb8272032257427b1f12516226a04355a08422450200010000204aa9d1010000000000000000000000000000000000000000000000000000083962799e276b75bbff170200011780d642f03b7123002199491c776eaa9cec097a0200010000285ce547120000000000000000000000000000000000000000000000000000087a459904d0448adcff0217020001eb8272032257427b1f12516226a04355a084224502000100c0dd3aa9d10100000000000000000000000000000000000000000000000000005ff2bf5d00000000170200011780d642f03b7123002199491c776eaa9cec097a0200010000285ce547120000000000000000000000000000000000000000000000000000000000000000000000";
+        System.out.println(a.equals(b));
     }
 
     @Test
@@ -392,5 +391,12 @@ public class TransationServiceTest {
 
         //txHex：090081fd165d0020584ae3c9af9a42c4e68fcde0736fce670a913262346ed10f827dfaef75714ebdfd5c01031764000115423f8fc2f9f62496cb98d43e3347bd7996327d6400010000204aa9d101000000000000000000000000000000000000000000000000000008827dfaef75714ebdff1764000115423f8fc2f9f62496cb98d43e3347bd7996327d6400010000d0ed902e000000000000000000000000000000000000000000000000000000086db83fdd14f6f233ff1764000115423f8fc2f9f62496cb98d43e3347bd7996327d6400010000d0ed902e0000000000000000000000000000000000000000000000000000000863b6e201aa9af5f0ff021764000115423f8fc2f9f62496cb98d43e3347bd7996327d64000100609948a9d1010000000000000000000000000000000000000000000000000000990b175d000000001764000115423f8fc2f9f62496cb98d43e3347bd7996327d6400010000a0db215d000000000000000000000000000000000000000000000000000000000000000000000000
         //txHash：d86502a23ab0e18ab78a43fce3fc302dc70d93467bc52922eb96ecf00d630f58
+    }
+
+    @Test
+    public void validateTx() {
+        String txHex = "0900c6edbf5d002049ffb342519fd965126467a0e20c15c553643cc73007d2093962799e276b75bbfd16010217020001eb8272032257427b1f12516226a04355a08422450200010000204aa9d1010000000000000000000000000000000000000000000000000000083962799e276b75bbff170200011780d642f03b7123002199491c776eaa9cec097a0200010000285ce547120000000000000000000000000000000000000000000000000000087a459904d0448adcff0217020001eb8272032257427b1f12516226a04355a084224502000100609948a9d101000000000000000000000000000000000000000000000000000046e2c35d00000000170200011780d642f03b7123002199491c776eaa9cec097a0200010000285ce54712000000000000000000000000000000000000000000000000000000000000000000006a2102bab8d05cef7f38da4627d4f23ff2d8a67a4ee5dec70d263bf3b772ba2d9fb362473045022100d89c3d5e31b7a4d935de693d00b34b49f244ca82ab3e219c79d42bc8d0ea433102204abd0b7b58bec4e2628b915ee55d01bddf506b8e5283b707ee986ec22601bdbc";
+        Result result = NulsSDKTool.validateTx(txHex);
+        System.out.println(result);
     }
 }

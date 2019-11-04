@@ -70,7 +70,7 @@ public class ConsensusServiceTest {
 
     @Test
     public void testDepositList() {
-        String txHash = "ad74b5a061a065ee4b228d822e8b72b0bf43cf79996798b6aa117354b68a2164";
+        String txHash = "49ffb342519fd965126467a0e20c15c553643cc73007d2093962799e276b75bb";
         Result result = NulsSDKTool.getDepositList(txHash);
         System.out.println(result.getData());
     }
