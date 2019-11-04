@@ -948,4 +948,6 @@ public class NulsSDKTool {
             return Result.getFailed(e.getErrorCode()).setMsg(e.format());
         }
     }
+
+    //todo  查询资产信息
 }
