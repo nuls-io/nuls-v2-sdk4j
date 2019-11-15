@@ -598,9 +598,8 @@ public class TransactionService {
      */
     private CoinData assemblyCoinData(StopConsensusDto dto, int txSize) throws NulsException {
         //获取当前链注册共识资产的chainId和assetId
-        CoinFromDto fromDto = dto.getDepositList().get(0).getInput();
-        int chainId = fromDto.getAssetChainId();
-        int assetId = fromDto.getAssetId();
+        int chainId = SDKContext.main_chain_id;
+        int assetId = SDKContext.main_asset_id;
 
         List<CoinFrom> coinFromList = new ArrayList<>();
         //组装创建节点交易的coinFrom
@@ -611,6 +610,7 @@ public class TransactionService {
         coinFromList.add(coinFrom);
 
         Map<String, CoinFromDto> dtoMap = new HashMap<>();
+        CoinFromDto fromDto;
         //组装所有委托的coinFrom
         for (StopDepositDto depositDto : dto.getDepositList()) {
             CoinFromDto input = depositDto.getInput();
