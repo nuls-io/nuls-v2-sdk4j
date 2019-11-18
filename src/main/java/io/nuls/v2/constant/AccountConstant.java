@@ -113,7 +113,7 @@ public interface AccountConstant {
     /**
      * 设置别名销毁地址公钥
      */
-    byte[] DESTORY_PUBKEY  = HexUtil.decode("0298f88c3cae67385ce3cbee00f78816db3e56e566b62bd0f4c5b45f205d3021c3");
+    byte[] DESTORY_PUBKEY  = HexUtil.decode("000000000000000000000000000000000000000000000000000000000000000000");
 
     /**
      * 导出accountkeystore文件的后缀名
