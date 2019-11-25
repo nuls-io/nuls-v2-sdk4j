@@ -105,18 +105,20 @@ public class RestFulUtil {
 
     private static RestFulResult toResult(String str) throws IOException {
         Map<String, Object> resultMap = JSONUtils.json2map(str);
-        RestFulResult<Map<String, Object>> result = null;
+        RestFulResult result = null;
         Boolean b = (Boolean) resultMap.get("success");
         if (b) {
-            Map<String, Object> data = (Map<String, Object>) resultMap.get("data");
-            result = RestFulResult.success(data);
+            result = RestFulResult.success(resultMap.get("data"));
         } else {
-            Map<String, Object> data = (Map<String, Object>) resultMap.get("data");
-            if (data != null) {
-                result = RestFulResult.failed(data.get("code").toString(), data.get("msg").toString());
+            Object dataObj = resultMap.get("data");
+            if(dataObj instanceof Map) {
+                Map<String, Object> data = (Map<String, Object>) resultMap.get("data");
+                if (data != null) {
+                    result = RestFulResult.failed(data.get("code").toString(), data.get("msg").toString());
+                }
+            } else {
+                result = RestFulResult.failed(CommonCodeConstanst.SYS_UNKOWN_EXCEPTION.getCode(), resultMap.toString());
             }
-
-
         }
         return result;
     }
