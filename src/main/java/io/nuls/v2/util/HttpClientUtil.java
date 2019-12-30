@@ -189,7 +189,7 @@ public class HttpClientUtil {
     private static void setPostParams(HttpPost httpPost, Map<String, Object> params) throws Exception {
         //设置请求参数
         String json = JSONUtils.obj2json(params);
-        StringEntity entity = new StringEntity(json);
+        StringEntity entity = new StringEntity(json, "UTF-8");
         entity.setContentEncoding("UTF-8");
         entity.setContentType("application/json");//发送json需要设置contentType
         httpPost.setEntity(entity);
@@ -198,7 +198,7 @@ public class HttpClientUtil {
     private static void setPutParams(HttpPut httpPut, Map<String, Object> params) throws Exception {
         //设置请求参数
         String json = JSONUtils.obj2json(params);
-        StringEntity entity = new StringEntity(json);
+        StringEntity entity = new StringEntity(json, "UTF-8");
         entity.setContentEncoding("UTF-8");
         entity.setContentType("application/json");//发送json需要设置contentType
         httpPut.setEntity(entity);
@@ -219,7 +219,8 @@ public class HttpClientUtil {
             HttpPost httppost = new HttpPost(url);
             config(httppost);
             setPostParams(httppost, params);
-            response = getHttpClient(url).execute(httppost,
+            CloseableHttpClient httpClient = getHttpClient(url);
+            response = httpClient.execute(httppost,
                     HttpClientContext.create());
             HttpEntity entity = response.getEntity();
 
