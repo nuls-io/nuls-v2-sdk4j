@@ -21,12 +21,12 @@ public class AccountServiceTest {
     static String pubKey = "03ac18d40eb3131f934441f81c631b3898097b606a84893da1559de61fe3d3cfe9";
     static String priKey = "6df381435098e47b685cdc00fa1d7c66fa2ba9cc441179c6dd1a5686153fb0ee";
     static String encryptedPrivateKey = "0c8e925d27660dbd04104455c001efe7a5d4cba8fc484d06506c8ff4baa653be2d69e31c971243e2185782cabbbe265a";
-    static String password = "nuls123456";
+    static String password = "vivi103916";
 
 
     @Before
     public void before() {
-        NulsSDKBootStrap.init(56077, "");
+        NulsSDKBootStrap.initMain("");
     }
 
     @Test
@@ -40,9 +40,9 @@ public class AccountServiceTest {
 
     @Test
     public void testCreateOfflineAccount() {
-        int count = 4;
+        int count = 1;
 
-        Result<List<AccountDto>> result = NulsSDKTool.createOffLineAccount(count, "WAVE", password);
+        Result<List<AccountDto>> result = NulsSDKTool.createOffLineAccount(count, password);
 
         for (AccountDto accountDto : result.getData()) {
             try {
@@ -61,14 +61,6 @@ public class AccountServiceTest {
     }
 
     @Test
-    public void testRestPasswordOffline() {
-        //
-        String enPrikey = "04f3ebd58a4ff3d020262f793196cbce2af58f50f49cedb9b127611d25da1fe0e795e6ed12244025565fc27759e58702";
-        Result result = NulsSDKTool.resetPasswordOffline("BNBcBzR1JM8qajSiwtNVFUcuegkPpZxvrMFQG","BNB", enPrikey, password, "nuls123456");
-        System.out.println(result);
-    }
-
-    @Test
     public void testImportPriKey() {
         Result result = NulsSDKTool.importPriKey("57b65cefbfcf73ec000158f3e6a98cfcac0ff36b70d68171955b87522360ddbf", password);
         System.out.println(result.getData());
@@ -78,22 +70,6 @@ public class AccountServiceTest {
     @Test
     public void testGetPriKey() {
         Result result = NulsSDKTool.getPriKey("tNULSeBaMhUxmEFAiHj1ysd9UXYbFRnZ5yknq1", password);
-        Map map = (Map) result.getData();
-        System.out.println(map);
-    }
-
-
-    @Test
-    public void testGetAddressByPriKey() {
-        Result result = NulsSDKTool.getAddressByPriKey("04e1873b933d11c5b687aa0f24a6e4ffa5e6238e94f6a749cafbfa79865a4b67", "WAVE");
-        Map map = (Map) result.getData();
-        System.out.println(map);
-    }
-
-
-    @Test
-    public void testGetPriKeyOffline() {
-        Result result = NulsSDKTool.getPriKeyOffline("WAVEd2GG9JKfR39wFUuQ41tMT34s7dWvSgvUgN","WAVE", "d1e82f2d023369624294d4d46459fa789d4456612433aa729369de4adf42b7dd869d15cd743445688ca67bf7119fb875", password);
         Map map = (Map) result.getData();
         System.out.println(map);
     }

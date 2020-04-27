@@ -13,6 +13,8 @@ public class SDKContext {
      * 本链主资产id
      */
     public static int main_asset_id = 1;
+
+    public static String addressPrefix;
     /**
      * NULS主网链id
      */
