@@ -168,20 +168,7 @@ public class NulsSDKTool {
             responseType = @TypeDescriptor(value = List.class, collectionElement = AccountDto.class)
     )
     public static Result<List<AccountDto>> createOffLineAccount(int count, String password) {
-        return accountService.createOffLineAccount(count, null, password);
-    }
-
-    @ApiOperation(description = "离线 - 批量创建地址带固定前缀的账户", order = 151, detailDesc = "创建的账户不会保存到钱包中,接口直接返回账户的keystore信息")
-    @Parameters(value = {
-            @Parameter(parameterName = "count", requestType = @TypeDescriptor(value = int.class), parameterDes = "创建数量"),
-            @Parameter(parameterName = "prefix", requestType = @TypeDescriptor(value = String.class), canNull = true, parameterDes = "地址前缀"),
-            @Parameter(parameterName = "password", parameterDes = "密码")
-    })
-    @ResponseData(name = "返回值", description = "返回一个账户keystore集合",
-            responseType = @TypeDescriptor(value = List.class, collectionElement = AccountDto.class)
-    )
-    public static Result<List<AccountDto>> createOffLineAccount(int count, String prefix, String password) {
-        return accountService.createOffLineAccount(count, prefix, password);
+        return accountService.createOffLineAccount(count, password);
     }
 
     @ApiOperation(description = "离线修改账户密码", order = 152)
@@ -198,21 +185,6 @@ public class NulsSDKTool {
         return accountService.resetPasswordOffline(address, encryptedPriKey, password, newPassword);
     }
 
-    @ApiOperation(description = "离线修改账户密码", order = 152)
-    @Parameters(value = {
-            @Parameter(parameterName = "address", parameterDes = "账户地址"),
-            @Parameter(parameterName = "prefix", parameterDes = "地址前缀"),
-            @Parameter(parameterName = "encryptedPriKey", parameterDes = "加密后的私钥"),
-            @Parameter(parameterName = "oldPassword", parameterDes = "原密码"),
-            @Parameter(parameterName = "newPassword", parameterDes = "新密码")
-    })
-    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
-            @Key(name = "value", description = "重置密码后的加密私钥")
-    }))
-    public static Result resetPasswordOffline(String address, String prefix, String encryptedPriKey, String password, String newPassword) {
-        return accountService.resetPasswordOffline(address, prefix, encryptedPriKey, password, newPassword);
-    }
-
     @ApiOperation(description = "离线获取账户明文私钥", order = 153)
     @Parameters({
             @Parameter(parameterName = "address", parameterDes = "账户地址"),
@@ -224,20 +196,6 @@ public class NulsSDKTool {
     }))
     public static Result getPriKeyOffline(String address, String encryptedPriKey, String password) {
         return accountService.getPriKeyOffline(address, encryptedPriKey, password);
-    }
-
-    @ApiOperation(description = "离线获取账户明文私钥", order = 153)
-    @Parameters({
-            @Parameter(parameterName = "address", parameterDes = "账户地址"),
-            @Parameter(parameterName = "prefix", parameterDes = "地址前缀"),
-            @Parameter(parameterName = "encryptedPriKey", parameterDes = "加密后的私钥"),
-            @Parameter(parameterName = "password", parameterDes = "密码")
-    })
-    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
-            @Key(name = "value", description = "明文私钥")
-    }))
-    public static Result getPriKeyOffline(String address, String prefix, String encryptedPriKey, String password) {
-        return accountService.getPriKeyOffline(address, prefix, encryptedPriKey, password);
     }
 
     @ApiOperation(description = "多账户摘要签名", order = 154, detailDesc = "用于签名离线组装的多账户转账交易，调用接口时，参数可以传地址和私钥，或者传地址和加密私钥和加密密码")
@@ -316,18 +274,6 @@ public class NulsSDKTool {
     }))
     public static Result getAddressByPriKey(String priKey) {
         return accountService.getAddressByPriKey(priKey);
-    }
-
-    @ApiOperation(description = "根据私钥获取地址", order = 159, detailDesc = "根据传入的私钥，生成对应的地址，私钥不会存储在钱包里")
-    @Parameters(value = {
-            @Parameter(parameterName = "priKey", parameterDes = "原始私钥"),
-            @Parameter(parameterName = "prefix", parameterDes = "地址前缀")
-    })
-    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
-            @Key(name = "value", description = "账户的地址")
-    }))
-    public static Result getAddressByPriKey(String priKey, String prefix) {
-        return accountService.getAddressByPriKey(priKey, prefix);
     }
 
     @ApiOperation(description = "转换NULS1.0地址为NULS2.0地址", order = 160, detailDesc = "转换NULS1.0地址为NULS2.0地址")
@@ -948,4 +894,6 @@ public class NulsSDKTool {
             return Result.getFailed(e.getErrorCode()).setMsg(e.format());
         }
     }
+
+    //todo  查询资产信息
 }

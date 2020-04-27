@@ -88,11 +88,10 @@ public class AccountService {
      * 批量创建离线账户
      *
      * @param count    The number of accounts you want to create
-     * @param prefix   The address prefix
      * @param password The password of the account
      * @return result
      */
-    public Result<List<AccountDto>> createOffLineAccount(int count, String prefix, String password) {
+    public Result<List<AccountDto>> createOffLineAccount(int count, String password) {
         validateChainId();
 
         List<AccountDto> list = new ArrayList<>();
@@ -106,10 +105,10 @@ public class AccountService {
             for (int i = 0; i < count; i++) {
                 //create account
                 Account account;
-                if (StringUtils.isBlank(prefix)) {
+                if (StringUtils.isBlank(SDKContext.addressPrefix)) {
                     account = AccountTool.createAccount(SDKContext.main_chain_id);
                 } else {
-                    account = AccountTool.createAccount(SDKContext.main_chain_id, null, prefix);
+                    account = AccountTool.createAccount(SDKContext.main_chain_id, null, SDKContext.addressPrefix);
                 }
                 if (StringUtils.isNotBlank(password)) {
                     account.encrypt(password);
@@ -184,37 +183,12 @@ public class AccountService {
             if (!ECKey.isValidPrivteHex(HexUtil.encode(priKeyBytes))) {
                 throw new NulsException(AccountErrorCode.PRIVATE_KEY_WRONG);
             }
-            Account account = AccountTool.createAccount(SDKContext.main_chain_id, HexUtil.encode(priKeyBytes));
-            if (!address.equals(account.getAddress().getBase58())) {
-                throw new NulsException(AccountErrorCode.ADDRESS_ERROR);
+            Account account;
+            if (StringUtils.isBlank(SDKContext.addressPrefix)) {
+                account = AccountTool.createAccount(SDKContext.main_chain_id, HexUtil.encode(priKeyBytes));
+            } else {
+                account = AccountTool.createAccount(SDKContext.main_chain_id, HexUtil.encode(priKeyBytes), SDKContext.addressPrefix);
             }
-            Map<String, Object> map = new HashMap<>();
-            map.put("priKey", HexUtil.encode(account.getPriKey()));
-            return Result.getSuccess(map);
-        } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
-        } catch (CryptoException e) {
-            return Result.getFailed(AccountErrorCode.PASSWORD_IS_WRONG).setMsg(AccountErrorCode.PASSWORD_IS_WRONG.getMsg());
-        }
-    }
-
-    public Result getPriKeyOffline(String address, String prefix, String encryptedPriKey, String password) {
-        validateChainId();
-        try {
-            if (!AddressTool.validAddress(SDKContext.main_chain_id, address)) {
-                throw new NulsException(AccountErrorCode.ADDRESS_ERROR);
-            }
-            if (StringUtils.isBlank(encryptedPriKey)) {
-                throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "encryptedPriKey is invalid");
-            }
-            if (!FormatValidUtils.validPassword(password)) {
-                throw new NulsException(AccountErrorCode.PASSWORD_FORMAT_WRONG);
-            }
-            byte[] priKeyBytes = AESEncrypt.decrypt(HexUtil.decode(encryptedPriKey), password);
-            if (!ECKey.isValidPrivteHex(HexUtil.encode(priKeyBytes))) {
-                throw new NulsException(AccountErrorCode.PRIVATE_KEY_WRONG);
-            }
-            Account account = AccountTool.createAccount(SDKContext.main_chain_id, HexUtil.encode(priKeyBytes), prefix);
             if (!address.equals(account.getAddress().getBase58())) {
                 throw new NulsException(AccountErrorCode.ADDRESS_ERROR);
             }
@@ -364,38 +338,12 @@ public class AccountService {
             if (!ECKey.isValidPrivteHex(HexUtil.encode(priKeyBytes))) {
                 throw new NulsException(AccountErrorCode.PRIVATE_KEY_WRONG);
             }
-            Account account = AccountTool.createAccount(SDKContext.main_chain_id, HexUtil.encode(priKeyBytes));
-            if (!address.equals(account.getAddress().getBase58())) {
-                throw new NulsException(AccountErrorCode.ADDRESS_ERROR);
+            Account account;
+            if (StringUtils.isBlank(SDKContext.addressPrefix)) {
+                account = AccountTool.createAccount(SDKContext.main_chain_id, HexUtil.encode(priKeyBytes));
+            } else {
+                account = AccountTool.createAccount(SDKContext.main_chain_id, HexUtil.encode(priKeyBytes), SDKContext.addressPrefix);
             }
-            account.encrypt(newPassword);
-            Map<String, Object> map = new HashMap<>();
-            map.put("newEncryptedPriKey", HexUtil.encode(account.getEncryptedPriKey()));
-            return Result.getSuccess(map);
-        } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
-        } catch (CryptoException e) {
-            return Result.getFailed(AccountErrorCode.PASSWORD_IS_WRONG).setMsg(AccountErrorCode.PASSWORD_IS_WRONG.getMsg());
-        }
-    }
-
-    public Result resetPasswordOffline(String address, String prefix, String encryptedPriKey, String oldPassword, String newPassword) {
-        validateChainId();
-        try {
-            if (!AddressTool.validAddress(SDKContext.main_chain_id, address)) {
-                throw new NulsException(AccountErrorCode.ADDRESS_ERROR);
-            }
-            if (StringUtils.isBlank(encryptedPriKey)) {
-                throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "encryptedPriKey is invalid");
-            }
-            if (!FormatValidUtils.validPassword(oldPassword) || !FormatValidUtils.validPassword(newPassword)) {
-                throw new NulsException(AccountErrorCode.PASSWORD_FORMAT_WRONG);
-            }
-            byte[] priKeyBytes = AESEncrypt.decrypt(HexUtil.decode(encryptedPriKey), oldPassword);
-            if (!ECKey.isValidPrivteHex(HexUtil.encode(priKeyBytes))) {
-                throw new NulsException(AccountErrorCode.PRIVATE_KEY_WRONG);
-            }
-            Account account = AccountTool.createAccount(SDKContext.main_chain_id, HexUtil.encode(priKeyBytes), prefix);
             if (!address.equals(account.getAddress().getBase58())) {
                 throw new NulsException(AccountErrorCode.ADDRESS_ERROR);
             }
@@ -443,7 +391,12 @@ public class AccountService {
                         throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "encryptedPrivateKey[" + signDto.getEncryptedPrivateKey() + "] password error");
                     }
                 }
-                Account account = AccountTool.createAccount(SDKContext.main_chain_id, HexUtil.encode(priKeyBytes));
+                Account account;
+                if (StringUtils.isBlank(SDKContext.addressPrefix)) {
+                    account = AccountTool.createAccount(SDKContext.main_chain_id, HexUtil.encode(priKeyBytes));
+                } else {
+                    account = AccountTool.createAccount(SDKContext.main_chain_id, HexUtil.encode(priKeyBytes), SDKContext.addressPrefix);
+                }
                 if (!signDto.getAddress().equals(account.getAddress().getBase58())) {
                     throw new NulsRuntimeException(AccountErrorCode.ADDRESS_ERROR, account.getAddress() + " and private key do not match");
                 }
@@ -495,7 +448,12 @@ public class AccountService {
                     throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "encryptedPrivateKey[" + signDto.getEncryptedPrivateKey() + "] password error");
                 }
             }
-            Account account = AccountTool.createAccount(SDKContext.main_chain_id, HexUtil.encode(priKeyBytes));
+            Account account;
+            if (StringUtils.isBlank(SDKContext.addressPrefix)) {
+                account = AccountTool.createAccount(SDKContext.main_chain_id, HexUtil.encode(priKeyBytes));
+            } else {
+                account = AccountTool.createAccount(SDKContext.main_chain_id, HexUtil.encode(priKeyBytes), SDKContext.addressPrefix);
+            }
             if (!signDto.getAddress().equals(account.getAddress().getBase58())) {
                 throw new NulsRuntimeException(AccountErrorCode.ADDRESS_ERROR, account.getAddress() + " and private key do not match");
             }
@@ -546,26 +504,21 @@ public class AccountService {
      */
     public Result getAccountBalance(String address, int chainId, int assetsId) {
         validateChainId();
-        try {
-            if (!AddressTool.validAddress(chainId, address)) {
-                throw new NulsException(AccountErrorCode.ADDRESS_ERROR);
-            }
-            Map<String, Object> params = new HashMap<>();
-            params.put("assetChainId", chainId);
-            params.put("assetId", assetsId);
 
-            Result result;
-            RestFulResult restFulResult = RestFulUtil.post("api/accountledger/balance/" + address, params);
-            if (restFulResult.isSuccess()) {
-                result = Result.getSuccess(restFulResult.getData());
-            } else {
-                ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
-                result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
-            }
-            return result;
-        } catch (NulsException e) {
-            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
+        Map<String, Object> params = new HashMap<>();
+        params.put("assetChainId", chainId);
+        params.put("assetId", assetsId);
+
+        Result result;
+        RestFulResult restFulResult = RestFulUtil.post("api/accountledger/balance/" + address, params);
+        if (restFulResult.isSuccess()) {
+            result = Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
         }
+        return result;
+
     }
 
     /**
@@ -629,24 +582,11 @@ public class AccountService {
         }
         Account account;
         try {
-            account = AccountTool.createAccount(SDKContext.main_chain_id, priKey);
-        } catch (NulsException e) {
-            throw new NulsRuntimeException(AccountErrorCode.PRIVATE_KEY_WRONG);
-        }
-        Map<String, Object> map = new HashMap<>();
-        map.put("value", account.getAddress().getBase58());
-
-        return Result.getSuccess(map);
-    }
-
-    public Result getAddressByPriKey(String priKey, String prefix) {
-        validateChainId();
-        if (!ECKey.isValidPrivteHex(priKey)) {
-            throw new NulsRuntimeException(AccountErrorCode.PRIVATE_KEY_WRONG);
-        }
-        Account account;
-        try {
-            account = AccountTool.createAccount(SDKContext.main_chain_id, priKey, prefix);
+            if (StringUtils.isBlank(SDKContext.addressPrefix)) {
+                account = AccountTool.createAccount(SDKContext.main_chain_id, priKey);
+            } else {
+                account = AccountTool.createAccount(SDKContext.main_chain_id, priKey, SDKContext.addressPrefix);
+            }
         } catch (NulsException e) {
             throw new NulsRuntimeException(AccountErrorCode.PRIVATE_KEY_WRONG);
         }
