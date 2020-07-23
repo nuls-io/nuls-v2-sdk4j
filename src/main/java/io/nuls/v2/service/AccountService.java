@@ -30,6 +30,7 @@ import io.nuls.v2.model.dto.SignDto;
 import io.nuls.v2.util.AccountTool;
 import io.nuls.v2.util.CommonValidator;
 import io.nuls.v2.util.RestFulUtil;
+import io.nuls.v2.util.ValidateUtil;
 
 import java.io.IOException;
 import java.util.*;
@@ -131,6 +132,45 @@ public class AccountService {
         return Result.getSuccess(list);
     }
 
+    public Result<List<AccountDto>> createOffLineAccount(int chainId, int count, String prefix, String password) {
+        ArrayList list = new ArrayList();
+
+        try {
+            if (!FormatValidUtils.validPassword(password)) {
+                throw new NulsException(AccountErrorCode.PASSWORD_FORMAT_WRONG);
+            }
+            if (count < 1) {
+                count = 1;
+            }
+            for (int i = 0; i < count; ++i) {
+                Account account;
+                if (StringUtils.isBlank(prefix)) {
+                    account = AccountTool.createAccount(chainId);
+                } else {
+                    account = AccountTool.createAccount(chainId, null, prefix);
+                }
+                if (StringUtils.isNotBlank(password)) {
+                    account.encrypt(password);
+                }
+
+                AccountDto accountDto = new AccountDto();
+                accountDto.setAddress(account.getAddress().toString());
+                accountDto.setPubKey(HexUtil.encode(account.getPubKey()));
+                if (account.isEncrypted()) {
+                    accountDto.setPrikey("");
+                    accountDto.setEncryptedPrivateKey(HexUtil.encode(account.getEncryptedPriKey()));
+                } else {
+                    accountDto.setPrikey(HexUtil.encode(account.getPriKey()));
+                    accountDto.setEncryptedPrivateKey("");
+                }
+
+                list.add(accountDto);
+            }
+        } catch (NulsException var8) {
+            return Result.getFailed(var8.getErrorCode()).setMsg(var8.format());
+        }
+        return Result.getSuccess(list);
+    }
 
     public Result getPriKey(String address, String password) {
         validateChainId();

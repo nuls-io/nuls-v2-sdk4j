@@ -171,6 +171,21 @@ public class NulsSDKTool {
         return accountService.createOffLineAccount(count, password);
     }
 
+    @ApiOperation(description = "离线 - 批量创建地址带固定前缀的账户", order = 151, detailDesc = "创建的账户不会保存到钱包中,接口直接返回账户的keystore信息")
+    @Parameters(
+            value = {
+                    @Parameter(parameterName = "chainId", requestType = @TypeDescriptor(int.class), parameterDes = "地址对应的链Id"),
+                    @Parameter(parameterName = "count", requestType = @TypeDescriptor(int.class), parameterDes = "创建数量"),
+                    @Parameter(parameterName = "prefix", requestType = @TypeDescriptor(String.class), canNull = true, parameterDes = "地址前缀"),
+                    @Parameter(parameterName = "password", parameterDes = "密码")
+            }
+    )
+    @ResponseData(name = "返回值", description = "返回一个账户keystore集合",
+            responseType = @TypeDescriptor(value = List.class, collectionElement = AccountDto.class))
+    public static Result<List<AccountDto>> createOffLineAccount(int chainId, int count, String prefix, String password) {
+        return accountService.createOffLineAccount(chainId, count, prefix, password);
+    }
+
     @ApiOperation(description = "离线修改账户密码", order = 152)
     @Parameters(value = {
             @Parameter(parameterName = "address", parameterDes = "账户地址"),
