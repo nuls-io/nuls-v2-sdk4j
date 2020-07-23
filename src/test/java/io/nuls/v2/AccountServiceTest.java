@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +32,7 @@ public class AccountServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.init(1, "http://seeda.nuls.io:8004");
+        NulsSDKBootStrap.init(6, "NVT", "http://127.0.0.1:8004");
     }
 
     @Test
@@ -45,7 +46,7 @@ public class AccountServiceTest {
 
     @Test
     public void testCreateOfflineAccount() {
-        int count = 2;
+        int count = 3;
 
         Result<List<AccountDto>> result = NulsSDKTool.createOffLineAccount(count, password);
 
@@ -98,6 +99,8 @@ public class AccountServiceTest {
 
     @Test
     public void testGetPriKeyOffline() {
+        String address = "EOScYj4edYhAD4pjF7oXNsmC14YX4fHAX4BL";
+        String encryptedPrivateKey = "5f5f19e8eea35cba70073347730494d9f2e0a39345b81bcb93907674fd5ce2c309690f9da3f0b2d0fcaee031b4530611";
         Result result = NulsSDKTool.getPriKeyOffline(address, encryptedPrivateKey, password);
         Map map = (Map) result.getData();
         System.out.println(map);
@@ -106,7 +109,7 @@ public class AccountServiceTest {
     @Test
     public void importKeystore() {
         AccountKeyStoreDto dto = new AccountKeyStoreDto();
-        dto.setAddress("tNULSeBaMhZzUJghK8G8pQDwjVHwmgDSK2698F");
+        dto.setAddress("EOScYj4edYhAD4pjF7oXNsmC14YX4fHAX4BL");
         dto.setPubKey("02f8fdf297dfdb2d4dc92698d2cb8988e15f9a63b39f1db32bf8c74071b7ee2462");
         dto.setEncryptedPrivateKey("87c7946d48e4e056aee42baa1fecab604620d55b9c44dd73b33b1bc16a12a10799cf7fc844116c6f9317c988bbcf32e2");
         Result result = NulsSDKTool.importKeystore(dto, password);
@@ -252,7 +255,7 @@ public class AccountServiceTest {
         Address address = new Address(1, BaseConstant.DEFAULT_ADDRESS_TYPE, SerializeUtils.sha256hash160(ecKey0.getPubKey()));
         System.out.println(address.toString());
 
-        ECKey ecKey1 = ECKey.fromPrivate(new BigInteger(1,HexUtil.decode(prikey)));
+        ECKey ecKey1 = ECKey.fromPrivate(new BigInteger(1, HexUtil.decode(prikey)));
         Address address1 = new Address(1, BaseConstant.DEFAULT_ADDRESS_TYPE, SerializeUtils.sha256hash160(ecKey1.getPubKey()));
         System.out.println(address1.toString());
     }
@@ -270,4 +273,5 @@ public class AccountServiceTest {
             }
         }
     }
+
 }
