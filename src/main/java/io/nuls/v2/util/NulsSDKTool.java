@@ -226,6 +226,10 @@ public class NulsSDKTool {
         return accountService.sign(signDtoList, txHex);
     }
 
+    public static Result sign(int chainId, String prefix, List<SignDto> signDtoList, String txHex) {
+        return accountService.sign(chainId, prefix, signDtoList, txHex);
+    }
+
     @ApiOperation(description = "多签账户摘要签名", order = 155, detailDesc = "用于签名离线组装的多签账户转账交易，每次调用接口时，只能传入一个账户的私钥进行签名，签名成功后返回的交易字符串再交给第二个账户签名，依次类推")
     @Parameters({
             @Parameter(parameterName = "signDto", parameterDes = "摘要签名表单", requestType = @TypeDescriptor(value = SignDto.class)),
@@ -266,6 +270,14 @@ public class NulsSDKTool {
     }))
     public static Result sign(String txHex, String address, String encryptedPrivateKey, String password) {
         return transactionService.signTx(txHex, address, encryptedPrivateKey, password);
+    }
+
+    public static Result sign(String txHex, int chainId, String prefix, String address, String encryptedPrivateKey, String password) {
+        return accountService.sign(txHex, chainId, prefix, address, encryptedPrivateKey, password);
+    }
+
+    public Result multiSign(int chainId, String prefix, String address, String encryptedPrivateKey, String password, String txHex) {
+        return accountService.multiSign(chainId, prefix, address, encryptedPrivateKey, password, txHex);
     }
 
     @ApiOperation(description = "创建多签账户", order = 158, detailDesc = "根据多个账户的公钥创建多签账户，minSigns为多签账户创建交易时需要的最小签名数")
