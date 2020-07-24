@@ -460,9 +460,7 @@ public class AccountService {
 
 
     public Result sign(int chainId, String prefix, List<SignDto> signDtoList, String txHex) {
-        validateChainId();
         try {
-            CommonValidator.validateSignDto(signDtoList);
             if (StringUtils.isBlank(txHex)) {
                 throw new NulsRuntimeException(AccountErrorCode.PARAMETER_ERROR, "txHex is invalid");
             }
