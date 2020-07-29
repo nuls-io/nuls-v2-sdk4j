@@ -21,17 +21,17 @@ public class AccountServiceTest {
     static String pubKey = "03ac18d40eb3131f934441f81c631b3898097b606a84893da1559de61fe3d3cfe9";
     static String priKey = "6df381435098e47b685cdc00fa1d7c66fa2ba9cc441179c6dd1a5686153fb0ee";
     static String encryptedPrivateKey = "0c8e925d27660dbd04104455c001efe7a5d4cba8fc484d06506c8ff4baa653be2d69e31c971243e2185782cabbbe265a";
-    static String password = "vivi103916";
+    static String password = "nuls123456";
 
 
     @Before
     public void before() {
-        NulsSDKBootStrap.initMain("");
+        NulsSDKBootStrap.init(5,"TNVT","");
     }
 
     @Test
     public void testCreateAccount() {
-        int count = 2;
+        int count = 5;
         Result<List<String>> result = NulsSDKTool.createAccount(count, password);
         for (String address : result.getData()) {
             System.out.println(address);
@@ -40,7 +40,7 @@ public class AccountServiceTest {
 
     @Test
     public void testCreateOfflineAccount() {
-        int count = 1;
+        int count = 5;
 
         Result<List<AccountDto>> result = NulsSDKTool.createOffLineAccount(count, password);
 
