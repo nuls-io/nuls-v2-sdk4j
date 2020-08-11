@@ -26,7 +26,7 @@ public class AccountServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.init(5,"TNVT","");
+        NulsSDKBootStrap.init(2, "tNULS", "");
     }
 
     @Test
@@ -40,15 +40,18 @@ public class AccountServiceTest {
 
     @Test
     public void testCreateOfflineAccount() {
-        int count = 5;
+        while (true) {
+            int count = 100;
+            Result<List<AccountDto>> result = NulsSDKTool.createOffLineAccount(count, password);
 
-        Result<List<AccountDto>> result = NulsSDKTool.createOffLineAccount(count, password);
-
-        for (AccountDto accountDto : result.getData()) {
-            try {
-                System.out.println(JSONUtils.obj2json(accountDto));
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
+            for (AccountDto accountDto : result.getData()) {
+                try {
+                    if(accountDto.getAddress().toUpperCase().endsWith("VIVI")) {
+                        System.out.println(JSONUtils.obj2json(accountDto));
+                    }
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -70,6 +73,15 @@ public class AccountServiceTest {
     @Test
     public void testGetPriKey() {
         Result result = NulsSDKTool.getPriKey("tNULSeBaMhUxmEFAiHj1ysd9UXYbFRnZ5yknq1", password);
+        Map map = (Map) result.getData();
+        System.out.println(map);
+    }
+
+    @Test
+    public void testGetPriKeyOffline() {
+        String address = "tNULSeBaMoRp6QhNYSF8xjiwBFYnvCoCjkQzvU";
+        String encryptedPrivateKey = "c15450ff689c55f4faf773e51caefa95649ae8983e75e6a473329f620613c700e735909ad61a5f54469e821e286dda8e";
+        Result result = NulsSDKTool.getPriKeyOffline(address, encryptedPrivateKey, password);
         Map map = (Map) result.getData();
         System.out.println(map);
     }
@@ -169,8 +181,8 @@ public class AccountServiceTest {
 
     @Test
     public void testValidateAddress() {
-        String address = "tNULSeBaMk4YTkZaUXrLXbUtaHeTWF1Bx6aiBm";
-        Result result = NulsSDKTool.validateAddress(2, address);
+        String address = "NERVEepb6AcV55NzyXsAP8KKmZNApAE3JS3gvA";
+        Result result = NulsSDKTool.validateAddress(9, address);
         System.out.println(result);
     }
 

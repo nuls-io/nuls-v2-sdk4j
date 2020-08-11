@@ -11,7 +11,9 @@ import io.nuls.v2.SDKContext;
 import io.nuls.v2.error.AccountErrorCode;
 
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TxUtils {
 
@@ -60,6 +62,31 @@ public class TxUtils {
         }
         size = size / 1024 + 1;
         return price.multiply(new BigInteger(size + ""));
+    }
+
+    public static Map<String, BigInteger> calcCrossTxFee(int addressCount, int fromLength, int toLength, String remark, boolean isMainNet) {
+        int size = 10;
+
+        size += addressCount * P2PHKSignature.SERIALIZE_LENGTH;
+        size += 70 * fromLength;
+        size += 68 * toLength;
+        if (StringUtils.isNotBlank(remark)) {
+            size += StringUtils.bytes(remark).length;
+        }
+
+        size = size / 1024 + 1;
+        BigInteger fee = TransactionFeeCalculator.getCrossTxFee(size);
+
+        Map<String, BigInteger> map = new HashMap<>();
+        map.put("NULS", fee);
+
+        if (!isMainNet) {
+            BigInteger localFee = TransactionFeeCalculator.getNormalTxFee(size);
+            map.put("LOCAL", localFee);
+        } else {
+            map.put("LOCAL", BigInteger.ZERO);
+        }
+        return map;
     }
 
     public static BigInteger calcStopConsensusTxFee(int fromLength, int toLength, BigInteger price) {

@@ -159,6 +159,8 @@ public class NulsSDKTool {
         return accountService.validateAddress(chainId, address);
     }
 
+
+
     @ApiOperation(description = "离线 - 批量创建账户", order = 150, detailDesc = "创建的账户不会保存到钱包中,接口直接返回账户的keystore信息")
     @Parameters(value = {
             @Parameter(parameterName = "count", requestType = @TypeDescriptor(value = int.class), parameterDes = "创建数量"),
@@ -409,6 +411,17 @@ public class NulsSDKTool {
         return transactionService.transfer(transferForm);
     }
 
+    @ApiOperation(description = "单笔跨链转账", order = 305, detailDesc = "发起单账户单资产的跨链转账交易")
+    @Parameters({
+            @Parameter(parameterName = "transferForm", parameterDes = "转账交易表单", requestType = @TypeDescriptor(value = CrossTransferForm.class))
+    })
+    @ResponseData(name = "返回值", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "value", description = "交易hash")
+    }))
+    public static Result crossTransfer(CrossTransferForm transferForm) {
+        return transactionService.crossTransfer(transferForm);
+    }
+
     @ApiOperation(description = "离线组装转账交易", order = 350, detailDesc = "根据inputs和outputs离线组装转账交易，用于单账户或多账户的转账交易。" +
             "交易手续费为inputs里本链主资产金额总和，减去outputs里本链主资产总和")
     @Parameters({
@@ -422,6 +435,11 @@ public class NulsSDKTool {
         return transactionService.createTransferTx(transferDto);
     }
 
+
+    public static Result createCrossTransferTxOffline(TransferDto transferDto) {
+        return transactionService.createCrossTransferTx(transferDto);
+    }
+
     @ApiOperation(description = "计算离线创建转账交易所需手续费", order = 351)
     @Parameters({
             @Parameter(parameterName = "TransferTxFeeDto", parameterDes = "转账交易手续费", requestType = @TypeDescriptor(value = TransferTxFeeDto.class))
@@ -429,6 +447,15 @@ public class NulsSDKTool {
     @ResponseData(name = "返回值", description = "手续费金额", responseType = @TypeDescriptor(value = BigInteger.class))
     public static BigInteger calcTransferTxFee(TransferTxFeeDto dto) {
         return transactionService.calcTransferTxFee(dto);
+    }
+
+    @ApiOperation(description = "计算离线创建跨链转账交易所需手续费", order = 351)
+    @Parameters({
+            @Parameter(parameterName = "CrossTransferTxFeeDto", parameterDes = "转账交易手续费", requestType = @TypeDescriptor(value = CrossTransferTxFeeDto.class))
+    })
+    @ResponseData(name = "返回值", description = "手续费金额", responseType = @TypeDescriptor(value = Map.class))
+    public static Map<String, BigInteger> calcCrossTransferTxFee(CrossTransferTxFeeDto dto) {
+        return transactionService.calcCrossTransferTxFee(dto);
     }
 
     @ApiOperation(description = "离线组装多签账户转账交易", order = 352, detailDesc = "根据inputs和outputs离线组装转账交易，用于单个多签账户转账。" +

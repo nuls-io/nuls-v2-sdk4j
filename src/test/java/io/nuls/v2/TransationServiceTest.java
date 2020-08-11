@@ -25,7 +25,28 @@ public class TransationServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.initTest("http://192.168.1.121:18004");
+        NulsSDKBootStrap.init(2, "http://192.168.1.60:18004/");
+    }
+
+    @Test
+    public void testBroadTx() {
+        String txHex = "02003c812b5f0672656d61726b008c0117050001f7ec6473df12e751d64cf20a8baa7edd50810f810500010000e18a79c2480000000000000000000000000000000000000000000000000000089cd92b91c5e536540001170500017fe9a685e43b3124e00fd9c8e4e59158baea63450200010000009573c24800000000000000000000000000000000000000000000000000000000000000000000692103958b790c331954ed367d37bac901de5c2f06ac8368b37d7bd6cd5ae143c1d7e346304402205e335bf49a5e1d963df18b5349ebc4642e1db9dc3c6a876fa318dc375f10e18502206511b6bbffb77a40bc966cb725d7835b4122b4d5ccbd5fddf37e5c4d0a161874";
+        //广播
+        Result result = NulsSDKTool.broadcast(txHex);
+        Map map = (Map) result.getData();
+        String hash = (String) map.get("value");
+        System.out.println(hash);
+
+        txHex = "020059812b5f0672656d61726b008c0117050001f7ec6473df12e751d64cf20a8baa7edd50810f810500010000e18a79c2480000000000000000000000000000000000000000000000000000089cd92b91c5e53654000117050001bc9cf2a09f0d1dbe7ab0a7dca2ccb87d12da6a990200010000009573c24800000000000000000000000000000000000000000000000000000000000000000000692103958b790c331954ed367d37bac901de5c2f06ac8368b37d7bd6cd5ae143c1d7e346304402207bb75ebb571f4ad8ade1e2b726de9dd854ca203a272e149bc9bd3ec5f9c18a0402201ab59a5762c5c30bff9db33e6e6d8b66ba8e5abfc58835a0b0eeb76583fac61c";
+        result = NulsSDKTool.broadcast(txHex);
+        map = (Map) result.getData();
+        if (result.isSuccess()) {
+            hash = (String) map.get("value");
+            System.out.println(hash);
+        } else {
+            map.get("msg");
+        }
+
     }
 
     @Test
@@ -74,6 +95,157 @@ public class TransationServiceTest {
         //广播
         result = NulsSDKTool.broadcast(txHex);
     }
+
+
+    @Test
+    public void testCreateCrossTransferTx() {
+        String fromAddress = "tNULSeBaMoRp6QhNYSF8xjiwBFYnvCoCjkQzvU";
+        String toAddress = "TNVTdTSPFnCMgr9mzvgibQ4hKspVSGEc6XTKE";
+        int assetChainId = 2;
+        int assetId = 1;
+        BigInteger transferAmount = BigInteger.valueOf(1000000000L);
+
+        CrossTransferTxFeeDto feeDto = new CrossTransferTxFeeDto();
+        feeDto.setAddressCount(1);
+        feeDto.setFromLength(1);
+        feeDto.setToLength(1);
+        feeDto.setAssetChainId(assetChainId);
+        feeDto.setAssetId(assetId);
+
+        Map<String, BigInteger> map = NulsSDKTool.calcCrossTransferTxFee(feeDto);
+        BigInteger nulsFee = map.get("NULS");       //跨链交易需要的NULS手续费
+        BigInteger localFee = map.get("LOCAL");     //跨链交易需要的本链手续费，如果当前链就是NULS，localFee为0
+
+        List<CoinFromDto> inputs = new ArrayList<>();
+
+        //判断当前链是不是NULS链
+        boolean isMainNet = false;
+        if (SDKContext.main_chain_id == SDKContext.nuls_chain_id) {
+            isMainNet = true;
+        }
+
+        //如果是主网发起的跨链转账
+        if (isMainNet) {
+            if (assetChainId == SDKContext.nuls_chain_id && assetId == SDKContext.nuls_asset_id) {
+                //如果转账的是NULS资产，则记得添加上跨链手续费
+                CoinFromDto from = new CoinFromDto();
+                from.setAddress(fromAddress);
+                from.setAssetChainId(assetChainId);
+                from.setAssetId(assetId);
+                from.setAmount(transferAmount.add(nulsFee));
+                from.setNonce("274564bc2e569c06");
+                inputs.add(from);
+            } else if (assetChainId == SDKContext.main_chain_id && assetId == SDKContext.main_asset_id) {
+                CoinFromDto from = new CoinFromDto();
+                from.setAddress(fromAddress);
+                from.setAssetChainId(SDKContext.main_chain_id);
+                from.setAssetId(SDKContext.main_asset_id);
+                from.setAmount(transferAmount);
+                from.setNonce("daeac63a5cfa6e4f");
+                inputs.add(from);
+
+                //记得单独添加跨链手续费
+                CoinFromDto from2 = new CoinFromDto();
+                from2.setAddress(fromAddress);
+                from2.setAssetChainId(SDKContext.nuls_chain_id);
+                from2.setAssetId(SDKContext.nuls_asset_id);
+                from2.setAmount(nulsFee);
+                from2.setNonce("cca90121c50868e5");
+                inputs.add(from2);
+            }
+        } else {
+            if (assetChainId == SDKContext.nuls_chain_id && assetId == SDKContext.nuls_asset_id) {
+                //如果转账的是NULS资产，则记得添加上跨链手续费
+                CoinFromDto from = new CoinFromDto();
+                from.setAddress(fromAddress);
+                from.setAssetChainId(assetChainId);
+                from.setAssetId(assetId);
+                from.setAmount(transferAmount.add(nulsFee));
+                from.setNonce("daeac63a5cfa6e4f");
+                inputs.add(from);
+
+                //再添加上本链的交易手续费
+                CoinFromDto from2 = new CoinFromDto();
+                from2.setAddress(fromAddress);
+                from2.setAssetChainId(SDKContext.main_chain_id);
+                from2.setAssetId(SDKContext.main_asset_id);
+                from2.setAmount(localFee);
+                from2.setNonce("cca90121c50868e5");
+                inputs.add(from2);
+            } else if (assetChainId == SDKContext.main_chain_id && assetId == SDKContext.main_asset_id) {
+                //如果转账的是本链资产
+                CoinFromDto from = new CoinFromDto();
+                from.setAddress(fromAddress);
+                from.setAssetChainId(SDKContext.main_chain_id);
+                from.setAssetId(SDKContext.main_asset_id);
+                from.setAmount(transferAmount.add(localFee));
+                from.setNonce("cca90121c50868e5");
+                inputs.add(from);
+
+                //再添加跨链手续费
+                CoinFromDto from2 = new CoinFromDto();
+                from2.setAddress(fromAddress);
+                from2.setAssetChainId(SDKContext.nuls_chain_id);
+                from2.setAssetId(SDKContext.nuls_asset_id);
+                from2.setAmount(nulsFee);
+                from2.setNonce("daeac63a5cfa6e4f");
+                inputs.add(from2);
+            } else {
+                //如果转的是其他资产
+                CoinFromDto from = new CoinFromDto();
+                from.setAddress(fromAddress);
+                from.setAssetChainId(assetChainId);
+                from.setAssetId(assetId);
+                from.setAmount(transferAmount);
+                from.setNonce("19a7d0583e3047fd");
+
+                //添加本链转账手续费
+                CoinFromDto from2 = new CoinFromDto();
+                from2.setAddress(fromAddress);
+                from2.setAssetChainId(SDKContext.main_chain_id);
+                from2.setAssetId(SDKContext.main_asset_id);
+                from2.setAmount(localFee);
+                from2.setNonce("cca90121c50868e5");
+                inputs.add(from2);
+
+                //添加跨链转账手续费
+                CoinFromDto from3 = new CoinFromDto();
+                from3.setAddress(fromAddress);
+                from3.setAssetChainId(SDKContext.nuls_chain_id);
+                from3.setAssetId(SDKContext.nuls_asset_id);
+                from3.setAmount(nulsFee);
+                from3.setNonce("daeac63a5cfa6e4f");
+                inputs.add(from3);
+            }
+        }
+
+        List<CoinToDto> outputs = new ArrayList<>();
+        CoinToDto to = new CoinToDto();
+        to.setAddress(toAddress);
+        to.setAmount(transferAmount);
+        to.setAssetChainId(assetChainId);
+        to.setAssetId(assetId);
+        outputs.add(to);
+
+
+        TransferDto transferDto = new TransferDto();
+        transferDto.setInputs(inputs);
+        transferDto.setOutputs(outputs);
+
+        Result<Map> result = NulsSDKTool.createCrossTransferTxOffline(transferDto);
+        String txHex = (String) result.getData().get("txHex");
+
+        //签名
+        String prikey = "454d715965550e2f54e01d74fe6e394edfecf3601f94e2471bbb13b791c7542d";
+        result = NulsSDKTool.sign(txHex, fromAddress, prikey);
+        txHex = (String) result.getData().get("txHex");
+
+        String txHash = (String) result.getData().get("hash");
+        //广播
+        result = NulsSDKTool.broadcast(txHex);
+        txHex = (String) result.getData().get("txHex");
+    }
+
 
     @Test
     public void testCreateMultiSignTx() {

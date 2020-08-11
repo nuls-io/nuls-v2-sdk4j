@@ -2,6 +2,7 @@ package io.nuls.v2.service;
 
 import io.nuls.core.basic.Result;
 import io.nuls.v2.NulsSDKBootStrap;
+import io.nuls.v2.model.dto.CrossTransferForm;
 import io.nuls.v2.model.dto.TransferForm;
 import io.nuls.v2.util.NulsSDKTool;
 import org.junit.Before;
@@ -15,11 +16,11 @@ public class AccountTxTest {
 
     static String toAddress = "GJbpb656PMFKnYVH9eLgvgtfD3VWbG86iqB";
 
-    static String password = "abcd1234";
+    static String password = "nuls123456";
 
     @Before
     public void before() {
-        NulsSDKBootStrap.initTest("http://127.0.0.1:9898/");
+        NulsSDKBootStrap.initTest("http://127.0.0.1:18004/");
     }
 
 
@@ -34,6 +35,20 @@ public class AccountTxTest {
         Result result = NulsSDKTool.transfer(form);
         System.out.println(result.getData());
     }
+
+    @Test
+    public void testCrossTransfer() {
+        CrossTransferForm form = new CrossTransferForm();
+        form.setAddress("tNULSeBaMoRp6QhNYSF8xjiwBFYnvCoCjkQzvU");
+        form.setToAddress("TNVTdTSPFnCMgr9mzvgibQ4hKspVSGEc6XTKE");
+        form.setPassword(password);
+        form.setAmount(new BigInteger("1000000000"));
+        form.setAssetChainId(2);
+        form.setAssetId(1);
+        Result result = NulsSDKTool.crossTransfer(form);
+        System.out.println(result.getData());
+    }
+
 
     @Test
     public void testTx() {
