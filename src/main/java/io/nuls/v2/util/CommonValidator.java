@@ -27,6 +27,19 @@ public class CommonValidator {
         }
     }
 
+    public static void checkCrossTransferDto(TransferDto transferDto) throws NulsException {
+        for (CoinFromDto from : transferDto.getInputs()) {
+            validateCrossCoinFrom(from);
+        }
+        for (CoinToDto to : transferDto.getOutputs()) {
+            validateCoinTo(to);
+        }
+        String remark = transferDto.getRemark();
+        if (!ValidateUtil.validTxRemark(remark)) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "remark is invalid");
+        }
+    }
+
     public static void checkMultiSignTransferDto(MultiSignTransferDto transferDto) throws NulsException {
         if (transferDto.getPubKeys() == null || transferDto.getPubKeys().isEmpty()) {
             throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "pubKeys is invalid");
@@ -102,6 +115,22 @@ public class CommonValidator {
             throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "from amount [" + from.getAmount() + "] is invalid");
         }
     }
+
+    public static void validateCrossCoinFrom(CoinFromDto from) throws NulsException {
+        if (!validateChainId(from.getAssetChainId())) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "from chainId [" + from.getAssetChainId() + "] is invalid");
+        }
+        if (!validateChainId(from.getAssetId())) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "from assetId [" + from.getAssetId() + "] is invalid");
+        }
+        if (!ValidateUtil.validateCoinAmount(from.getAmount())) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "from amount [" + from.getAmount() + "] is invalid");
+        }
+        if (!ValidateUtil.validateNonce(from.getNonce())) {
+            throw new NulsException(AccountErrorCode.PARAMETER_ERROR, "from nonce [" + from.getNonce() + "] is invalid");
+        }
+    }
+
 
     public static void validateCoinTo(CoinToDto to) throws NulsException {
         //            if (!AddressTool.validAddress(SDKContext.default_chain_id, to.getAddress())) {

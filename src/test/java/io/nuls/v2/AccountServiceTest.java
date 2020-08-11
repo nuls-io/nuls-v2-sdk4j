@@ -1,21 +1,14 @@
 package io.nuls.v2;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.nuls.base.data.Address;
 import io.nuls.core.basic.Result;
-import io.nuls.core.constant.BaseConstant;
-import io.nuls.core.crypto.ECKey;
-import io.nuls.core.crypto.HexUtil;
 import io.nuls.core.parse.JSONUtils;
-import io.nuls.core.parse.SerializeUtils;
 import io.nuls.v2.model.dto.*;
 import io.nuls.v2.util.NulsSDKTool;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,21 +16,22 @@ import java.util.Map;
  * Unit test for simple SDKContext.
  */
 public class AccountServiceTest {
+
     static String address = "tNULSeBaMkm6c3ShAFMzfDX8RKdapZdUcseSw8";
     static String pubKey = "03ac18d40eb3131f934441f81c631b3898097b606a84893da1559de61fe3d3cfe9";
     static String priKey = "6df381435098e47b685cdc00fa1d7c66fa2ba9cc441179c6dd1a5686153fb0ee";
     static String encryptedPrivateKey = "0c8e925d27660dbd04104455c001efe7a5d4cba8fc484d06506c8ff4baa653be2d69e31c971243e2185782cabbbe265a";
-    static String password = "Nuls123546";
+    static String password = "nuls123456";
 
 
     @Before
     public void before() {
-        NulsSDKBootStrap.init(6, "NVT", "http://127.0.0.1:8004");
+        NulsSDKBootStrap.init(2, "tNULS", "");
     }
 
     @Test
     public void testCreateAccount() {
-        int count = 1;
+        int count = 5;
         Result<List<String>> result = NulsSDKTool.createAccount(count, password);
         for (String address : result.getData()) {
             System.out.println(address);
@@ -46,15 +40,18 @@ public class AccountServiceTest {
 
     @Test
     public void testCreateOfflineAccount() {
-        int count = 3;
+        while (true) {
+            int count = 100;
+            Result<List<AccountDto>> result = NulsSDKTool.createOffLineAccount(count, password);
 
-        Result<List<AccountDto>> result = NulsSDKTool.createOffLineAccount(count, password);
-
-        for (AccountDto accountDto : result.getData()) {
-            try {
-                System.out.println(JSONUtils.obj2json(accountDto));
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
+            for (AccountDto accountDto : result.getData()) {
+                try {
+                    if(accountDto.getAddress().toUpperCase().endsWith("VIVI")) {
+                        System.out.println(JSONUtils.obj2json(accountDto));
+                    }
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -64,14 +61,6 @@ public class AccountServiceTest {
         Result result = NulsSDKTool.resetPassword("GJbpb6GNSvkBNoNa3YH2skPLSEVvEYMfS99", password, "abcd4321");
         System.out.println(result);
 
-    }
-
-    @Test
-    public void testRestPasswordOffline() {
-        //
-        String enPrikey = "3ce173a674c9b8ea218eb9c47fab069b3ca1f8150e8d22793729be5bd01084bcd17fd80060504ce62bcda792116fa30a";
-        Result result = NulsSDKTool.resetPasswordOffline("GJbpb666UcupYQfY2DgigShaMb2kRbbhitW", enPrikey, password, "abcd4321");
-        System.out.println(result);
     }
 
     @Test
@@ -88,19 +77,10 @@ public class AccountServiceTest {
         System.out.println(map);
     }
 
-
-    @Test
-    public void testGetAddressByPriKey() {
-        Result result = NulsSDKTool.getAddressByPriKey("1b8ad2542a16be8f1ccaf8606dbd4e18357b533c3a76a8a2b910b075c5ca3a0d");
-        Map map = (Map) result.getData();
-        System.out.println(map);
-    }
-
-
     @Test
     public void testGetPriKeyOffline() {
-        String address = "EOScYj4edYhAD4pjF7oXNsmC14YX4fHAX4BL";
-        String encryptedPrivateKey = "5f5f19e8eea35cba70073347730494d9f2e0a39345b81bcb93907674fd5ce2c309690f9da3f0b2d0fcaee031b4530611";
+        String address = "tNULSeBaMoRp6QhNYSF8xjiwBFYnvCoCjkQzvU";
+        String encryptedPrivateKey = "c15450ff689c55f4faf773e51caefa95649ae8983e75e6a473329f620613c700e735909ad61a5f54469e821e286dda8e";
         Result result = NulsSDKTool.getPriKeyOffline(address, encryptedPrivateKey, password);
         Map map = (Map) result.getData();
         System.out.println(map);
@@ -109,7 +89,7 @@ public class AccountServiceTest {
     @Test
     public void importKeystore() {
         AccountKeyStoreDto dto = new AccountKeyStoreDto();
-        dto.setAddress("EOScYj4edYhAD4pjF7oXNsmC14YX4fHAX4BL");
+        dto.setAddress("tNULSeBaMhZzUJghK8G8pQDwjVHwmgDSK2698F");
         dto.setPubKey("02f8fdf297dfdb2d4dc92698d2cb8988e15f9a63b39f1db32bf8c74071b7ee2462");
         dto.setEncryptedPrivateKey("87c7946d48e4e056aee42baa1fecab604620d55b9c44dd73b33b1bc16a12a10799cf7fc844116c6f9317c988bbcf32e2");
         Result result = NulsSDKTool.importKeystore(dto, password);
@@ -157,7 +137,7 @@ public class AccountServiceTest {
 
     @Test
     public void testBalance() {
-        Result result = NulsSDKTool.getAccountBalance("NULSd6HgdUsxSLpu4Y4LFpCKwkDy1o7QoS95Z", 1, 1);
+        Result result = NulsSDKTool.getAccountBalance("tNULSeBaMshNPEnuqiDhMdSA4iNs6LMgjY6tcL", 2, 1);
         System.out.println(result);
     }
 
@@ -178,9 +158,10 @@ public class AccountServiceTest {
     public void testMultiSignAliasTx() {
         String address = "tNULSeBaNTcZo37gNC5mNjJuB39u8zT3TAy8jy";
         String alias = "aaddbbees";
+        //List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
         List<String> pubKeys = new ArrayList<>();
-        pubKeys.add("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db");
-        pubKeys.add("03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+
+
         MultiSignAliasDto aliasDto = new MultiSignAliasDto();
         aliasDto.setPubKeys(pubKeys);
         aliasDto.setMinSigns(2);
@@ -202,76 +183,16 @@ public class AccountServiceTest {
 
     @Test
     public void testValidateAddress() {
-        String address = "tNULSeBaMk4YTkZaUXrLXbUtaHeTWF1Bx6aiBm";
-        Result result = NulsSDKTool.validateAddress(2, address);
+        String address = "NERVEepb6AcV55NzyXsAP8KKmZNApAE3JS3gvA";
+        Result result = NulsSDKTool.validateAddress(9, address);
         System.out.println(result);
     }
 
     @Test
     public void testChangeV1addressToV2address() {
-        String address = "Nse1YSGrKU3xGCg5g53huNdU9oTGdzMi";
+        String address = "Nsdwnd4auFisFJKU6iDvBxTdPkeg8qkB";
         Result result = NulsSDKTool.changeV1addressToV2address(address);
         System.out.println(result);
-    }
-
-
-    @Test
-    public void testPriKey() {
-        ECKey ecKey0 = ECKey.fromPrivate(BigInteger.valueOf(-1L));
-        ECKey ecKey1 = ECKey.fromPrivate(new BigInteger(1, BigInteger.valueOf(-1L).toByteArray()));
-
-
-        System.out.println(ecKey0.getPublicKeyAsHex());
-        System.out.println(ecKey1.getPublicKeyAsHex());
-        System.out.println(ecKey0.getPrivateKeyAsHex());
-        System.out.println(ecKey1.getPrivateKeyAsHex());
-
-        byte[] hash = "qwer1234".getBytes();
-
-        byte[] sign0 = ecKey0.sign(hash);
-        byte[] sign1 = ecKey1.sign(hash);
-
-        System.out.println(HexUtil.encode(sign0));
-        System.out.println(HexUtil.encode(sign1));
-
-        System.out.println(ecKey0.verify(hash, sign0));
-        System.out.println(ecKey0.verify(hash, sign1));
-        System.out.println(ecKey1.verify(hash, sign0));
-        System.out.println(ecKey1.verify(hash, sign1));
-        System.out.println("模拟验证：");
-        ecKey0 = ECKey.fromPublicOnly(HexUtil.decode(ecKey0.getPublicKeyAsHex()));
-        ecKey1 = ECKey.fromPublicOnly(HexUtil.decode(ecKey1.getPublicKeyAsHex()));
-
-        System.out.println(ecKey0.verify(hash, sign0));
-        System.out.println(ecKey0.verify(hash, sign1));
-        System.out.println(ecKey1.verify(hash, sign0));
-        System.out.println(ecKey1.verify(hash, sign1));
-    }
-
-    @Test
-    public void testPriKeyAccount() {
-        String prikey = "fe7273c6e6356aff39e8a410ff53d309bc9e1ba855a7e36e19eff5486b278996";
-        ECKey ecKey0 = ECKey.fromPrivate(new BigInteger(HexUtil.decode(prikey)));
-        Address address = new Address(1, BaseConstant.DEFAULT_ADDRESS_TYPE, SerializeUtils.sha256hash160(ecKey0.getPubKey()));
-        System.out.println(address.toString());
-
-        ECKey ecKey1 = ECKey.fromPrivate(new BigInteger(1, HexUtil.decode(prikey)));
-        Address address1 = new Address(1, BaseConstant.DEFAULT_ADDRESS_TYPE, SerializeUtils.sha256hash160(ecKey1.getPubKey()));
-        System.out.println(address1.toString());
-    }
-
-
-    @Test
-    public void testEckey() {
-        for (int i = 0; i < 10000; i++) {
-            ECKey ecKey1 = new ECKey();
-            String priKey = ecKey1.getPrivateKeyAsHex();
-            ECKey ecKey2 = ECKey.fromPrivate(new BigInteger(HexUtil.decode(priKey)));
-            if (!ecKey1.getPublicKeyAsHex().equals(ecKey2.getPublicKeyAsHex())) {
-                System.out.println(ecKey1.getPrivateKeyAsHex());
-                System.out.println(ecKey2.getPrivateKeyAsHex());
-            }
-        }
     }
 
 }

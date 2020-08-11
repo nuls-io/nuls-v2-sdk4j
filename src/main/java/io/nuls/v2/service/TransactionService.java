@@ -1,6 +1,7 @@
 package io.nuls.v2.service;
 
 import io.nuls.base.basic.AddressTool;
+import io.nuls.base.basic.TransactionFeeCalculator;
 import io.nuls.base.data.*;
 import io.nuls.base.signture.MultiSignTxSignature;
 import io.nuls.base.signture.P2PHKSignature;
@@ -95,6 +96,28 @@ public class TransactionService {
         return result;
     }
 
+    public Result crossTransfer(CrossTransferForm form) {
+        validateChainId();
+        Map<String, Object> params = new HashMap<>();
+        params.put("address", form.getAddress());
+        params.put("toAddress", form.getToAddress());
+        params.put("password", form.getPassword());
+        params.put("assetChainId", form.getAssetChainId());
+        params.put("assetId", form.getAssetId());
+        params.put("amount", form.getAmount());
+        params.put("remark", form.getRemark());
+
+        RestFulResult restFulResult = RestFulUtil.post("api/accountledger/crossTransfer", params);
+        Result result;
+        if (restFulResult.isSuccess()) {
+            result = Result.getSuccess(restFulResult.getData());
+        } else {
+            ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
+            result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+        }
+        return result;
+    }
+
     /**
      * 计算转账交易手续费
      *
@@ -106,6 +129,15 @@ public class TransactionService {
             dto.setPrice(SDKContext.NULS_DEFAULT_NORMAL_TX_FEE_PRICE);
         }
         return TxUtils.calcTransferTxFee(dto.getAddressCount(), dto.getFromLength(), dto.getToLength(), dto.getRemark(), dto.getPrice());
+    }
+
+
+    public Map<String, BigInteger> calcCrossTransferTxFee(CrossTransferTxFeeDto dto) {
+        boolean isMainNet = false;
+        if (dto.getAssetChainId() == SDKContext.nuls_chain_id) {
+            isMainNet = true;
+        }
+        return TxUtils.calcCrossTxFee(dto.getAddressCount(), dto.getFromLength(), dto.getToLength(), dto.getRemark(), isMainNet);
     }
 
     /**
@@ -188,6 +220,65 @@ public class TransactionService {
         CoinData coinData = new CoinData();
         coinData.setFrom(coinFroms);
         coinData.setTo(coinTos);
+        return coinData;
+    }
+
+    /**
+     * 创建跨链转账交易
+     *
+     * @param transferDto
+     * @return
+     */
+    public Result createCrossTransferTx(TransferDto transferDto) {
+        validateChainId();
+        try {
+            CommonValidator.checkCrossTransferDto(transferDto);
+
+            Transaction tx = new Transaction(TxType.CROSS_CHAIN);
+            if (transferDto.getTime() != 0) {
+                tx.setTime(transferDto.getTime());
+            } else {
+                tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
+            }
+            tx.setRemark(StringUtils.bytes(transferDto.getRemark()));
+
+            CoinData coinData = createCrossTxCoinData(transferDto.getInputs(), transferDto.getOutputs(), tx.size());
+            tx.setCoinData(coinData.serialize());
+            tx.setHash(NulsHash.calcHash(tx.serializeForHash()));
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("hash", tx.getHash().toHex());
+            map.put("txHex", HexUtil.encode(tx.serialize()));
+
+            return Result.getSuccess(map);
+        } catch (NulsException e) {
+            return Result.getFailed(e.getErrorCode()).setMsg(e.format());
+        } catch (IOException e) {
+            return Result.getFailed(AccountErrorCode.DATA_PARSE_ERROR).setMsg(AccountErrorCode.DATA_PARSE_ERROR.getMsg());
+        }
+
+    }
+
+    public CoinData createCrossTxCoinData(List<CoinFromDto> inputs, List<CoinToDto> outputs, int txSize) {
+        List<CoinFrom> coinFroms = new ArrayList<>();
+        for (CoinFromDto from : inputs) {
+            byte[] address = AddressTool.getAddress(from.getAddress());
+            byte[] nonce = HexUtil.decode(from.getNonce());
+            CoinFrom coinFrom = new CoinFrom(address, from.getAssetChainId(), from.getAssetId(), from.getAmount(), nonce, AccountConstant.NORMAL_TX_LOCKED);
+            coinFroms.add(coinFrom);
+        }
+
+        List<CoinTo> coinTos = new ArrayList<>();
+        for (CoinToDto to : outputs) {
+            byte[] addressByte = AddressTool.getAddress(to.getAddress());
+            CoinTo coinTo = new CoinTo(addressByte, to.getAssetChainId(), to.getAssetId(), to.getAmount(), to.getLockTime());
+            coinTos.add(coinTo);
+        }
+
+        CoinData coinData = new CoinData();
+        coinData.setFrom(coinFroms);
+        coinData.setTo(coinTos);
+
         return coinData;
     }
 
@@ -682,15 +773,6 @@ public class TransactionService {
         return NulsSDKTool.sign(signDtoList, txHex);
     }
 
-    public Result signTx1(String txHex, String address, String privateKey) {
-        List<SignDto> signDtoList = new ArrayList<>();
-        SignDto signDto = new SignDto();
-        signDto.setAddress(address);
-        signDto.setPriKey(privateKey);
-        signDtoList.add(signDto);
-        return NulsSDKTool.sign(signDtoList, txHex);
-    }
-
     /**
      * 广播交易
      *
@@ -725,10 +807,10 @@ public class TransactionService {
             RestFulResult restFulResult = RestFulUtil.post("api/accountledger/transaction/validate", map);
             Result result;
             if (restFulResult.isSuccess()) {
-                result = io.nuls.core.basic.Result.getSuccess(restFulResult.getData());
+                result = Result.getSuccess(restFulResult.getData());
             } else {
                 ErrorCode errorCode = ErrorCode.init(restFulResult.getError().getCode());
-                result = io.nuls.core.basic.Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
+                result = Result.getFailed(errorCode).setMsg(restFulResult.getError().getMessage());
             }
             return result;
         } catch (NulsException e) {
