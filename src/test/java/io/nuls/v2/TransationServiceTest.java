@@ -25,7 +25,7 @@ public class TransationServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.init(2, "http://192.168.1.60:18004/");
+        NulsSDKBootStrap.init(5,2,"TNVT", "http://192.168.1.60:17004/");
     }
 
     @Test
@@ -99,8 +99,8 @@ public class TransationServiceTest {
 
     @Test
     public void testCreateCrossTransferTx() {
-        String fromAddress = "tNULSeBaMoRp6QhNYSF8xjiwBFYnvCoCjkQzvU";
-        String toAddress = "TNVTdTSPFnCMgr9mzvgibQ4hKspVSGEc6XTKE";
+        String fromAddress = "TNVTdTSPFnCMgr9mzvgibQ4hKspVSGEc6XTKE";
+        String toAddress = "tNULSeBaMoRp6QhNYSF8xjiwBFYnvCoCjkQzvU";
         int assetChainId = 2;
         int assetId = 1;
         BigInteger transferAmount = BigInteger.valueOf(1000000000L);
@@ -161,7 +161,7 @@ public class TransationServiceTest {
                 from.setAssetChainId(assetChainId);
                 from.setAssetId(assetId);
                 from.setAmount(transferAmount.add(nulsFee));
-                from.setNonce("daeac63a5cfa6e4f");
+                from.setNonce("0000000000000000");
                 inputs.add(from);
 
                 //再添加上本链的交易手续费
@@ -170,7 +170,7 @@ public class TransationServiceTest {
                 from2.setAssetChainId(SDKContext.main_chain_id);
                 from2.setAssetId(SDKContext.main_asset_id);
                 from2.setAmount(localFee);
-                from2.setNonce("cca90121c50868e5");
+                from2.setNonce("0000000000000000");
                 inputs.add(from2);
             } else if (assetChainId == SDKContext.main_chain_id && assetId == SDKContext.main_asset_id) {
                 //如果转账的是本链资产
@@ -236,7 +236,7 @@ public class TransationServiceTest {
         String txHex = (String) result.getData().get("txHex");
 
         //签名
-        String prikey = "454d715965550e2f54e01d74fe6e394edfecf3601f94e2471bbb13b791c7542d";
+        String prikey = "588fa9fc9cb6164fe1b1da31818319b6a5992485e34e7a75f705387fd43c27de";
         result = NulsSDKTool.sign(txHex, fromAddress, prikey);
         txHex = (String) result.getData().get("txHex");
 

@@ -26,7 +26,7 @@ public class AccountServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.init(2, "tNULS", "");
+        NulsSDKBootStrap.init(5, "TNVT", "");
     }
 
     @Test
@@ -79,8 +79,8 @@ public class AccountServiceTest {
 
     @Test
     public void testGetPriKeyOffline() {
-        String address = "tNULSeBaMoRp6QhNYSF8xjiwBFYnvCoCjkQzvU";
-        String encryptedPrivateKey = "c15450ff689c55f4faf773e51caefa95649ae8983e75e6a473329f620613c700e735909ad61a5f54469e821e286dda8e";
+        String address = "TNVTdTSPFnCMgr9mzvgibQ4hKspVSGEc6XTKE";
+        String encryptedPrivateKey = "c515283abe7f653222ab5bcd11be650347c8ad0eb3f5bb72bfce3d88c3f5efa79d75db7bf2d0681745253313611a3524";
         Result result = NulsSDKTool.getPriKeyOffline(address, encryptedPrivateKey, password);
         Map map = (Map) result.getData();
         System.out.println(map);

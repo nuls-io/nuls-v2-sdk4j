@@ -134,7 +134,7 @@ public class TransactionService {
 
     public Map<String, BigInteger> calcCrossTransferTxFee(CrossTransferTxFeeDto dto) {
         boolean isMainNet = false;
-        if (dto.getAssetChainId() == SDKContext.nuls_chain_id) {
+        if (SDKContext.main_chain_id == SDKContext.nuls_chain_id) {
             isMainNet = true;
         }
         return TxUtils.calcCrossTxFee(dto.getAddressCount(), dto.getFromLength(), dto.getToLength(), dto.getRemark(), isMainNet);
