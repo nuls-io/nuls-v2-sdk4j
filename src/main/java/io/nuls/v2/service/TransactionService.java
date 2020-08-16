@@ -134,7 +134,7 @@ public class TransactionService {
 
     public Map<String, BigInteger> calcCrossTransferTxFee(CrossTransferTxFeeDto dto) {
         boolean isMainNet = false;
-        if (dto.getAssetChainId() == SDKContext.nuls_chain_id) {
+        if (SDKContext.main_chain_id == SDKContext.nuls_chain_id) {
             isMainNet = true;
         }
         return TxUtils.calcCrossTxFee(dto.getAddressCount(), dto.getFromLength(), dto.getToLength(), dto.getRemark(), isMainNet);
@@ -242,7 +242,7 @@ public class TransactionService {
             }
             tx.setRemark(StringUtils.bytes(transferDto.getRemark()));
 
-            CoinData coinData = createCrossTxCoinData(transferDto.getInputs(), transferDto.getOutputs(), tx.size());
+            CoinData coinData = createCrossTxCoinData(transferDto.getInputs(), transferDto.getOutputs());
             tx.setCoinData(coinData.serialize());
             tx.setHash(NulsHash.calcHash(tx.serializeForHash()));
 
@@ -259,7 +259,7 @@ public class TransactionService {
 
     }
 
-    public CoinData createCrossTxCoinData(List<CoinFromDto> inputs, List<CoinToDto> outputs, int txSize) {
+    public CoinData createCrossTxCoinData(List<CoinFromDto> inputs, List<CoinToDto> outputs) {
         List<CoinFrom> coinFroms = new ArrayList<>();
         for (CoinFromDto from : inputs) {
             byte[] address = AddressTool.getAddress(from.getAddress());

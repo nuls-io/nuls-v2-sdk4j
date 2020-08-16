@@ -25,7 +25,7 @@ public class TransationServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.init(2, "http://192.168.1.60:18004/");
+        NulsSDKBootStrap.init(5, 2, "TNVT", "http://192.168.1.60:17004/");
     }
 
     @Test
@@ -51,7 +51,7 @@ public class TransationServiceTest {
 
     @Test
     public void testCreateTransferTx() {
-        String fromAddress = "tNULSeBaMss7ZU7tHw2vjUrTtvbLYcqjU5b9XN";
+        String fromAddress = "TNVTdTSPLmP6SKyn2RigSA8Lr9bMTgjUhnve4";
         String toAddress = "tNULSeBaMsEfHKEXvaFPPpQomXipeCYrru6t81";
 
         TransferTxFeeDto feeDto = new TransferTxFeeDto();
@@ -99,11 +99,11 @@ public class TransationServiceTest {
 
     @Test
     public void testCreateCrossTransferTx() {
-        String fromAddress = "tNULSeBaMoRp6QhNYSF8xjiwBFYnvCoCjkQzvU";
-        String toAddress = "TNVTdTSPFnCMgr9mzvgibQ4hKspVSGEc6XTKE";
+        String fromAddress = "TNVTdTSPLmP6SKyn2RigSA8Lr9bMTgjUhnve4";
+        String toAddress = "tNULSeBaMoRp6QhNYSF8xjiwBFYnvCoCjkQzvU";
         int assetChainId = 2;
         int assetId = 1;
-        BigInteger transferAmount = BigInteger.valueOf(1000000000L);
+        BigInteger transferAmount = BigInteger.valueOf(735959726L);
 
         CrossTransferTxFeeDto feeDto = new CrossTransferTxFeeDto();
         feeDto.setAddressCount(1);
@@ -133,7 +133,7 @@ public class TransationServiceTest {
                 from.setAssetChainId(assetChainId);
                 from.setAssetId(assetId);
                 from.setAmount(transferAmount.add(nulsFee));
-                from.setNonce("274564bc2e569c06");
+                from.setNonce("bcd7883c67f4fe85");
                 inputs.add(from);
             } else if (assetChainId == SDKContext.main_chain_id && assetId == SDKContext.main_asset_id) {
                 CoinFromDto from = new CoinFromDto();
@@ -141,7 +141,7 @@ public class TransationServiceTest {
                 from.setAssetChainId(SDKContext.main_chain_id);
                 from.setAssetId(SDKContext.main_asset_id);
                 from.setAmount(transferAmount);
-                from.setNonce("daeac63a5cfa6e4f");
+                from.setNonce("bcd7883c67f4fe85");
                 inputs.add(from);
 
                 //记得单独添加跨链手续费
@@ -150,7 +150,7 @@ public class TransationServiceTest {
                 from2.setAssetChainId(SDKContext.nuls_chain_id);
                 from2.setAssetId(SDKContext.nuls_asset_id);
                 from2.setAmount(nulsFee);
-                from2.setNonce("cca90121c50868e5");
+                from2.setNonce("bcd7883c67f4fe85");
                 inputs.add(from2);
             }
         } else {
@@ -161,7 +161,7 @@ public class TransationServiceTest {
                 from.setAssetChainId(assetChainId);
                 from.setAssetId(assetId);
                 from.setAmount(transferAmount.add(nulsFee));
-                from.setNonce("daeac63a5cfa6e4f");
+                from.setNonce("5baac6ee777b11f7");
                 inputs.add(from);
 
                 //再添加上本链的交易手续费
@@ -170,7 +170,7 @@ public class TransationServiceTest {
                 from2.setAssetChainId(SDKContext.main_chain_id);
                 from2.setAssetId(SDKContext.main_asset_id);
                 from2.setAmount(localFee);
-                from2.setNonce("cca90121c50868e5");
+                from2.setNonce("5baac6ee777b11f7");
                 inputs.add(from2);
             } else if (assetChainId == SDKContext.main_chain_id && assetId == SDKContext.main_asset_id) {
                 //如果转账的是本链资产
@@ -179,7 +179,7 @@ public class TransationServiceTest {
                 from.setAssetChainId(SDKContext.main_chain_id);
                 from.setAssetId(SDKContext.main_asset_id);
                 from.setAmount(transferAmount.add(localFee));
-                from.setNonce("cca90121c50868e5");
+                from.setNonce("5baac6ee777b11f7");
                 inputs.add(from);
 
                 //再添加跨链手续费
@@ -188,7 +188,7 @@ public class TransationServiceTest {
                 from2.setAssetChainId(SDKContext.nuls_chain_id);
                 from2.setAssetId(SDKContext.nuls_asset_id);
                 from2.setAmount(nulsFee);
-                from2.setNonce("daeac63a5cfa6e4f");
+                from2.setNonce("5baac6ee777b11f7");
                 inputs.add(from2);
             } else {
                 //如果转的是其他资产
@@ -197,7 +197,7 @@ public class TransationServiceTest {
                 from.setAssetChainId(assetChainId);
                 from.setAssetId(assetId);
                 from.setAmount(transferAmount);
-                from.setNonce("19a7d0583e3047fd");
+                from.setNonce("5baac6ee777b11f7");
 
                 //添加本链转账手续费
                 CoinFromDto from2 = new CoinFromDto();
@@ -205,7 +205,7 @@ public class TransationServiceTest {
                 from2.setAssetChainId(SDKContext.main_chain_id);
                 from2.setAssetId(SDKContext.main_asset_id);
                 from2.setAmount(localFee);
-                from2.setNonce("cca90121c50868e5");
+                from2.setNonce("5baac6ee777b11f7");
                 inputs.add(from2);
 
                 //添加跨链转账手续费
@@ -214,7 +214,7 @@ public class TransationServiceTest {
                 from3.setAssetChainId(SDKContext.nuls_chain_id);
                 from3.setAssetId(SDKContext.nuls_asset_id);
                 from3.setAmount(nulsFee);
-                from3.setNonce("daeac63a5cfa6e4f");
+                from3.setNonce("5baac6ee777b11f7");
                 inputs.add(from3);
             }
         }
@@ -236,14 +236,15 @@ public class TransationServiceTest {
         String txHex = (String) result.getData().get("txHex");
 
         //签名
-        String prikey = "454d715965550e2f54e01d74fe6e394edfecf3601f94e2471bbb13b791c7542d";
+        String prikey = "33d7eebc0efab7a0c9959d0ac2297923e913ba14028edb4fd9f02e98de2803cb";
         result = NulsSDKTool.sign(txHex, fromAddress, prikey);
         txHex = (String) result.getData().get("txHex");
 
         String txHash = (String) result.getData().get("hash");
         //广播
         result = NulsSDKTool.broadcast(txHex);
-        txHex = (String) result.getData().get("txHex");
+        String hash = (String) result.getData().get("hash");
+        System.out.println(hash);
     }
 
 

@@ -78,13 +78,15 @@ public class TxUtils {
         BigInteger fee = TransactionFeeCalculator.getCrossTxFee(size);
 
         Map<String, BigInteger> map = new HashMap<>();
-        map.put("NULS", fee);
+
 
         if (!isMainNet) {
             BigInteger localFee = TransactionFeeCalculator.getNormalTxFee(size);
-            map.put("LOCAL", localFee);
+            map.put("LOCAL", localFee.multiply(BigInteger.valueOf(10)));
+            map.put("NULS", fee.multiply(BigInteger.valueOf(10)));
         } else {
             map.put("LOCAL", BigInteger.ZERO);
+            map.put("NULS", fee);
         }
         return map;
     }

@@ -32,6 +32,16 @@ public class NulsSDKBootStrap {
         SDKContext.addressPrefix = addressPrefix;
     }
 
+    public static void init(int chainId, int nulsChainId, String addressPrefix, String httpUrl) {
+        initChainId(chainId);
+        if (httpUrl != null && !httpUrl.endsWith("/")) {
+            httpUrl += "/";
+        }
+        SDKContext.nuls_chain_id = nulsChainId;
+        SDKContext.wallet_url = httpUrl;
+        SDKContext.addressPrefix = addressPrefix;
+    }
+
     /**
      * NULS-SDK工具连接NULS主网钱包初始化
      * 设置主网钱包NULS-SDK-Provider模块的url访问地址
@@ -70,7 +80,6 @@ public class NulsSDKBootStrap {
             throw new RuntimeException("[defaultChainId] is invalid");
         }
         SDKContext.main_chain_id = chainId;
-        SDKContext.nuls_chain_id = chainId;
         I18nUtils.loadLanguage(NulsSDKBootStrap.class, LANGUAGE_PATH, LANGUAGE);
     }
 

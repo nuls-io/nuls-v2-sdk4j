@@ -20,7 +20,7 @@ public class AccountTxTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.initTest("http://127.0.0.1:18004/");
+        NulsSDKBootStrap.initTest("http://127.0.0.1:8004/");
     }
 
 
@@ -42,7 +42,7 @@ public class AccountTxTest {
         form.setAddress("tNULSeBaMoRp6QhNYSF8xjiwBFYnvCoCjkQzvU");
         form.setToAddress("TNVTdTSPFnCMgr9mzvgibQ4hKspVSGEc6XTKE");
         form.setPassword(password);
-        form.setAmount(new BigInteger("1000000000"));
+        form.setAmount(new BigInteger("10000000"));
         form.setAssetChainId(2);
         form.setAssetId(1);
         Result result = NulsSDKTool.crossTransfer(form);
