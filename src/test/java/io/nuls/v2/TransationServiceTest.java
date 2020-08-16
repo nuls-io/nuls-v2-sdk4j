@@ -3,6 +3,7 @@ package io.nuls.v2;
 import io.nuls.base.data.Transaction;
 import io.nuls.core.basic.Result;
 import io.nuls.v2.model.dto.*;
+import io.nuls.v2.util.ListUtil;
 import io.nuls.v2.util.NulsSDKTool;
 import org.junit.Before;
 import org.junit.Test;
@@ -255,7 +256,7 @@ public class TransationServiceTest {
 
         MultiSignTransferDto transferDto = new MultiSignTransferDto();
 
-        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+        List<String> pubKeys = ListUtil.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
         transferDto.setPubKeys(pubKeys);
         transferDto.setMinSigns(2);
 
@@ -427,7 +428,7 @@ public class TransationServiceTest {
         BigInteger deposit = new BigInteger("2000000000000");
         BigInteger fee = SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE;
 
-        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+        List<String> pubKeys = ListUtil.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
 
         MultiSignConsensusDto dto = new MultiSignConsensusDto();
         dto.setAgentAddress("tNULSeBaNTcZo37gNC5mNjJuB39u8zT3TAy8jy");
@@ -457,7 +458,7 @@ public class TransationServiceTest {
         //委托共识金额
         BigInteger deposit = new BigInteger("200000000000");
         BigInteger fee = SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE;
-        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+        List<String> pubKeys = ListUtil.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
 
         MultiSignDepositDto depositDto = new MultiSignDepositDto();
         depositDto.setPubKeys(pubKeys);
@@ -485,7 +486,7 @@ public class TransationServiceTest {
     public void testMultiSignWithDrawDepositTx() {
         BigInteger deposit = new BigInteger("200000000000");
         BigInteger price = SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE;
-        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+        List<String> pubKeys = ListUtil.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
 
         MultiSignWithDrawDto drawDto = new MultiSignWithDrawDto();
         drawDto.setPubKeys(pubKeys);
@@ -511,7 +512,7 @@ public class TransationServiceTest {
     @Test
     public void testMultiSignStopConsensusTx() {
         MultiSignStopConsensusDto dto = new MultiSignStopConsensusDto();
-        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+        List<String> pubKeys = ListUtil.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
         dto.setPubKeys(pubKeys);
         dto.setMinSigns(2);
         dto.setAgentHash("e67ed0f09cea8bd4e2ad3b4b6d83a39841f9f83dd2a9e5737b73b4d5ad203537");
