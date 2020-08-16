@@ -25,7 +25,7 @@ public class TransationServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.init(5,2,"TNVT", "http://192.168.1.60:17004/");
+        NulsSDKBootStrap.init(5, 2, "TNVT", "http://192.168.1.60:17004/");
     }
 
     @Test
@@ -51,7 +51,7 @@ public class TransationServiceTest {
 
     @Test
     public void testCreateTransferTx() {
-        String fromAddress = "tNULSeBaMss7ZU7tHw2vjUrTtvbLYcqjU5b9XN";
+        String fromAddress = "TNVTdTSPLmP6SKyn2RigSA8Lr9bMTgjUhnve4";
         String toAddress = "tNULSeBaMsEfHKEXvaFPPpQomXipeCYrru6t81";
 
         TransferTxFeeDto feeDto = new TransferTxFeeDto();
@@ -99,11 +99,11 @@ public class TransationServiceTest {
 
     @Test
     public void testCreateCrossTransferTx() {
-        String fromAddress = "TNVTdTSPFnCMgr9mzvgibQ4hKspVSGEc6XTKE";
+        String fromAddress = "TNVTdTSPLmP6SKyn2RigSA8Lr9bMTgjUhnve4";
         String toAddress = "tNULSeBaMoRp6QhNYSF8xjiwBFYnvCoCjkQzvU";
         int assetChainId = 2;
         int assetId = 1;
-        BigInteger transferAmount = BigInteger.valueOf(1000000000L);
+        BigInteger transferAmount = BigInteger.valueOf(735959726L);
 
         CrossTransferTxFeeDto feeDto = new CrossTransferTxFeeDto();
         feeDto.setAddressCount(1);
@@ -133,7 +133,7 @@ public class TransationServiceTest {
                 from.setAssetChainId(assetChainId);
                 from.setAssetId(assetId);
                 from.setAmount(transferAmount.add(nulsFee));
-                from.setNonce("274564bc2e569c06");
+                from.setNonce("bcd7883c67f4fe85");
                 inputs.add(from);
             } else if (assetChainId == SDKContext.main_chain_id && assetId == SDKContext.main_asset_id) {
                 CoinFromDto from = new CoinFromDto();
@@ -141,7 +141,7 @@ public class TransationServiceTest {
                 from.setAssetChainId(SDKContext.main_chain_id);
                 from.setAssetId(SDKContext.main_asset_id);
                 from.setAmount(transferAmount);
-                from.setNonce("daeac63a5cfa6e4f");
+                from.setNonce("bcd7883c67f4fe85");
                 inputs.add(from);
 
                 //记得单独添加跨链手续费
@@ -150,7 +150,7 @@ public class TransationServiceTest {
                 from2.setAssetChainId(SDKContext.nuls_chain_id);
                 from2.setAssetId(SDKContext.nuls_asset_id);
                 from2.setAmount(nulsFee);
-                from2.setNonce("cca90121c50868e5");
+                from2.setNonce("bcd7883c67f4fe85");
                 inputs.add(from2);
             }
         } else {
@@ -161,7 +161,7 @@ public class TransationServiceTest {
                 from.setAssetChainId(assetChainId);
                 from.setAssetId(assetId);
                 from.setAmount(transferAmount.add(nulsFee));
-                from.setNonce("0000000000000000");
+                from.setNonce("5baac6ee777b11f7");
                 inputs.add(from);
 
                 //再添加上本链的交易手续费
@@ -170,7 +170,7 @@ public class TransationServiceTest {
                 from2.setAssetChainId(SDKContext.main_chain_id);
                 from2.setAssetId(SDKContext.main_asset_id);
                 from2.setAmount(localFee);
-                from2.setNonce("0000000000000000");
+                from2.setNonce("5baac6ee777b11f7");
                 inputs.add(from2);
             } else if (assetChainId == SDKContext.main_chain_id && assetId == SDKContext.main_asset_id) {
                 //如果转账的是本链资产
@@ -179,7 +179,7 @@ public class TransationServiceTest {
                 from.setAssetChainId(SDKContext.main_chain_id);
                 from.setAssetId(SDKContext.main_asset_id);
                 from.setAmount(transferAmount.add(localFee));
-                from.setNonce("cca90121c50868e5");
+                from.setNonce("5baac6ee777b11f7");
                 inputs.add(from);
 
                 //再添加跨链手续费
@@ -188,7 +188,7 @@ public class TransationServiceTest {
                 from2.setAssetChainId(SDKContext.nuls_chain_id);
                 from2.setAssetId(SDKContext.nuls_asset_id);
                 from2.setAmount(nulsFee);
-                from2.setNonce("daeac63a5cfa6e4f");
+                from2.setNonce("5baac6ee777b11f7");
                 inputs.add(from2);
             } else {
                 //如果转的是其他资产
@@ -197,7 +197,7 @@ public class TransationServiceTest {
                 from.setAssetChainId(assetChainId);
                 from.setAssetId(assetId);
                 from.setAmount(transferAmount);
-                from.setNonce("19a7d0583e3047fd");
+                from.setNonce("5baac6ee777b11f7");
 
                 //添加本链转账手续费
                 CoinFromDto from2 = new CoinFromDto();
@@ -205,7 +205,7 @@ public class TransationServiceTest {
                 from2.setAssetChainId(SDKContext.main_chain_id);
                 from2.setAssetId(SDKContext.main_asset_id);
                 from2.setAmount(localFee);
-                from2.setNonce("cca90121c50868e5");
+                from2.setNonce("5baac6ee777b11f7");
                 inputs.add(from2);
 
                 //添加跨链转账手续费
@@ -214,7 +214,7 @@ public class TransationServiceTest {
                 from3.setAssetChainId(SDKContext.nuls_chain_id);
                 from3.setAssetId(SDKContext.nuls_asset_id);
                 from3.setAmount(nulsFee);
-                from3.setNonce("daeac63a5cfa6e4f");
+                from3.setNonce("5baac6ee777b11f7");
                 inputs.add(from3);
             }
         }
@@ -236,14 +236,15 @@ public class TransationServiceTest {
         String txHex = (String) result.getData().get("txHex");
 
         //签名
-        String prikey = "588fa9fc9cb6164fe1b1da31818319b6a5992485e34e7a75f705387fd43c27de";
+        String prikey = "33d7eebc0efab7a0c9959d0ac2297923e913ba14028edb4fd9f02e98de2803cb";
         result = NulsSDKTool.sign(txHex, fromAddress, prikey);
         txHex = (String) result.getData().get("txHex");
 
         String txHash = (String) result.getData().get("hash");
         //广播
         result = NulsSDKTool.broadcast(txHex);
-        txHex = (String) result.getData().get("txHex");
+        String hash = (String) result.getData().get("hash");
+        System.out.println(hash);
     }
 
 
@@ -254,8 +255,7 @@ public class TransationServiceTest {
 
         MultiSignTransferDto transferDto = new MultiSignTransferDto();
 
-        //List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
-        List<String> pubKeys = new ArrayList<>();
+        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
         transferDto.setPubKeys(pubKeys);
         transferDto.setMinSigns(2);
 
@@ -427,8 +427,8 @@ public class TransationServiceTest {
         BigInteger deposit = new BigInteger("2000000000000");
         BigInteger fee = SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE;
 
-     //   List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
-        List<String> pubKeys = new ArrayList<>();
+        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+
         MultiSignConsensusDto dto = new MultiSignConsensusDto();
         dto.setAgentAddress("tNULSeBaNTcZo37gNC5mNjJuB39u8zT3TAy8jy");
         dto.setPackingAddress("tNULSeBaMowgMLTbRUngAuj2BvGy2RmVLt3okv");
@@ -457,8 +457,7 @@ public class TransationServiceTest {
         //委托共识金额
         BigInteger deposit = new BigInteger("200000000000");
         BigInteger fee = SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE;
-        //List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
-        List<String> pubKeys = new ArrayList<>();
+        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
 
         MultiSignDepositDto depositDto = new MultiSignDepositDto();
         depositDto.setPubKeys(pubKeys);
@@ -486,8 +485,8 @@ public class TransationServiceTest {
     public void testMultiSignWithDrawDepositTx() {
         BigInteger deposit = new BigInteger("200000000000");
         BigInteger price = SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE;
-        //List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
-        List<String> pubKeys = new ArrayList<>();
+        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+
         MultiSignWithDrawDto drawDto = new MultiSignWithDrawDto();
         drawDto.setPubKeys(pubKeys);
         drawDto.setMinSigns(2);
@@ -512,9 +511,7 @@ public class TransationServiceTest {
     @Test
     public void testMultiSignStopConsensusTx() {
         MultiSignStopConsensusDto dto = new MultiSignStopConsensusDto();
-        //List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
-        List<String> pubKeys = new ArrayList<>();
-
+        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
         dto.setPubKeys(pubKeys);
         dto.setMinSigns(2);
         dto.setAgentHash("e67ed0f09cea8bd4e2ad3b4b6d83a39841f9f83dd2a9e5737b73b4d5ad203537");

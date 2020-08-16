@@ -32,18 +32,15 @@ public class NulsSDKBootStrap {
         SDKContext.addressPrefix = addressPrefix;
     }
 
-    public static void init(int mainChainId, int nulsChainId, String addressPrefix, String httpUrl) {
-        initChainId(mainChainId);
-        SDKContext.nuls_chain_id = nulsChainId;
+    public static void init(int chainId, int nulsChainId, String addressPrefix, String httpUrl) {
+        initChainId(chainId);
         if (httpUrl != null && !httpUrl.endsWith("/")) {
             httpUrl += "/";
         }
+        SDKContext.nuls_chain_id = nulsChainId;
         SDKContext.wallet_url = httpUrl;
-        if (addressPrefix != null) {
-            SDKContext.addressPrefix = addressPrefix;
-        }
+        SDKContext.addressPrefix = addressPrefix;
     }
-
 
     /**
      * NULS-SDK工具连接NULS主网钱包初始化
