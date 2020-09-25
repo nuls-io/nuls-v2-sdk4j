@@ -26,7 +26,7 @@ public class ValidateUtil {
         if (amount == null) {
             return false;
         }
-        if (amount.longValue() < 0) {
+        if (amount.compareTo(BigInteger.ZERO) < 0) {
             return false;
         }
         return true;
