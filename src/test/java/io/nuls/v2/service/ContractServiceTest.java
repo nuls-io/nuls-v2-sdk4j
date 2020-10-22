@@ -12,7 +12,6 @@ import io.nuls.v2.model.dto.*;
 import io.nuls.v2.txdata.CallContractData;
 import io.nuls.v2.util.JsonRpcUtil;
 import io.nuls.v2.util.NulsSDKTool;
-import org.apache.commons.codec.binary.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
