@@ -3,6 +3,15 @@ package io.nuls.v2.constant;
 public interface Constant {
 
     /**
+     * NULS主网链id
+     */
+     int NULS_CHAIN_ID = 1;
+    /**
+     * NULS主资产id
+     */
+    int NULS_ASSET_ID = 1;
+
+    /**
      * CONTRACT STATUS
      */
     int NOT_FOUND = 0;
@@ -34,4 +43,5 @@ public interface Constant {
     String NRC20_METHOD_ALLOWANCE = "allowance";
     String NRC20_EVENT_TRANSFER = "TransferEvent";
     String NRC20_EVENT_APPROVAL = "ApprovalEvent";
+    String NRC20_EVENT_TRANSFER_CROSS_CHAIN = "transferCrossChain";
 }

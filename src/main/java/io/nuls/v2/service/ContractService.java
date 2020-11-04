@@ -25,12 +25,10 @@ import io.nuls.v2.util.*;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static io.nuls.core.constant.CommonCodeConstanst.NULL_PARAMETER;
 import static io.nuls.v2.constant.Constant.CONTRACT_MINIMUM_PRICE;
-import static io.nuls.v2.constant.Constant.MAX_GASLIMIT;
 import static io.nuls.v2.error.AccountErrorCode.ADDRESS_ERROR;
 import static io.nuls.v2.error.ContractErrorCode.CONTRACT_ALIAS_FORMAT_ERROR;
 import static io.nuls.v2.util.ContractUtil.getFailed;
@@ -48,96 +46,6 @@ public class ContractService {
 
     public static ContractService getInstance() {
         return instance;
-    }
-
-    @Deprecated
-    public Result<Map> createContractTxOfflineDeprecated(String sender, String alias, String contractCode, Object[] args, String remark) {
-        int chainId = SDKContext.main_chain_id;
-        if (!AddressTool.validAddress(chainId, sender)) {
-            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("sender [%s] is invalid", sender));
-        }
-        if (!FormatValidUtils.validAlias(alias)) {
-            return Result.getFailed(CONTRACT_ALIAS_FORMAT_ERROR).setMsg(String.format("alias [%s] is invalid", alias));
-        }
-        if (StringUtils.isBlank(contractCode)) {
-            return Result.getFailed(CommonCodeConstanst.NULL_PARAMETER).setMsg("contractCode is empty");
-        }
-        // 验证发布合约的合法性
-        RpcResult validateResult = JsonRpcUtil.request("validateContractCreate", ListUtil.of(chainId, sender, MAX_GASLIMIT, CONTRACT_MINIMUM_PRICE, contractCode, args));
-        Map map = (Map) validateResult.getResult();
-        boolean success = (boolean) map.get("success");
-        if (!success) {
-            return Result.getFailed(ErrorCode.init((String) map.get("code"))).setMsg((String) map.get("msg"));
-        }
-
-        // 预估发布合约需要的GAS
-        RpcResult<Map> rpcResult = JsonRpcUtil.request("imputedContractCreateGas", ListUtil.of(chainId, sender, contractCode, args));
-        RpcResultError rpcResultError = rpcResult.getError();
-        if (rpcResultError != null) {
-            return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());
-        }
-        Map result = rpcResult.getResult();
-        Long gasLimit = Long.valueOf(result.get("gasLimit").toString());
-
-        int assetChainId = SDKContext.nuls_chain_id;
-        int assetId = SDKContext.nuls_asset_id;
-
-        // 随机生成一个合约地址
-        Address contract = AccountTool.createContractAddress(chainId);
-        byte[] contractAddressBytes = contract.getAddressBytes();
-        // 生成参数的二维数组
-        String[][] finalArgs = null;
-        if (args != null && args.length > 0) {
-            RpcResult<Map> constructorResult = JsonRpcUtil.request("getContractConstructor", ListUtil.of(chainId, contractCode));
-            rpcResultError = constructorResult.getError();
-            if (rpcResultError != null) {
-                return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());
-            }
-            result = constructorResult.getResult();
-            Map constructor = (Map) result.get("constructor");
-            List<Map> argsList = (List<Map>) constructor.get("args");
-            int size = argsList.size();
-            String[] argTypes = new String[size];
-            int i = 0;
-            for (Map arg : argsList) {
-                argTypes[i++] = arg.get("type").toString();
-            }
-            finalArgs = ContractUtil.twoDimensionalArray(args, argTypes);
-        }
-        // 组装交易的txData
-        byte[] contractCodeBytes = HexUtil.decode(contractCode);
-        byte[] senderBytes = AddressTool.getAddress(sender);
-        CreateContractData createContractData = new CreateContractData();
-        createContractData.setSender(senderBytes);
-        createContractData.setContractAddress(contractAddressBytes);
-        createContractData.setGasLimit(gasLimit);
-        createContractData.setPrice(CONTRACT_MINIMUM_PRICE);
-        createContractData.setCode(contractCodeBytes);
-        createContractData.setAlias(alias);
-        if (finalArgs != null) {
-            createContractData.setArgsCount((short) finalArgs.length);
-            createContractData.setArgs(finalArgs);
-        }
-        // 获取交易创建者的nonce值
-        RpcResult<Map> balanceResult = JsonRpcUtil.request("getAccountBalance", ListUtil.of(chainId, assetChainId, assetId, sender));
-        rpcResultError = balanceResult.getError();
-        if (rpcResultError != null) {
-            return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());
-        }
-        result = balanceResult.getResult();
-        BigInteger senderBalance = new BigInteger(result.get("balance").toString());
-        String nonce = result.get("nonce").toString();
-        // 生成交易
-        Transaction tx = ContractUtil.newCreateTx(chainId, assetId, senderBalance, nonce, createContractData, remark);
-        try {
-            Map<String, Object> resultMap = new HashMap<>(4);
-            resultMap.put("hash", tx.getHash().toHex());
-            resultMap.put("txHex", HexUtil.encode(tx.serialize()));
-            resultMap.put("contractAddress", AddressTool.getStringAddressByBytes(contractAddressBytes));
-            return getSuccess().setData(resultMap);
-        } catch (IOException e) {
-            return getFailed().setMsg(e.getMessage());
-        }
     }
 
     //@ApiOperation(description = "离线组装 - 发布合约的交易")
@@ -169,8 +77,8 @@ public class ContractService {
             return Result.getFailed(CommonCodeConstanst.NULL_PARAMETER).setMsg("contractCode is empty");
         }
 
-        int assetChainId = SDKContext.nuls_chain_id;
-        int assetId = SDKContext.nuls_asset_id;
+        int assetChainId = SDKContext.main_chain_id;
+        int assetId = SDKContext.main_asset_id;
 
         // 随机生成一个合约地址
         Address contract = AccountTool.createContractAddress(chainId);
@@ -204,99 +112,6 @@ public class ContractService {
             resultMap.put("hash", tx.getHash().toHex());
             resultMap.put("txHex", HexUtil.encode(tx.serialize()));
             resultMap.put("contractAddress", AddressTool.getStringAddressByBytes(contractAddressBytes));
-            return getSuccess().setData(resultMap);
-        } catch (IOException e) {
-            return getFailed().setMsg(e.getMessage());
-        }
-    }
-
-
-    @Deprecated
-    public Result<Map> callContractTxOfflineDeprecated(String sender, BigInteger value, String contractAddress,
-                                     String methodName, String methodDesc, Object[] args, String remark) {
-        int chainId = SDKContext.main_chain_id;
-        if (!AddressTool.validAddress(chainId, sender)) {
-            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("sender [%s] is invalid", sender));
-        }
-
-        if (!AddressTool.validAddress(chainId, contractAddress)) {
-            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("contractAddress [%s] is invalid", contractAddress));
-        }
-
-        if (StringUtils.isBlank(methodName)) {
-            return Result.getFailed(NULL_PARAMETER).setMsg("methodName is empty");
-        }
-        if (value == null) {
-            value = BigInteger.ZERO;
-        }
-
-        // 验证调用合约的合法性
-        RpcResult validateResult = JsonRpcUtil.request("validateContractCall", ListUtil.of(chainId, sender, value,
-                MAX_GASLIMIT, CONTRACT_MINIMUM_PRICE, contractAddress, methodName, methodDesc, args));
-        Map map = (Map) validateResult.getResult();
-        boolean success = (boolean) map.get("success");
-        if (!success) {
-            return Result.getFailed(ErrorCode.init((String) map.get("code"))).setMsg((String) map.get("msg"));
-        }
-
-        // 估算调用合约需要的GAS
-        RpcResult<Map> rpcResult = JsonRpcUtil.request("imputedContractCallGas", ListUtil.of(chainId, sender, value, contractAddress, methodName, methodDesc, args));
-        RpcResultError rpcResultError = rpcResult.getError();
-        if (rpcResultError != null) {
-            return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());
-        }
-        Map result = rpcResult.getResult();
-        Long gasLimit = Long.valueOf(result.get("gasLimit").toString());
-
-        int assetChainId = SDKContext.nuls_chain_id;
-        int assetId = SDKContext.nuls_asset_id;
-        // 生成参数的二维数组
-        String[][] finalArgs = null;
-        if (args != null && args.length > 0) {
-            RpcResult<List> constructorResult = JsonRpcUtil.request("getContractMethodArgsTypes", ListUtil.of(chainId, contractAddress, methodName));
-            rpcResultError = constructorResult.getError();
-            if (rpcResultError != null) {
-                return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());
-            }
-            List<String> list = constructorResult.getResult();
-            int size = list.size();
-            String[] argTypes = new String[size];
-            argTypes = list.toArray(argTypes);
-            finalArgs = ContractUtil.twoDimensionalArray(args, argTypes);
-        }
-
-        // 组装交易的txData
-        byte[] contractAddressBytes = AddressTool.getAddress(contractAddress);
-        byte[] senderBytes = AddressTool.getAddress(sender);
-        CallContractData callContractData = new CallContractData();
-        callContractData.setContractAddress(contractAddressBytes);
-        callContractData.setSender(senderBytes);
-        callContractData.setValue(value);
-        callContractData.setPrice(CONTRACT_MINIMUM_PRICE);
-        callContractData.setGasLimit(gasLimit);
-        callContractData.setMethodName(methodName);
-        callContractData.setMethodDesc(methodDesc);
-        if (finalArgs != null) {
-            callContractData.setArgsCount((short) finalArgs.length);
-            callContractData.setArgs(finalArgs);
-        }
-
-        // 获取交易创建者的nonce值
-        RpcResult<Map> balanceResult = JsonRpcUtil.request("getAccountBalance", ListUtil.of(chainId, assetChainId, assetId, sender));
-        rpcResultError = balanceResult.getError();
-        if (rpcResultError != null) {
-            return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());
-        }
-        result = balanceResult.getResult();
-        BigInteger senderBalance = new BigInteger(result.get("balance").toString());
-        String nonce = result.get("nonce").toString();
-
-        // 生成交易
-        Transaction tx = ContractUtil.newCallTx(chainId, assetId, senderBalance, nonce, callContractData, remark);
-        try {
-            Map<String, Object> resultMap = new HashMap<>(4);
-            resultMap.put("hash", tx.getHash().toHex());
-            resultMap.put("txHex", HexUtil.encode(tx.serialize()));
             return getSuccess().setData(resultMap);
         } catch (IOException e) {
             return getFailed().setMsg(e.getMessage());
@@ -339,8 +154,8 @@ public class ContractService {
             value = BigInteger.ZERO;
         }
 
-        int assetChainId = SDKContext.nuls_chain_id;
-        int assetId = SDKContext.nuls_asset_id;
+        int assetChainId = SDKContext.main_chain_id;
+        int assetId = SDKContext.main_asset_id;
         // 生成参数的二维数组
         String[][] finalArgs = null;
         if (args != null && args.length > 0) {
@@ -378,56 +193,6 @@ public class ContractService {
         }
     }
 
-
-    @Deprecated
-    public Result<Map> deleteContractTxOfflineDeprecated(String sender, String contractAddress, String remark) {
-        int chainId = SDKContext.main_chain_id;
-        if (!AddressTool.validAddress(chainId, sender)) {
-            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("sender [%s] is invalid", sender));
-        }
-        if (!AddressTool.validAddress(chainId, contractAddress)) {
-            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("contractAddress [%s] is invalid", contractAddress));
-        }
-        // 验证删除合约的合法性
-        RpcResult validateResult = JsonRpcUtil.request("validateContractDelete", ListUtil.of(chainId, sender, contractAddress));
-        Map map = (Map) validateResult.getResult();
-        boolean success = (boolean) map.get("success");
-        if (!success) {
-            return Result.getFailed(ErrorCode.init((String) map.get("code"))).setMsg((String) map.get("msg"));
-        }
-
-        // 组装交易的txData
-        byte[] senderBytes = AddressTool.getAddress(sender);
-        byte[] contractAddressBytes = AddressTool.getAddress(contractAddress);
-        DeleteContractData deleteContractData = new DeleteContractData();
-        deleteContractData.setContractAddress(contractAddressBytes);
-        deleteContractData.setSender(senderBytes);
-
-        // 获取交易创建者的nonce值
-        int assetChainId = SDKContext.nuls_chain_id;
-        int assetId = SDKContext.nuls_asset_id;
-        RpcResult<Map> balanceResult = JsonRpcUtil.request("getAccountBalance", ListUtil.of(chainId, assetChainId, assetId, sender));
-        RpcResultError rpcResultError = balanceResult.getError();
-        if (rpcResultError != null) {
-            return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());
-        }
-        Map result = balanceResult.getResult();
-        BigInteger senderBalance = new BigInteger(result.get("balance").toString());
-        String nonce = result.get("nonce").toString();
-
-        // 生成交易
-        Transaction tx = ContractUtil.newDeleteTx(chainId, assetId, senderBalance, nonce, deleteContractData, remark);
-        try {
-            Map<String, Object> resultMap = new HashMap<>(4);
-            resultMap.put("hash", tx.getHash().toHex());
-            resultMap.put("txHex", HexUtil.encode(tx.serialize()));
-            return getSuccess().setData(resultMap);
-        } catch (IOException e) {
-            return getFailed().setMsg(e.getMessage());
-        }
-    }
-
-
     //@ApiOperation(description = "离线组装 - 删除合约的交易")
     @Parameters(value = {
             @Parameter(parameterName = "sender", parameterDes = "交易创建者账户地址"),
@@ -456,7 +221,7 @@ public class ContractService {
         deleteContractData.setContractAddress(contractAddressBytes);
         deleteContractData.setSender(senderBytes);
 
-        int assetId = SDKContext.nuls_asset_id;
+        int assetId = SDKContext.main_asset_id;
 
         // 生成交易
         Transaction tx = ContractUtil.newDeleteTx(chainId, assetId, senderBalance, nonce, deleteContractData, remark);
@@ -468,28 +233,6 @@ public class ContractService {
         } catch (IOException e) {
             return getFailed().setMsg(e.getMessage());
         }
-    }
-
-
-    @Deprecated
-    public Result<Map> tokenTransferTxOfflineDeprecated(String fromAddress, String toAddress, String contractAddress, BigInteger amount, String remark) {
-        int chainId = SDKContext.main_chain_id;
-        if (amount == null || amount.compareTo(BigInteger.ZERO) <= 0) {
-            return Result.getFailed(ContractErrorCode.PARAMETER_ERROR).setMsg(String.format("amount [%s] is invalid", amount));
-        }
-
-        if (!AddressTool.validAddress(chainId, fromAddress)) {
-            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("fromAddress [%s] is invalid", fromAddress));
-        }
-
-        if (!AddressTool.validAddress(chainId, toAddress)) {
-            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("toAddress [%s] is invalid", toAddress));
-        }
-
-        if (!AddressTool.validAddress(chainId, contractAddress)) {
-            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("contractAddress [%s] is invalid", contractAddress));
-        }
-        return this.callContractTxOfflineDeprecated(fromAddress, null, contractAddress, Constant.NRC20_METHOD_TRANSFER, null, new Object[]{toAddress, amount.toString()}, remark);
     }
 
 
@@ -529,31 +272,12 @@ public class ContractService {
                 new Object[]{toAddress, amount.toString()}, new String[]{"String", "BigInteger"}, remark);
     }
 
-    @Deprecated
-    public Result<Map> transferToContractTxOfflineDeprecated(String fromAddress, String toAddress, BigInteger amount, String remark) {
-        int chainId = SDKContext.main_chain_id;
-        if (amount == null || amount.compareTo(BigInteger.ZERO) <= 0) {
-            return Result.getFailed(ContractErrorCode.PARAMETER_ERROR).setMsg(String.format("amount [%s] is invalid", amount));
-        }
-
-        if (!AddressTool.validAddress(chainId, fromAddress)) {
-            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("fromAddress [%s] is invalid", fromAddress));
-        }
-
-        if (!AddressTool.validAddress(chainId, toAddress)) {
-            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("toAddress [%s] is invalid", toAddress));
-        }
-
-        return this.callContractTxOfflineDeprecated(fromAddress, amount, toAddress, Constant.BALANCE_TRIGGER_METHOD_NAME, Constant.BALANCE_TRIGGER_METHOD_DESC, null, remark);
-    }
-
-
     //@ApiOperation(description = "离线组装 - 从账户地址向合约地址转账(主链资产)的合约交易")
     @Parameters(value = {
             @Parameter(parameterName = "fromAddress", parameterDes = "转出者账户地址"),
             @Parameter(parameterName = "senderBalance", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出者账户余额"),
             @Parameter(parameterName = "nonce", parameterDes = "转出者账户nonce值"),
-            @Parameter(parameterName = "toAddress", parameterDes = "转入的合约地址"),
+            @Parameter(parameterName = "toAddress", parameterDes = "转入者账户地址"),
             @Parameter(parameterName = "gasLimit", requestType = @TypeDescriptor(value = long.class), parameterDes = "设置合约执行消耗的gas上限"),
             @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的主链资产金额"),
             @Parameter(parameterName = "remark", parameterDes = "交易备注", canNull = true)
@@ -577,6 +301,45 @@ public class ContractService {
         }
 
         return this.callContractTxOffline(fromAddress, senderBalance, nonce, amount, toAddress, gasLimit, Constant.BALANCE_TRIGGER_METHOD_NAME, Constant.BALANCE_TRIGGER_METHOD_DESC, null, null, remark);
+    }
+
+
+    //todoNRC20跨链转账
+    @Parameters(value = {
+            @Parameter(parameterName = "fromAddress", parameterDes = "转出者账户地址"),
+            @Parameter(parameterName = "senderBalance", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出者账户余额"),
+            @Parameter(parameterName = "nonce", parameterDes = "转出者账户nonce值"),
+            @Parameter(parameterName = "toAddress", parameterDes = "转入的合约地址(NERVE网络地址)"),
+            @Parameter(parameterName = "contractAddress", parameterDes = "token合约地址"),
+            @Parameter(parameterName = "gasLimit", requestType = @TypeDescriptor(value = long.class), parameterDes = "设置合约执行消耗的gas上限"),
+            @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的资产金额"),
+            @Parameter(parameterName = "remark", parameterDes = "交易备注", canNull = true)
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化字符串")
+    }))
+    public Result<Map> nrc20CrossChainTxOffline(String fromAddress, BigInteger senderBalance, String nonce, String toAddress, String contractAddress, long gasLimit, BigInteger amount, String remark) {
+        int chainId = SDKContext.main_chain_id;
+        if (amount == null || amount.compareTo(BigInteger.ZERO) <= 0) {
+            return Result.getFailed(ContractErrorCode.PARAMETER_ERROR).setMsg(String.format("amount [%s] is invalid", amount));
+        }
+
+        if (!AddressTool.validAddress(chainId, fromAddress)) {
+            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("fromAddress [%s] is invalid", fromAddress));
+        }
+
+        if (!AddressTool.validAddress(SDKContext.nerve_chain_id, toAddress)) {
+            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("toAddress [%s] is invalid", toAddress));
+        }
+
+        if (!AddressTool.validAddress(chainId, contractAddress)) {
+            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("contractAddress [%s] is invalid", contractAddress));
+        }
+        // 跨链手续费
+        BigInteger value = BigInteger.valueOf(1000_0000L);
+        return this.callContractTxOffline(fromAddress, senderBalance, nonce, value, contractAddress, gasLimit, Constant.NRC20_EVENT_TRANSFER_CROSS_CHAIN, null,
+                new Object[]{toAddress, amount.toString()}, new String[]{"String", "BigInteger"}, remark);
     }
 
     public Result createContract(ContractCreateForm form) {

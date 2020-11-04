@@ -32,14 +32,38 @@ public class NulsSDKBootStrap {
         SDKContext.addressPrefix = addressPrefix;
     }
 
+    @Deprecated
     public static void init(int chainId, int nulsChainId, String addressPrefix, String httpUrl) {
         initChainId(chainId);
         if (httpUrl != null && !httpUrl.endsWith("/")) {
             httpUrl += "/";
         }
-        SDKContext.nuls_chain_id = nulsChainId;
+        SDKContext.main_chain_id = nulsChainId;
         SDKContext.wallet_url = httpUrl;
         SDKContext.addressPrefix = addressPrefix;
+    }
+
+    /**
+     * 初始化为 nuls 与 nerve 对接跨链关系的工具包
+     * 初始化时必须按照以下方式来使用(默认已配置成主网对主网)
+     *  nuls测试网对nerve测试网
+     *  nuls主网对nerve主网
+     *
+     * @param chainId
+     * @param nerveChainId
+     * @param addressPrefix
+     * @param addressPrefixNerve
+     * @param httpUrl
+     */
+    public static void init(int chainId, int nerveChainId, String addressPrefix,String addressPrefixNerve, String httpUrl) {
+        initChainId(chainId);
+        if (httpUrl != null && !httpUrl.endsWith("/")) {
+            httpUrl += "/";
+        }
+        SDKContext.nerve_chain_id = nerveChainId;
+        SDKContext.wallet_url = httpUrl;
+        SDKContext.addressPrefix = addressPrefix;
+        SDKContext.addressPrefix_nerve = addressPrefixNerve;
     }
 
     /**
@@ -68,6 +92,9 @@ public class NulsSDKBootStrap {
             httpUrl += "/";
         }
         SDKContext.wallet_url = httpUrl;
+        SDKContext.nerve_chain_id = 5;
+        SDKContext.addressPrefix = "tNULS";
+        SDKContext.addressPrefix_nerve = "TNVT";
     }
 
     /**

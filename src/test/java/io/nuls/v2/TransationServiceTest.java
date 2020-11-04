@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static io.nuls.v2.constant.Constant.NULS_ASSET_ID;
+import static io.nuls.v2.constant.Constant.NULS_CHAIN_ID;
+
 public class TransationServiceTest {
 
     static String address = "8CPcA7kaUfbmbNhT6pHGvBhhK1NSKfCrQjdSL";
@@ -120,13 +123,13 @@ public class TransationServiceTest {
 
         //判断当前链是不是NULS链
         boolean isMainNet = false;
-        if (SDKContext.main_chain_id == SDKContext.nuls_chain_id) {
+        if (SDKContext.main_chain_id == NULS_CHAIN_ID) {
             isMainNet = true;
         }
 
         //如果是主网发起的跨链转账
         if (isMainNet) {
-            if (assetChainId == SDKContext.nuls_chain_id && assetId == SDKContext.nuls_asset_id) {
+            if (assetChainId == NULS_CHAIN_ID && assetId == NULS_ASSET_ID) {
                 //如果转账的是NULS资产，则记得添加上跨链手续费
                 CoinFromDto from = new CoinFromDto();
                 from.setAddress(fromAddress);
@@ -147,14 +150,14 @@ public class TransationServiceTest {
                 //记得单独添加跨链手续费
                 CoinFromDto from2 = new CoinFromDto();
                 from2.setAddress(fromAddress);
-                from2.setAssetChainId(SDKContext.nuls_chain_id);
-                from2.setAssetId(SDKContext.nuls_asset_id);
+                from2.setAssetChainId(NULS_CHAIN_ID);
+                from2.setAssetId(NULS_ASSET_ID);
                 from2.setAmount(nulsFee);
                 from2.setNonce("bcd7883c67f4fe85");
                 inputs.add(from2);
             }
         } else {
-            if (assetChainId == SDKContext.nuls_chain_id && assetId == SDKContext.nuls_asset_id) {
+            if (assetChainId == NULS_CHAIN_ID && assetId == NULS_ASSET_ID) {
                 //如果转账的是NULS资产，则记得添加上跨链手续费
                 CoinFromDto from = new CoinFromDto();
                 from.setAddress(fromAddress);
@@ -185,8 +188,8 @@ public class TransationServiceTest {
                 //再添加跨链手续费
                 CoinFromDto from2 = new CoinFromDto();
                 from2.setAddress(fromAddress);
-                from2.setAssetChainId(SDKContext.nuls_chain_id);
-                from2.setAssetId(SDKContext.nuls_asset_id);
+                from2.setAssetChainId(NULS_CHAIN_ID);
+                from2.setAssetId(NULS_ASSET_ID);
                 from2.setAmount(nulsFee);
                 from2.setNonce("5baac6ee777b11f7");
                 inputs.add(from2);
@@ -211,8 +214,8 @@ public class TransationServiceTest {
                 //添加跨链转账手续费
                 CoinFromDto from3 = new CoinFromDto();
                 from3.setAddress(fromAddress);
-                from3.setAssetChainId(SDKContext.nuls_chain_id);
-                from3.setAssetId(SDKContext.nuls_asset_id);
+                from3.setAssetChainId(NULS_CHAIN_ID);
+                from3.setAssetId(NULS_ASSET_ID);
                 from3.setAmount(nulsFee);
                 from3.setNonce("5baac6ee777b11f7");
                 inputs.add(from3);

@@ -3,7 +3,6 @@ package io.nuls.v2.util;
 import io.nuls.base.basic.NulsByteBuffer;
 import io.nuls.base.data.Transaction;
 import io.nuls.core.basic.Result;
-import io.nuls.core.core.annotation.RpcMethod;
 import io.nuls.core.crypto.HexUtil;
 import io.nuls.core.exception.NulsException;
 import io.nuls.core.rpc.model.*;
@@ -435,7 +434,73 @@ public class NulsSDKTool {
         return transactionService.createTransferTx(transferDto);
     }
 
+    /**
+     * 便捷版 组装在NULS链内，转账非NULS资产的单账户对单账户普通转账(只组装交易，不包含签名，广播等)。
+     * 该方法会主动用fromAddress组装（NULS资产）打包手续费。
+     *
+     * 如果需要完整信息或结构更复杂的转账（比如多账户），请使用完全版的离线交易组装
+     *
+     * @param fromAddress 转出地址（NULS地址）
+     * @param toAddress 转入地址（NULS地址）
+     * @param assetChainId 转账资产链id
+     * @param assetId 转账资产id
+     * @param amount 到账数量
+     * @return 交易hex
+     */
+    @ApiOperation(description = "离线组装链内非NULS资产转账交易", order = 350, detailDesc = "组装在NULS链内，转账非NULS资产的单账户对单账户普通转账。" +
+            "该方法会主动用fromAddress组装(NULS资产)打包手续费")
+    @Parameters({
+            @Parameter(parameterName = "fromAddress", requestType = @TypeDescriptor(value = String.class), parameterDes = "转出地址(NULS地址)"),
+            @Parameter(parameterName = "toAddress", requestType = @TypeDescriptor(value = String.class), parameterDes = "转入地址(NULS地址)"),
+            @Parameter(parameterName = "assetChainId", requestType = @TypeDescriptor(value = int.class), parameterDes = "转账资产链id"),
+            @Parameter(parameterName = "assetId", requestType = @TypeDescriptor(value = int.class), parameterDes = "转账资产id"),
+            @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "到账数量"),
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化16进制字符串")
+    }))
+    public static Result createTxWtihSingleAddrTransferOfNonNuls(String fromAddress, String toAddress, int assetChainId, int assetId, BigInteger amount) {
+        return transactionService.createTxWtihSingleAddrTransferOfNonNuls(fromAddress, toAddress, assetChainId, assetId, amount);
+    }
 
+    /**
+     * 便捷版 组装在NULS链内，转账NULS资产的单账户对单账户普通转账(只组装交易，不包含签名，广播等)。
+     * !! 打包手续费不包含在amount中， 本函数将从fromAddress中额外获取手续费追加到coinfrom中，
+     * 请不要将手续费事先加入到amount参数中， amount参数作为实际到账的数量。
+     *
+     * 如果需要完整信息或结构更复杂的转账（比如多账户），请使用完全版的离线交易组装
+     *
+     * @param fromAddress 转出地址（NULS地址）
+     * @param toAddress 转入地址（NULS地址）
+     * @param amount 到账数量（不含手续费）
+     * @return 交易hex
+     */
+    @ApiOperation(description = "离线组装链内NULS资产转账交易", order = 350, detailDesc = "组装在NULS链内，转账NULS资产的单账户对单账户普通转账。" +
+            "打包手续费不包含在amount中， 本函数将从fromAddress中额外获取手续费追加到coinfrom中，请不要将手续费事先加入到amount参数中， amount参数作为实际到账的数量。")
+    @Parameters({
+            @Parameter(parameterName = "fromAddress", requestType = @TypeDescriptor(value = String.class), parameterDes = "转出地址(NULS地址)"),
+            @Parameter(parameterName = "toAddress", requestType = @TypeDescriptor(value = String.class), parameterDes = "转入地址(NULS地址)"),
+            @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "到账数量"),
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化16进制字符串")
+    }))
+    public static Result createTxWtihSingleAddrTransferOfNuls(String fromAddress, String toAddress, BigInteger amount) {
+        return transactionService.createTxWtihSingleAddrTransferOfNuls(fromAddress, toAddress, amount);
+    }
+
+
+    @ApiOperation(description = "离线组装跨链转账交易", order = 350, detailDesc = "根据inputs和outputs离线组装转账交易，用于单账户或多账户的转账交易。" +
+            "交易手续费为inputs里本链主资产金额总和，减去outputs里本链主资产总和")
+    @Parameters({
+            @Parameter(parameterName = "transferDto", parameterDes = "转账交易表单", requestType = @TypeDescriptor(value = TransferDto.class))
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化16进制字符串")
+    }))
     public static Result createCrossTransferTxOffline(TransferDto transferDto) {
         return transactionService.createCrossTransferTx(transferDto);
     }
@@ -950,4 +1015,25 @@ public class NulsSDKTool {
     }
 
     //todo  查询资产信息
+
+
+    @ApiOperation(description = "离线组装 - token转账交易", order = 559)
+    @Parameters(value = {
+            @Parameter(parameterName = "fromAddress", parameterDes = "转出者账户地址"),
+            @Parameter(parameterName = "senderBalance", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出者账户余额"),
+            @Parameter(parameterName = "nonce", parameterDes = "转出者账户nonce值"),
+            @Parameter(parameterName = "toAddress", parameterDes = "转入者账户地址(NERVE)"),
+            @Parameter(parameterName = "contractAddress", parameterDes = "token合约地址"),
+            @Parameter(parameterName = "gasLimit", requestType = @TypeDescriptor(value = long.class), parameterDes = "设置合约执行消耗的gas上限"),
+            @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的token资产金额"),
+            @Parameter(parameterName = "remark", parameterDes = "交易备注", canNull = true)
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化字符串")
+    }))
+    public static Result<Map> nrc20CrossChainTxOffline(String fromAddress, BigInteger senderBalance, String nonce, String toAddress, String contractAddress, long gasLimit, BigInteger amount, String remark) {
+        return contractService.nrc20CrossChainTxOffline(fromAddress, senderBalance, nonce, toAddress, contractAddress, gasLimit, amount, remark);
+    }
+
 }
