@@ -303,8 +303,6 @@ public class ContractService {
         return this.callContractTxOffline(fromAddress, senderBalance, nonce, amount, toAddress, gasLimit, Constant.BALANCE_TRIGGER_METHOD_NAME, Constant.BALANCE_TRIGGER_METHOD_DESC, null, null, remark);
     }
 
-
-    //todoNRC20跨链转账
     @Parameters(value = {
             @Parameter(parameterName = "fromAddress", parameterDes = "转出者账户地址"),
             @Parameter(parameterName = "senderBalance", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出者账户余额"),
@@ -329,9 +327,9 @@ public class ContractService {
             return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("fromAddress [%s] is invalid", fromAddress));
         }
 
-        if (!AddressTool.validAddress(SDKContext.nerve_chain_id, toAddress)) {
-            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("toAddress [%s] is invalid", toAddress));
-        }
+//        if (!AddressTool.validAddress(SDKContext.nerve_chain_id, toAddress)) {
+//            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("toAddress [%s] is invalid", toAddress));
+//        }
 
         if (!AddressTool.validAddress(chainId, contractAddress)) {
             return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("contractAddress [%s] is invalid", contractAddress));

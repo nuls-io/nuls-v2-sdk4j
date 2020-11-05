@@ -24,6 +24,7 @@ import java.util.*;
 
 import static io.nuls.v2.SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE;
 import static io.nuls.v2.constant.AccountConstant.ALIAS_FEE;
+import static io.nuls.v2.constant.Constant.NULS_CHAIN_ID;
 import static io.nuls.v2.util.ValidateUtil.validateChainId;
 
 public class TransactionService {
@@ -131,28 +132,59 @@ public class TransactionService {
     }
 
 
+    @Deprecated
     public Map<String, BigInteger> calcCrossTransferTxFee(CrossTransferTxFeeDto dto) {
-    /*  2020/11/3 Charlie 当前固定为NULS SDK工具包(mainnet)
         boolean isMainNet = false;
-        if (SDKContext.main_chain_id == SDKContext.nuls_chain_id) {
+        if (SDKContext.main_chain_id == NULS_CHAIN_ID || SDKContext.main_chain_id == 2) {
             isMainNet = true;
-        }*/
-        return TxUtils.calcCrossTxFee(dto.getAddressCount(), dto.getFromLength(), dto.getToLength(), dto.getRemark(), true);
+        }
+        return TxUtils.calcCrossTxFee(dto.getAddressCount(), dto.getFromLength(), dto.getToLength(), dto.getRemark(), isMainNet);
     }
 
     /**
-     * 便捷版 组装在NULS链内，转账非NULS资产的单账户对单账户普通转账。
+     * 计算NULS跨链交易，所需收取的NULS手续费
+     *
+     * @param dto
+     * @return
+     */
+    public BigInteger calcCrossTransferNulsTxFee(CrossTransferTxFeeDto dto) {
+        return TxUtils.calcCrossTxFee(dto.getAddressCount(), dto.getFromLength(), dto.getToLength(), dto.getRemark());
+    }
+
+    /**
+     * 便捷版 组装在NULS链内，转账非NULS资产的单账户对单账户普通转账(不能用于转NULS)。
      * 该方法会主动用fromAddress组装（NULS资产）打包手续费，
      * 如果from地址中没有足够的手续费，该交易不会成功。
-     *
+     * <p>
      * 如果需要完整信息或结构更复杂的转账（比如多账户），请使用完全版的离线交易组装
      *
      * @param fromAddress 转出地址（NULS地址）
-     * @param toAddress 转入地址（NULS地址）
+     * @param toAddress   转入地址（NULS地址）
+     * @param assetId
      * @param amount
      * @return
      */
-    public Result createTxWtihSingleAddrTransferOfNonNuls(String fromAddress, String toAddress, int assetChainId, int assetId, BigInteger amount) {
+    public Result createTxSimpleTransferOfNonNuls(String fromAddress, String toAddress, int assetChainId, int assetId, BigInteger amount) {
+        return createTxSimpleTransferOfNonNuls(fromAddress, toAddress, assetChainId, assetId, amount, 0, null);
+    }
+
+    /**
+     * 便捷版 组装在NULS链内，转账非NULS资产的单账户对单账户普通转账(不能用于转NULS)。
+     * 该方法会主动用fromAddress组装（NULS资产）打包手续费，
+     * 如果from地址中没有足够的手续费，该交易不会成功。
+     * <p>
+     * 如果需要完整信息或结构更复杂的转账（比如多账户），请使用完全版的离线交易组装
+     *
+     * @param fromAddress  转出地址（NULS地址）
+     * @param toAddress    转入地址（NULS地址）
+     * @param assetChainId
+     * @param assetId
+     * @param amount
+     * @param time
+     * @param remark
+     * @return
+     */
+    public Result createTxSimpleTransferOfNonNuls(String fromAddress, String toAddress, int assetChainId, int assetId, BigInteger amount, long time, String remark) {
         Result accountBalanceR = NulsSDKTool.getAccountBalance(fromAddress, assetChainId, assetId);
         if (!accountBalanceR.isSuccess()) {
             return Result.getFailed(accountBalanceR.getErrorCode()).setMsg(accountBalanceR.getMsg());
@@ -187,6 +219,7 @@ public class TransactionService {
         feeDto.setAddressCount(1);
         feeDto.setFromLength(2);
         feeDto.setToLength(1);
+        feeDto.setRemark(remark);
         BigInteger feeNeed = NulsSDKTool.calcTransferTxFee(feeDto);
         if (senderBalanceFee.compareTo(feeNeed) < 0) {
             return Result.getFailed(AccountErrorCode.INSUFFICIENT_FEE);
@@ -211,16 +244,17 @@ public class TransactionService {
 
         transferDto.setInputs(inputs);
         transferDto.setOutputs(outputs);
+        transferDto.setTime(time);
+        transferDto.setRemark(remark);
         return createTransferTx(transferDto);
     }
 
 
     /**
      * 便捷版 组装在NULS链内，转账NULS资产的单账户对单账户普通转账。
-     * 该方法不会主动用fromAddress组装（NULS资产）打包手续费，
-     * !! 打包手续费将直接从amount参数中扣除，请确保amount已包含打包手续费。
-     * 如果from地址中没有足够的手续费，该交易不会成功。
-     *
+     * !! 打包手续费不包含在amount中， 本函数将从fromAddress中额外获取手续费追加到coinfrom中，
+     * 请不要将手续费事先加入到amount参数中， amount参数作为实际到账的数量。。
+     * <p>
      * 如果需要完整信息或结构更复杂的转账（比如多账户），请使用完全版的离线交易组装
      *
      * @param fromAddress
@@ -228,7 +262,25 @@ public class TransactionService {
      * @param amount
      * @return
      */
-    public Result createTxWtihSingleAddrTransferOfNuls(String fromAddress, String toAddress, BigInteger amount) {
+    public Result createTxSimpleTransferOfNuls(String fromAddress, String toAddress, BigInteger amount) {
+        return createTxSimpleTransferOfNuls(fromAddress, toAddress, amount, 0, null);
+    }
+
+    /**
+     * 便捷版 组装在NULS链内，转账NULS资产的单账户对单账户普通转账。
+     * !! 打包手续费不包含在amount中， 本函数将从fromAddress中额外获取手续费追加到coinfrom中，
+     * 请不要将手续费事先加入到amount参数中， amount参数作为实际到账的数量。
+     * <p>
+     * 如果需要完整信息或结构更复杂的转账（比如多账户），请使用完全版的离线交易组装
+     *
+     * @param fromAddress
+     * @param toAddress
+     * @param amount
+     * @param time
+     * @param remark
+     * @return
+     */
+    public Result createTxSimpleTransferOfNuls(String fromAddress, String toAddress, BigInteger amount, long time, String remark) {
         Result accountBalanceR = NulsSDKTool.getAccountBalance(fromAddress, SDKContext.main_chain_id, SDKContext.main_asset_id);
         if (!accountBalanceR.isSuccess()) {
             return Result.getFailed(accountBalanceR.getErrorCode()).setMsg(accountBalanceR.getMsg());
@@ -240,6 +292,7 @@ public class TransactionService {
         feeDto.setAddressCount(1);
         feeDto.setFromLength(2);
         feeDto.setToLength(1);
+        feeDto.setRemark(remark);
         BigInteger feeNeed = NulsSDKTool.calcTransferTxFee(feeDto);
         BigInteger amountTotal = amount.add(feeNeed);
         if (senderBalance.compareTo(amountTotal) < 0) {
@@ -269,6 +322,8 @@ public class TransactionService {
 
         transferDto.setInputs(inputs);
         transferDto.setOutputs(outputs);
+        transferDto.setTime(time);
+        transferDto.setRemark(remark);
         return createTransferTx(transferDto);
     }
 
@@ -354,6 +409,182 @@ public class TransactionService {
         coinData.setTo(coinTos);
         return coinData;
     }
+
+    /**
+     * 便捷版 组装跨链转账非NULS资产的单账户对单账户普通跨链转账(不能用于转NULS)。
+     * 该方法会主动用fromAddress组装（NULS资产）打包手续费。
+     * <p>
+     * 如果需要完整信息或结构更复杂的转账（比如多账户），请使用完全版的离线交易组装
+     *
+     * @param fromAddress  转出地址（NULS地址）
+     * @param toAddress    转入地址（非NULS地址）
+     * @param assetChainId 转账资产链id
+     * @param assetId      转账资产id
+     * @param amount       转账token数量
+     * @return
+     */
+    public Result createCrossTxSimpleTransferOfNonNuls(String fromAddress, String toAddress, int assetChainId, int assetId, BigInteger amount) {
+        return createCrossTxSimpleTransferOfNonNuls(fromAddress, toAddress, assetChainId, assetId, amount, 0, null);
+    }
+
+    /**
+     * 便捷版 组装跨链转账非NULS资产的单账户对单账户普通跨链转账(不能用于转NULS)。
+     * 该方法会主动用fromAddress组装（NULS资产）打包手续费。
+     * <p>
+     * 如果需要完整信息或结构更复杂的转账（比如多账户），请使用完全版的离线交易组装
+     *
+     * @param fromAddress  转出地址（NULS地址）
+     * @param toAddress    转入地址（非NULS地址）
+     * @param assetChainId 转账资产链id
+     * @param assetId      转账资产id
+     * @param amount       转账token数量
+     * @param time         交易时间
+     * @param remark       备注
+     * @return
+     */
+    public Result createCrossTxSimpleTransferOfNonNuls(String fromAddress, String toAddress, int assetChainId, int assetId, BigInteger amount, long time, String remark) {
+        Result accountBalanceR = NulsSDKTool.getAccountBalance(fromAddress, assetChainId, assetId);
+        if (!accountBalanceR.isSuccess()) {
+            return Result.getFailed(accountBalanceR.getErrorCode()).setMsg(accountBalanceR.getMsg());
+        }
+        Map balance = (Map) accountBalanceR.getData();
+        BigInteger senderBalance = new BigInteger(balance.get("available").toString());
+        if (senderBalance.compareTo(amount) < 0) {
+            return Result.getFailed(AccountErrorCode.INSUFFICIENT_BALANCE);
+        }
+        String nonce = balance.get("nonce").toString();
+
+        TransferDto transferDto = new TransferDto();
+        List<CoinFromDto> inputs = new ArrayList<>();
+
+        //转账资产
+        CoinFromDto from = new CoinFromDto();
+        from.setAddress(fromAddress);
+        from.setAmount(amount);
+        from.setAssetChainId(assetChainId);
+        from.setAssetId(assetId);
+        from.setNonce(nonce);
+        inputs.add(from);
+
+        Result accountBalanceFeeR = NulsSDKTool.getAccountBalance(fromAddress, SDKContext.main_chain_id, SDKContext.main_asset_id);
+        if (!accountBalanceFeeR.isSuccess()) {
+            return Result.getFailed(accountBalanceFeeR.getErrorCode()).setMsg(accountBalanceFeeR.getMsg());
+        }
+        Map balanceFee = (Map) accountBalanceFeeR.getData();
+        BigInteger senderBalanceFee = new BigInteger(balanceFee.get("available").toString());
+
+        CrossTransferTxFeeDto crossFeeDto = new CrossTransferTxFeeDto();
+        crossFeeDto.setAddressCount(1);
+        crossFeeDto.setFromLength(2);
+        crossFeeDto.setToLength(1);
+        crossFeeDto.setRemark(remark);
+        BigInteger feeNeed = calcCrossTransferNulsTxFee(crossFeeDto);
+        if (senderBalanceFee.compareTo(feeNeed) < 0) {
+            return Result.getFailed(AccountErrorCode.INSUFFICIENT_FEE);
+        }
+        String nonceFee = balanceFee.get("nonce").toString();
+        //手续费资产
+        CoinFromDto fromFee = new CoinFromDto();
+        fromFee.setAddress(fromAddress);
+        fromFee.setAmount(feeNeed);
+        fromFee.setAssetChainId(SDKContext.main_chain_id);
+        fromFee.setAssetId(SDKContext.main_asset_id);
+        fromFee.setNonce(nonceFee);
+        inputs.add(fromFee);
+
+        List<CoinToDto> outputs = new ArrayList<>();
+        CoinToDto to = new CoinToDto();
+        to.setAddress(toAddress);
+        to.setAmount(amount);
+        to.setAssetChainId(assetChainId);
+        to.setAssetId(assetId);
+        outputs.add(to);
+
+        transferDto.setInputs(inputs);
+        transferDto.setOutputs(outputs);
+        transferDto.setTime(time);
+        transferDto.setRemark(remark);
+        return createCrossTransferTx(transferDto);
+    }
+
+
+    /**
+     * 便捷版 组装跨链转账NULS资产的单账户对单账户普通跨链转账。
+     * !! 打包手续费不包含在amount中， 本函数将从fromAddress中额外获取手续费追加到coinfrom中，
+     * 请不要将手续费事先加入到amount参数中， amount参数作为实际到账的数量。
+     * <p>
+     * 如果需要完整信息或结构更复杂的转账（比如多账户），请使用完全版的离线交易组装
+     *
+     * @param fromAddress
+     * @param toAddress （非NULS地址）
+     * @param amount
+     * @return
+     */
+    public Result createCrossTxSimpleTransferOfNuls(String fromAddress, String toAddress, BigInteger amount) {
+        return createCrossTxSimpleTransferOfNuls(fromAddress, toAddress, amount, 0, null);
+    }
+
+    /**
+     * 便捷版 组装跨链转账NULS资产的单账户对单账户普通跨链转账。
+     * !! 打包手续费不包含在amount中， 本函数将从fromAddress中额外获取手续费追加到coinfrom中，
+     * 请不要将手续费事先加入到amount参数中， amount参数作为实际到账的数量。
+     * <p>
+     * 如果需要完整信息或结构更复杂的转账（比如多账户），请使用完全版的离线交易组装
+     *
+     * @param fromAddress
+     * @param toAddress （非NULS地址）
+     * @param amount
+     * @param time
+     * @param remark
+     * @return
+     */
+    public Result createCrossTxSimpleTransferOfNuls(String fromAddress, String toAddress, BigInteger amount, long time, String remark) {
+        Result accountBalanceR = NulsSDKTool.getAccountBalance(fromAddress, SDKContext.main_chain_id, SDKContext.main_asset_id);
+        if (!accountBalanceR.isSuccess()) {
+            return Result.getFailed(accountBalanceR.getErrorCode()).setMsg(accountBalanceR.getMsg());
+        }
+        Map balance = (Map) accountBalanceR.getData();
+        BigInteger senderBalance = new BigInteger(balance.get("available").toString());
+
+        CrossTransferTxFeeDto crossFeeDto = new CrossTransferTxFeeDto();
+        crossFeeDto.setAddressCount(1);
+        crossFeeDto.setFromLength(2);
+        crossFeeDto.setToLength(1);
+        crossFeeDto.setRemark(remark);
+        BigInteger feeNeed = NulsSDKTool.calcCrossTransferNulsTxFee(crossFeeDto);
+        BigInteger amountTotal = amount.add(feeNeed);
+        if (senderBalance.compareTo(amountTotal) < 0) {
+            return Result.getFailed(AccountErrorCode.INSUFFICIENT_BALANCE);
+        }
+        String nonce = balance.get("nonce").toString();
+
+        TransferDto transferDto = new TransferDto();
+        List<CoinFromDto> inputs = new ArrayList<>();
+
+        //转账资产
+        CoinFromDto from = new CoinFromDto();
+        from.setAddress(fromAddress);
+        from.setAmount(amountTotal);
+        from.setAssetChainId(SDKContext.main_chain_id);
+        from.setAssetId(SDKContext.main_asset_id);
+        from.setNonce(nonce);
+        inputs.add(from);
+
+        List<CoinToDto> outputs = new ArrayList<>();
+        CoinToDto to = new CoinToDto();
+        to.setAddress(toAddress);
+        to.setAmount(amount);
+        to.setAssetChainId(SDKContext.main_chain_id);
+        to.setAssetId(SDKContext.main_asset_id);
+        outputs.add(to);
+
+        transferDto.setInputs(inputs);
+        transferDto.setOutputs(outputs);
+        transferDto.setTime(time);
+        transferDto.setRemark(remark);
+        return createCrossTransferTx(transferDto);
+    }
+
 
     /**
      * 创建跨链转账交易

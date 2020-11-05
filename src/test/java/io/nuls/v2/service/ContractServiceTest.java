@@ -209,7 +209,7 @@ public class ContractServiceTest {
 
     /**
      * nrc20资产跨链转账 离线交易
-     * 测试SDK
+     * 测试SDKTool
      */
     @Test
     public void nrc20CrossChainSDK(String toNerveAddress) throws JsonProcessingException {
@@ -251,6 +251,7 @@ public class ContractServiceTest {
         iForm.setMethodName(methodName);
         iForm.setMethodDesc(methodDesc);
         iForm.setArgs(args);
+
         Result iResult = NulsSDKTool.imputedContractCallGas(iForm);
         Assert.assertTrue(JSONUtils.obj2PrettyJson(iResult), iResult.isSuccess());
         Map result = (Map) iResult.getData();

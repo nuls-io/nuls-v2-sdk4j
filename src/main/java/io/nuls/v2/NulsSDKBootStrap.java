@@ -55,16 +55,16 @@ public class NulsSDKBootStrap {
      * @param addressPrefixNerve
      * @param httpUrl
      */
-    public static void init(int chainId, int nerveChainId, String addressPrefix,String addressPrefixNerve, String httpUrl) {
-        initChainId(chainId);
-        if (httpUrl != null && !httpUrl.endsWith("/")) {
-            httpUrl += "/";
-        }
-        SDKContext.nerve_chain_id = nerveChainId;
-        SDKContext.wallet_url = httpUrl;
-        SDKContext.addressPrefix = addressPrefix;
-        SDKContext.addressPrefix_nerve = addressPrefixNerve;
-    }
+//    public static void init(int chainId, int nerveChainId, String addressPrefix,String addressPrefixNerve, String httpUrl) {
+//        initChainId(chainId);
+//        if (httpUrl != null && !httpUrl.endsWith("/")) {
+//            httpUrl += "/";
+//        }
+//        SDKContext.nerve_chain_id = nerveChainId;
+//        SDKContext.wallet_url = httpUrl;
+//        SDKContext.addressPrefix = addressPrefix;
+//        SDKContext.addressPrefix_nerve = addressPrefixNerve;
+//    }
 
     /**
      * NULS-SDK工具连接NULS主网钱包初始化
@@ -92,9 +92,9 @@ public class NulsSDKBootStrap {
             httpUrl += "/";
         }
         SDKContext.wallet_url = httpUrl;
-        SDKContext.nerve_chain_id = 5;
+//        SDKContext.nerve_chain_id = 5;
         SDKContext.addressPrefix = "tNULS";
-        SDKContext.addressPrefix_nerve = "TNVT";
+//        SDKContext.addressPrefix_nerve = "TNVT";
     }
 
     /**

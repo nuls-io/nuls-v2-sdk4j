@@ -94,6 +94,19 @@ public class TxUtils {
         return map;
     }
 
+    public static BigInteger calcCrossTxFee(int addressCount, int fromLength, int toLength, String remark) {
+        int size = 10;
+        size += addressCount * P2PHKSignature.SERIALIZE_LENGTH;
+        size += 70 * fromLength;
+        size += 68 * toLength;
+        if (StringUtils.isNotBlank(remark)) {
+            size += StringUtils.bytes(remark).length;
+        }
+        size = size / 1024 + 1;
+        BigInteger fee = TransactionFeeCalculator.getCrossTxFee(size);
+        return fee;
+    }
+
     public static BigInteger calcStopConsensusTxFee(int fromLength, int toLength, BigInteger price) {
         int size = 152;
         size += 70 * fromLength;
