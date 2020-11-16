@@ -15,6 +15,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static io.nuls.v2.constant.Constant.NULS_ASSET_ID;
+import static io.nuls.v2.constant.Constant.NULS_CHAIN_ID;
+
 public class TxUtils {
 
     public static boolean isMainAsset(int chainId, int assetId) {
@@ -22,7 +25,7 @@ public class TxUtils {
     }
 
     public static boolean isNulsAsset(int chainId, int assetId) {
-        return chainId == SDKContext.nuls_chain_id && assetId == SDKContext.nuls_asset_id;
+        return chainId == NULS_CHAIN_ID && assetId == NULS_ASSET_ID;
     }
 
     public static void calcTxFee(List<CoinFrom> coinFroms, List<CoinTo> coinTos, int txSize) throws NulsException {
@@ -89,6 +92,19 @@ public class TxUtils {
             map.put("NULS", fee);
         }
         return map;
+    }
+
+    public static BigInteger calcCrossTxFee(int addressCount, int fromLength, int toLength, String remark) {
+        int size = 10;
+        size += addressCount * P2PHKSignature.SERIALIZE_LENGTH;
+        size += 70 * fromLength;
+        size += 68 * toLength;
+        if (StringUtils.isNotBlank(remark)) {
+            size += StringUtils.bytes(remark).length;
+        }
+        size = size / 1024 + 1;
+        BigInteger fee = TransactionFeeCalculator.getCrossTxFee(size);
+        return fee;
     }
 
     public static BigInteger calcStopConsensusTxFee(int fromLength, int toLength, BigInteger price) {

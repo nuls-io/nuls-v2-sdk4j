@@ -13,18 +13,24 @@ public class SDKContext {
      * 本链主资产id
      */
     public static int main_asset_id = 1;
+
     /**
-     * 地址前缀
+     * nerve 网络链id
      */
-    public static String addressPrefix;
+//    public static int nerve_chain_id = 9;
+
     /**
-     * NULS主网链id
+     * nerve 网络主资产id
      */
-    public static int nuls_chain_id = 1;
+//    public static int nerve_asset_id = 1;
+
+
+    public static String addressPrefix = "NULS";
     /**
-     * NULS主资产id
+     * nerve 网络地址前缀
      */
-    public static int nuls_asset_id = 1;
+//    public static String addressPrefix_nerve = "NERVE";
+
     /**
      * NULS主网默认转账交易手续费单价
      */
