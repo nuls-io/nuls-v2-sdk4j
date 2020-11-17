@@ -167,20 +167,20 @@ public class NaboxCollectionTest {
     public void tokenTransferTxOffline() throws Exception {
         String fromAddress = "tNULSeBaMvEtDfvZuukDf2mVyfGo3DdiN8KLRG";
         String privateKey = "9ce21dad67e0f0af2599b41b515a7f7018059418bab892a7b68f283d489abc4b";
-
+        String toAddress = "tNULSeBaMfQ6VnRxrCwdU6aPqdiPii9Ks8ofUQ";
+        String contractAddress = "tNULSeBaN7D88SKNPUheSKZeHUwmDCUWBH5JdH";
         // 在线接口(不可跳过，一定要调用的接口) - 获取账户余额信息
-        Result accountBalanceR = NulsSDKTool.getAccountBalance(fromAddress, SDKContext.main_chain_id, SDKContext.main_asset_id);
+        Result accountBalanceR = NulsSDKTool.getTokenBalance(fromAddress, contractAddress);
         Assert.assertTrue(JSONUtils.obj2PrettyJson(accountBalanceR), accountBalanceR.isSuccess());
         Map balance = (Map) accountBalanceR.getData();
         BigInteger senderBalance = new BigInteger(balance.get("available").toString());
         String nonce = balance.get("nonce").toString();
 
-        String toAddress = "tNULSeBaMfQ6VnRxrCwdU6aPqdiPii9Ks8ofUQ";
-        String contractAddress = "tNULSeBaN7D88SKNPUheSKZeHUwmDCUWBH5JdH";
+
 
         int tokenDecimals = 8;
         // 转移token数量
-        String tokenAmount = "10.56";
+        String tokenAmount = "99999";
         BigInteger amount = new BigDecimal(tokenAmount).multiply(BigDecimal.TEN.pow(tokenDecimals)).toBigInteger();
 
         String methodName = "transfer";
