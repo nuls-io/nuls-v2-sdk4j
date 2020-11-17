@@ -166,7 +166,7 @@ public class NaboxCollectionTest {
         Result accountBalanceR = NulsSDKTool.getAccountBalance(fromAddress, SDKContext.main_chain_id, SDKContext.main_asset_id);
         Assert.assertTrue(JSONUtils.obj2PrettyJson(accountBalanceR), accountBalanceR.isSuccess());
         Map balance = (Map) accountBalanceR.getData();
-        BigInteger senderBalance = new BigInteger(balance.get("available").toString());
+        BigInteger senderFeeBalance = new BigInteger(balance.get("available").toString());
         String nonce = balance.get("nonce").toString();
 
         String toAddress = "tNULSeBaMfQ6VnRxrCwdU6aPqdiPii9Ks8ofUQ";
@@ -187,13 +187,13 @@ public class NaboxCollectionTest {
         iForm.setMethodName(methodName);
         iForm.setMethodDesc(methodDesc);
         iForm.setArgs(args);
-        
+
         Result iResult = NulsSDKTool.imputedContractCallGas(iForm);
         Assert.assertTrue(JSONUtils.obj2PrettyJson(iResult), iResult.isSuccess());
         Map result = (Map) iResult.getData();
         Long gasLimit = Long.valueOf(result.get("gasLimit").toString());
 
-        Result<Map> map = NulsSDKTool.tokenTransferTxOffline(fromAddress, senderBalance, nonce, toAddress, contractAddress, gasLimit, amount, "tokenTransferTxOffline");
+        Result<Map> map = NulsSDKTool.tokenTransferTxOffline(fromAddress, senderFeeBalance, nonce, toAddress, contractAddress, gasLimit, amount, "tokenTransferTxOffline");
         String txHex = map.getData().get("txHex").toString();
         // 签名
         Result res = NulsSDKTool.sign(txHex, fromAddress, privateKey);
