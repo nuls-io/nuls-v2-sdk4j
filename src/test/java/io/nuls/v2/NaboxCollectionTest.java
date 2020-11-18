@@ -142,8 +142,6 @@ public class NaboxCollectionTest {
         System.out.println(String.format("hash: %s", txHash));
     }
 
-
-
     /**
      * 合约资产跨链转账
      */

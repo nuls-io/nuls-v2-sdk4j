@@ -327,10 +327,6 @@ public class ContractService {
             return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("fromAddress [%s] is invalid", fromAddress));
         }
 
-//        if (!AddressTool.validAddress(SDKContext.nerve_chain_id, toAddress)) {
-//            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("toAddress [%s] is invalid", toAddress));
-//        }
-
         if (!AddressTool.validAddress(chainId, contractAddress)) {
             return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("contractAddress [%s] is invalid", contractAddress));
         }
