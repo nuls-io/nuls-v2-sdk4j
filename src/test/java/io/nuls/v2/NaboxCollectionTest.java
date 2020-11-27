@@ -91,6 +91,7 @@ public class NaboxCollectionTest {
         String value = "1.5";
         int tokenDecimals = 8;
         BigInteger amount = new BigDecimal(value).multiply(BigDecimal.TEN.pow(tokenDecimals)).toBigInteger();
+
         Result<Map> result = NulsSDKTool.createTxSimpleTransferOfNuls(fromAddress, toAddress, amount);
         String txHex = (String) result.getData().get("txHex");
         //签名
@@ -128,7 +129,7 @@ public class NaboxCollectionTest {
 
     /**
      * 跨链转账
-     * 非NULS
+     * NULS
      */
     @Test
     public void createCrossTxSimpleTransferOfNuls() throws Exception {

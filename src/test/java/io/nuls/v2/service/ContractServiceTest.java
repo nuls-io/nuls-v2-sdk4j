@@ -251,7 +251,6 @@ public class ContractServiceTest {
         iForm.setMethodName(methodName);
         iForm.setMethodDesc(methodDesc);
         iForm.setArgs(args);
-
         Result iResult = NulsSDKTool.imputedContractCallGas(iForm);
         Assert.assertTrue(JSONUtils.obj2PrettyJson(iResult), iResult.isSuccess());
         Map result = (Map) iResult.getData();
