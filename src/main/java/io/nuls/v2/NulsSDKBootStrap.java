@@ -1,5 +1,6 @@
 package io.nuls.v2;
 
+import io.nuls.core.model.StringUtils;
 import io.nuls.core.parse.I18nUtils;
 
 public class NulsSDKBootStrap {
@@ -20,7 +21,9 @@ public class NulsSDKBootStrap {
         if (httpUrl != null && !httpUrl.endsWith("/")) {
             httpUrl += "/";
         }
-        SDKContext.wallet_url = httpUrl;
+        if (StringUtils.isNotBlank(httpUrl)) {
+            SDKContext.wallet_url = httpUrl;
+        }
     }
 
     public static void init(int chainId, String addressPrefix, String httpUrl) {
@@ -28,7 +31,9 @@ public class NulsSDKBootStrap {
         if (httpUrl != null && !httpUrl.endsWith("/")) {
             httpUrl += "/";
         }
-        SDKContext.wallet_url = httpUrl;
+        if (StringUtils.isNotBlank(httpUrl)) {
+            SDKContext.wallet_url = httpUrl;
+        }
         SDKContext.addressPrefix = addressPrefix;
     }
 
@@ -38,8 +43,10 @@ public class NulsSDKBootStrap {
         if (httpUrl != null && !httpUrl.endsWith("/")) {
             httpUrl += "/";
         }
+        if (StringUtils.isNotBlank(httpUrl)) {
+            SDKContext.wallet_url = httpUrl;
+        }
         SDKContext.main_chain_id = nulsChainId;
-        SDKContext.wallet_url = httpUrl;
         SDKContext.addressPrefix = addressPrefix;
     }
 
@@ -55,7 +62,9 @@ public class NulsSDKBootStrap {
         if (httpUrl != null && !httpUrl.endsWith("/")) {
             httpUrl += "/";
         }
-        SDKContext.wallet_url = httpUrl;
+        if (StringUtils.isNotBlank(httpUrl)) {
+            SDKContext.wallet_url = httpUrl;
+        }
     }
 
     /**
@@ -69,7 +78,9 @@ public class NulsSDKBootStrap {
         if (httpUrl != null && !httpUrl.endsWith("/")) {
             httpUrl += "/";
         }
-        SDKContext.wallet_url = httpUrl;
+        if (StringUtils.isNotBlank(httpUrl)) {
+            SDKContext.wallet_url = httpUrl;
+        }
         SDKContext.addressPrefix = "tNULS";
     }
 
