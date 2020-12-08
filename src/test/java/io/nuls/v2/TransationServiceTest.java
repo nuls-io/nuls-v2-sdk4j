@@ -17,18 +17,18 @@ import static io.nuls.v2.constant.Constant.NULS_CHAIN_ID;
 
 public class TransationServiceTest {
 
-    static String address = "8CPcA7kaUfbmbNhT6pHGvBhhK1NSKfCrQjdSL";
-    static String pubKey = "03ac18d40eb3131f934441f81c631b3898097b606a84893da1559de61fe3d3cfe9";
-    static String priKey = "6df381435098e47b685cdc00fa1d7c66fa2ba9cc441179c6dd1a5686153fb0ee";
-    static String encryptedPrivateKey = "0c8e925d27660dbd04104455c001efe7a5d4cba8fc484d06506c8ff4baa653be2d69e31c971243e2185782cabbbe265a";
-    static String password = "abcd1234";
+    static String address = "TNVTdTSPFnCMgr9mzvgibQ4hKspVSGEc6XTKE";
+    static String pubKey = "0345bafc4d97a15664074b809d76f99e0fc5a580099a2412631352aac67bb35b01";
+    static String priKey = "588fa9fc9cb6164fe1b1da31818319b6a5992485e34e7a75f705387fd43c27de";
+    static String encryptedPrivateKey = "c15450ff689c55f4faf773e51caefa95649ae8983e75e6a473329f620613c700e735909ad61a5f54469e821e286dda8e";
+    static String password = "nuls123456";
 
     static String packingAddress = "8CPcA7kag6XT1a2yoiTijYaJGY7jceebYWFFq";
 
 
     @Before
     public void before() {
-        NulsSDKBootStrap.init(5, 2, "TNVT", "http://192.168.1.60:17004/");
+        NulsSDKBootStrap.init(5, 5, "TNVT", "http://192.168.1.60:18004/");
     }
 
     @Test
@@ -54,8 +54,8 @@ public class TransationServiceTest {
 
     @Test
     public void testCreateTransferTx() {
-        String fromAddress = "TNVTdTSPLmP6SKyn2RigSA8Lr9bMTgjUhnve4";
-        String toAddress = "tNULSeBaMsEfHKEXvaFPPpQomXipeCYrru6t81";
+        String fromAddress = "TNVTdTSPFnCMgr9mzvgibQ4hKspVSGEc6XTKE";
+        String toAddress = "TNVTdTSPVcqUCdfVYWwrbuRtZ1oM6GpSgsgF5";
 
         TransferTxFeeDto feeDto = new TransferTxFeeDto();
         feeDto.setAddressCount(1);
@@ -69,16 +69,16 @@ public class TransationServiceTest {
 
         CoinFromDto from = new CoinFromDto();
         from.setAddress(fromAddress);
-        from.setAmount(new BigInteger("10000000").add(fee));
+        from.setAmount(new BigInteger("100000000").add(fee));
         from.setAssetChainId(SDKContext.main_chain_id);
         from.setAssetId(SDKContext.main_asset_id);
-        from.setNonce("0000000000000000");
+        from.setNonce("8966ed405941fa7c");
         inputs.add(from);
 
         List<CoinToDto> outputs = new ArrayList<>();
         CoinToDto to = new CoinToDto();
         to.setAddress(toAddress);
-        to.setAmount(new BigInteger("10000000"));
+        to.setAmount(new BigInteger("100000000"));
         to.setAssetChainId(SDKContext.main_chain_id);
         to.setAssetId(SDKContext.main_asset_id);
         outputs.add(to);
@@ -90,13 +90,14 @@ public class TransationServiceTest {
         String txHex = (String) result.getData().get("txHex");
 
         //签名
-        String prikey = "";
-        result = NulsSDKTool.sign(txHex, fromAddress, prikey);
+        result = NulsSDKTool.sign(txHex, fromAddress, priKey);
         txHex = (String) result.getData().get("txHex");
 
         String txHash = (String) result.getData().get("hash");
+        System.out.println("hash: " + txHash);
+        System.out.println("hex: " + txHex);
         //广播
-        result = NulsSDKTool.broadcast(txHex);
+//        result = NulsSDKTool.broadcast(txHex);
     }
 
 
@@ -258,7 +259,8 @@ public class TransationServiceTest {
 
         MultiSignTransferDto transferDto = new MultiSignTransferDto();
 
-        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+//        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+        List<String> pubKeys = new ArrayList<>();
         transferDto.setPubKeys(pubKeys);
         transferDto.setMinSigns(2);
 
@@ -430,8 +432,8 @@ public class TransationServiceTest {
         BigInteger deposit = new BigInteger("2000000000000");
         BigInteger fee = SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE;
 
-        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
-
+        // List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+        List<String> pubKeys = new ArrayList<>();
         MultiSignConsensusDto dto = new MultiSignConsensusDto();
         dto.setAgentAddress("tNULSeBaNTcZo37gNC5mNjJuB39u8zT3TAy8jy");
         dto.setPackingAddress("tNULSeBaMowgMLTbRUngAuj2BvGy2RmVLt3okv");
@@ -460,8 +462,8 @@ public class TransationServiceTest {
         //委托共识金额
         BigInteger deposit = new BigInteger("200000000000");
         BigInteger fee = SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE;
-        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
-
+        //List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+        List<String> pubKeys = new ArrayList<>();
         MultiSignDepositDto depositDto = new MultiSignDepositDto();
         depositDto.setPubKeys(pubKeys);
         depositDto.setMinSigns(2);
@@ -488,8 +490,8 @@ public class TransationServiceTest {
     public void testMultiSignWithDrawDepositTx() {
         BigInteger deposit = new BigInteger("200000000000");
         BigInteger price = SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE;
-        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
-
+        //List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+        List<String> pubKeys = new ArrayList<>();
         MultiSignWithDrawDto drawDto = new MultiSignWithDrawDto();
         drawDto.setPubKeys(pubKeys);
         drawDto.setMinSigns(2);
@@ -514,7 +516,8 @@ public class TransationServiceTest {
     @Test
     public void testMultiSignStopConsensusTx() {
         MultiSignStopConsensusDto dto = new MultiSignStopConsensusDto();
-        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+        // List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+        List<String> pubKeys = new ArrayList<>();
         dto.setPubKeys(pubKeys);
         dto.setMinSigns(2);
         dto.setAgentHash("e67ed0f09cea8bd4e2ad3b4b6d83a39841f9f83dd2a9e5737b73b4d5ad203537");
