@@ -256,7 +256,7 @@ public class ContractServiceTest {
         Map result = (Map) iResult.getData();
         Long gasLimit = Long.valueOf(result.get("gasLimit").toString());
 
-        Result<Map> map = NulsSDKTool.nrc20CrossChainTxOffline(sender, senderBalance, nonce, toAddress, contractAddress, gasLimit, amount, "test nrc20CrossChain");
+        Result<Map> map = NulsSDKTool.nrc20CrossChainTxOffline(sender, senderBalance, nonce, toAddress, contractAddress, gasLimit, amount,  System.currentTimeMillis()/1000, "test nrc20CrossChain");
         String txHex = map.getData().get("txHex").toString();
         // 签名
         Result res = NulsSDKTool.sign(txHex, "tNULSeBaMvEtDfvZuukDf2mVyfGo3DdiN8KLRG", "9ce21dad67e0f0af2599b41b515a7f7018059418bab892a7b68f283d489abc4b");

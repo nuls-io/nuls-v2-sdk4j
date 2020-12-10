@@ -3,6 +3,8 @@ package io.nuls.v2.util;
 import io.nuls.base.basic.NulsByteBuffer;
 import io.nuls.base.data.Transaction;
 import io.nuls.core.basic.Result;
+import io.nuls.core.constant.CommonCodeConstanst;
+import io.nuls.core.constant.ErrorCode;
 import io.nuls.core.crypto.HexUtil;
 import io.nuls.core.exception.NulsException;
 import io.nuls.core.rpc.model.*;
@@ -11,9 +13,12 @@ import io.nuls.v2.model.annotation.ApiOperation;
 import io.nuls.v2.model.dto.*;
 import io.nuls.v2.service.*;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
+
+import static io.nuls.v2.util.ContractUtil.getSuccess;
 
 public class NulsSDKTool {
 
@@ -998,7 +1003,7 @@ public class NulsSDKTool {
     }))
     public static Result<Map> callContractTxOffline(String sender, BigInteger senderBalance, String nonce, BigInteger value, String contractAddress, long gasLimit,
                                                     String methodName, String methodDesc, Object[] args, String[] argsType, String remark) {
-        return contractService.callContractTxOffline(sender, senderBalance, nonce, value, contractAddress, gasLimit, methodName, methodDesc, args, argsType, remark);
+        return contractService.callContractTxOffline(sender, senderBalance, nonce, value, contractAddress, gasLimit, methodName, methodDesc, args, argsType, System.currentTimeMillis() / 1000, remark);
     }
 
     @ApiOperation(description = "离线组装 - 删除合约的交易", order = 453)
@@ -1034,6 +1039,26 @@ public class NulsSDKTool {
     }))
     public static Result<Map> tokenTransferTxOffline(String fromAddress, BigInteger senderBalance, String nonce, String toAddress, String contractAddress, long gasLimit, BigInteger amount, String remark) {
         return contractService.tokenTransferTxOffline(fromAddress, senderBalance, nonce, toAddress, contractAddress, gasLimit, amount, remark);
+    }
+
+    @ApiOperation(description = "离线组装 - token转账交易", order = 454)
+    @Parameters(value = {
+            @Parameter(parameterName = "fromAddress", parameterDes = "转出者账户地址"),
+            @Parameter(parameterName = "senderBalance", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出者账户余额"),
+            @Parameter(parameterName = "nonce", parameterDes = "转出者账户nonce值"),
+            @Parameter(parameterName = "toAddress", parameterDes = "转入者账户地址"),
+            @Parameter(parameterName = "contractAddress", parameterDes = "token合约地址"),
+            @Parameter(parameterName = "gasLimit", requestType = @TypeDescriptor(value = long.class), parameterDes = "设置合约执行消耗的gas上限"),
+            @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的token资产金额"),
+            @Parameter(parameterName = "time", requestType = @TypeDescriptor(value = long.class), parameterDes = "交易时间"),
+            @Parameter(parameterName = "remark", parameterDes = "交易备注", canNull = true)
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化字符串")
+    }))
+    public static Result<Map> tokenTransferTxOffline(String fromAddress, BigInteger senderBalance, String nonce, String toAddress, String contractAddress, long gasLimit, BigInteger amount, long time, String remark) {
+        return contractService.tokenTransferTxOffline(fromAddress, senderBalance, nonce, toAddress, contractAddress, gasLimit, amount, time, remark);
     }
 
     @ApiOperation(description = "离线组装 - 从账户地址向合约地址转账(主链资产)的合约交易", order = 455)
@@ -1219,9 +1244,6 @@ public class NulsSDKTool {
         }
     }
 
-    //todo  查询资产信息
-
-
     @ApiOperation(description = "离线组装 - token转账交易", order = 559)
     @Parameters(value = {
             @Parameter(parameterName = "fromAddress", parameterDes = "转出者账户地址"),
@@ -1231,14 +1253,34 @@ public class NulsSDKTool {
             @Parameter(parameterName = "contractAddress", parameterDes = "token合约地址"),
             @Parameter(parameterName = "gasLimit", requestType = @TypeDescriptor(value = long.class), parameterDes = "设置合约执行消耗的gas上限"),
             @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的token资产金额"),
+            @Parameter(parameterName = "time", requestType = @TypeDescriptor(value = long.class), parameterDes = "转出的token资产金额"),
             @Parameter(parameterName = "remark", parameterDes = "交易备注", canNull = true)
     })
     @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "hash", description = "交易hash"),
             @Key(name = "txHex", description = "交易序列化字符串")
     }))
-    public static Result<Map> nrc20CrossChainTxOffline(String fromAddress, BigInteger senderBalance, String nonce, String toAddress, String contractAddress, long gasLimit, BigInteger amount, String remark) {
-        return contractService.nrc20CrossChainTxOffline(fromAddress, senderBalance, nonce, toAddress, contractAddress, gasLimit, amount, remark);
+    public static Result<Map> nrc20CrossChainTxOffline(String fromAddress, BigInteger senderBalance, String nonce, String toAddress, String contractAddress, long gasLimit, BigInteger amount, long time, String remark) {
+        return contractService.nrc20CrossChainTxOffline(fromAddress, senderBalance, nonce, toAddress, contractAddress, gasLimit, amount, time, remark);
     }
 
+
+    public static BigDecimal getBalance(int assetChainId, int assetId)  {
+        Result rs = getSymbolInfo(assetChainId, assetId);
+        Map map = (Map)rs.getData();
+        String usdPrice = map.get("usdPrice").toString();
+        return new BigDecimal(usdPrice);
+    }
+    public static Result getSymbolInfo(int assetChainId, int assetId)  {
+        if (assetChainId == 0 || assetId == 0) {
+            return Result.getFailed(CommonCodeConstanst.NULL_PARAMETER).setMsg("assetChainId or assetId is empty");
+        }
+        RpcResult<Map> rpcResult = JsonRpcUtil.request("https://scan.nerve.network/api/","getSymbolInfo", ListUtil.of(assetChainId, assetId));
+        RpcResultError rpcResultError = rpcResult.getError();
+        if (rpcResultError != null) {
+            return Result.getFailed(ErrorCode.init(rpcResultError.getCode())).setMsg(rpcResultError.getMessage());
+        }
+        // key : usdPrice
+        return getSuccess().setData(rpcResult.getResult());
+    }
 }

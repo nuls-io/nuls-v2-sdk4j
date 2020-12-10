@@ -321,13 +321,21 @@ public class ContractUtil {
         }
     }
 
-    public static CallContractTransaction newCallTx(int chainId, int assetsId, BigInteger senderBalance, String nonce, CallContractData callContractData, String remark) {
+    public static CallContractTransaction newCallTx(int chainId, int assetId, BigInteger senderBalance, String nonce, CallContractData callContractData, String remark) {
+        return newCallTx(chainId, assetId, senderBalance, nonce, callContractData, 0, remark);
+    }
+
+    public static CallContractTransaction newCallTx(int chainId, int assetsId, BigInteger senderBalance, String nonce, CallContractData callContractData, long time, String remark) {
         try {
             CallContractTransaction tx = new CallContractTransaction();
             if (StringUtils.isNotBlank(remark)) {
                 tx.setRemark(remark.getBytes(StandardCharsets.UTF_8));
             }
-            tx.setTime(System.currentTimeMillis() / 1000);
+            if (time == 0) {
+                tx.setTime(System.currentTimeMillis() / 1000);
+            } else {
+                tx.setTime(time);
+            }
             // 计算CoinData
             CoinData coinData = makeCoinData(chainId, assetsId, senderBalance, nonce, callContractData, tx.size(), calcSize(callContractData));
             tx.setTxDataObj(callContractData);

@@ -130,6 +130,7 @@ public class ContractService {
             @Parameter(parameterName = "methodDesc", parameterDes = "合约方法描述，若合约内方法没有重载，则此参数可以为空", canNull = true),
             @Parameter(parameterName = "args", requestType = @TypeDescriptor(value = Object[].class), parameterDes = "参数列表", canNull = true),
             @Parameter(parameterName = "argsType", requestType = @TypeDescriptor(value = String[].class), parameterDes = "参数类型列表", canNull = true),
+            @Parameter(parameterName = "time", requestType = @TypeDescriptor(value = long.class), parameterDes = "交易时间", canNull = true),
             @Parameter(parameterName = "remark", parameterDes = "交易备注", canNull = true)
     })
     @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
@@ -137,7 +138,7 @@ public class ContractService {
             @Key(name = "txHex", description = "交易序列化字符串")
     }))
     public Result<Map> callContractTxOffline(String sender, BigInteger senderBalance, String nonce, BigInteger value, String contractAddress, long gasLimit,
-                                             String methodName, String methodDesc, Object[] args, String[] argsType, String remark) {
+                                             String methodName, String methodDesc, Object[] args, String[] argsType, long time, String remark) {
         int chainId = SDKContext.main_chain_id;
         if (!AddressTool.validAddress(chainId, sender)) {
             return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("sender [%s] is invalid", sender));
@@ -182,7 +183,7 @@ public class ContractService {
         }
 
         // 生成交易
-        Transaction tx = ContractUtil.newCallTx(chainId, assetId, senderBalance, nonce, callContractData, remark);
+        Transaction tx = ContractUtil.newCallTx(chainId, assetId, senderBalance, nonce, callContractData, time, remark);
         try {
             Map<String, Object> resultMap = new HashMap<>(4);
             resultMap.put("hash", tx.getHash().toHex());
@@ -252,6 +253,26 @@ public class ContractService {
             @Key(name = "txHex", description = "交易序列化字符串")
     }))
     public Result<Map> tokenTransferTxOffline(String fromAddress, BigInteger senderBalance, String nonce, String toAddress, String contractAddress, long gasLimit, BigInteger amount, String remark) {
+        return tokenTransferTxOffline(fromAddress, senderBalance, nonce, toAddress, contractAddress, gasLimit, amount,0, remark);
+    }
+
+
+    @Parameters(value = {
+            @Parameter(parameterName = "fromAddress", parameterDes = "转出者账户地址"),
+            @Parameter(parameterName = "senderBalance", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出者账户余额"),
+            @Parameter(parameterName = "nonce", parameterDes = "转出者账户nonce值"),
+            @Parameter(parameterName = "toAddress", parameterDes = "转入者账户地址"),
+            @Parameter(parameterName = "contractAddress", parameterDes = "token合约地址"),
+            @Parameter(parameterName = "gasLimit", requestType = @TypeDescriptor(value = long.class), parameterDes = "设置合约执行消耗的gas上限"),
+            @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的token资产金额"),
+            @Parameter(parameterName = "time", requestType = @TypeDescriptor(value = long.class), parameterDes = "转出的token资产金额"),
+            @Parameter(parameterName = "remark", parameterDes = "交易备注", canNull = true)
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化字符串")
+    }))
+    public Result<Map> tokenTransferTxOffline(String fromAddress, BigInteger senderBalance, String nonce, String toAddress, String contractAddress, long gasLimit, BigInteger amount, long time, String remark) {
         int chainId = SDKContext.main_chain_id;
         if (amount == null || amount.compareTo(BigInteger.ZERO) <= 0) {
             return Result.getFailed(ContractErrorCode.PARAMETER_ERROR).setMsg(String.format("amount [%s] is invalid", amount));
@@ -269,8 +290,9 @@ public class ContractService {
             return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("contractAddress [%s] is invalid", contractAddress));
         }
         return this.callContractTxOffline(fromAddress, senderBalance, nonce, null, contractAddress, gasLimit, Constant.NRC20_METHOD_TRANSFER, null,
-                new Object[]{toAddress, amount.toString()}, new String[]{"String", "BigInteger"}, remark);
+                new Object[]{toAddress, amount.toString()}, new String[]{"String", "BigInteger"}, time, remark);
     }
+
 
     //@ApiOperation(description = "离线组装 - 从账户地址向合约地址转账(主链资产)的合约交易")
     @Parameters(value = {
@@ -300,7 +322,8 @@ public class ContractService {
             return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("toAddress [%s] is invalid", toAddress));
         }
 
-        return this.callContractTxOffline(fromAddress, senderBalance, nonce, amount, toAddress, gasLimit, Constant.BALANCE_TRIGGER_METHOD_NAME, Constant.BALANCE_TRIGGER_METHOD_DESC, null, null, remark);
+        return this.callContractTxOffline(fromAddress, senderBalance, nonce, amount, toAddress, gasLimit, Constant.BALANCE_TRIGGER_METHOD_NAME,
+                Constant.BALANCE_TRIGGER_METHOD_DESC, null, null, System.currentTimeMillis() / 1000, remark);
     }
 
     @Parameters(value = {
@@ -311,13 +334,14 @@ public class ContractService {
             @Parameter(parameterName = "contractAddress", parameterDes = "token合约地址"),
             @Parameter(parameterName = "gasLimit", requestType = @TypeDescriptor(value = long.class), parameterDes = "设置合约执行消耗的gas上限"),
             @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的资产金额"),
+            @Parameter(parameterName = "time", requestType = @TypeDescriptor(value = long.class), parameterDes = "交易时间"),
             @Parameter(parameterName = "remark", parameterDes = "交易备注", canNull = true)
     })
     @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "hash", description = "交易hash"),
             @Key(name = "txHex", description = "交易序列化字符串")
     }))
-    public Result<Map> nrc20CrossChainTxOffline(String fromAddress, BigInteger senderBalance, String nonce, String toAddress, String contractAddress, long gasLimit, BigInteger amount, String remark) {
+    public Result<Map> nrc20CrossChainTxOffline(String fromAddress, BigInteger senderBalance, String nonce, String toAddress, String contractAddress, long gasLimit, BigInteger amount, long time, String remark) {
         int chainId = SDKContext.main_chain_id;
         if (amount == null || amount.compareTo(BigInteger.ZERO) <= 0) {
             return Result.getFailed(ContractErrorCode.PARAMETER_ERROR).setMsg(String.format("amount [%s] is invalid", amount));
@@ -337,7 +361,7 @@ public class ContractService {
         // 跨链手续费
         BigInteger value = BigInteger.valueOf(1000_0000L);
         return this.callContractTxOffline(fromAddress, senderBalance, nonce, value, contractAddress, gasLimit, Constant.NRC20_EVENT_TRANSFER_CROSS_CHAIN, null,
-                new Object[]{toAddress, amount.toString()}, new String[]{"String", "BigInteger"}, remark);
+                new Object[]{toAddress, amount.toString()}, new String[]{"String", "BigInteger"},time, remark);
     }
 
     public Result createContract(ContractCreateForm form) {
@@ -688,5 +712,6 @@ public class ContractService {
         }
         return result;
     }
+
 
 }
