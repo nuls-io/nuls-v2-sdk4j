@@ -4,6 +4,7 @@ import java.math.BigInteger;
 
 public class SDKContext {
 
+
     public static String DEFAULT_ENCODING = "UTF-8";
     /**
      * 本链id
@@ -13,6 +14,7 @@ public class SDKContext {
      * 本链主资产id
      */
     public static int main_asset_id = 1;
+
 
     public static String addressPrefix = "NULS";
 
@@ -31,6 +33,8 @@ public class SDKContext {
     /**
      * 访问钱包的http接口url地址
      */
-    public static String wallet_url = "http://127.0.0.1:9898/";
+    public static String wallet_url = "https://api.nuls.io/";
+
+
 
 }
