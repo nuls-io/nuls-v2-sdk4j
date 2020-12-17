@@ -7,7 +7,9 @@ import io.nuls.core.constant.CommonCodeConstanst;
 import io.nuls.core.constant.ErrorCode;
 import io.nuls.core.crypto.HexUtil;
 import io.nuls.core.exception.NulsException;
+import io.nuls.core.parse.I18nUtils;
 import io.nuls.core.rpc.model.*;
+import io.nuls.v2.NulsSDKBootStrap;
 import io.nuls.v2.SDKContext;
 import io.nuls.v2.model.annotation.ApiOperation;
 import io.nuls.v2.model.dto.*;
@@ -31,6 +33,13 @@ public class NulsSDKTool {
     private static ConsensusService consensusService = ConsensusService.getInstance();
 
     private static ContractService contractService = ContractService.getInstance();
+
+    private static final String LANGUAGE = "en";
+    private static final String LANGUAGE_PATH = "languages";
+
+    static {
+        I18nUtils.loadLanguage(NulsSDKTool.class, LANGUAGE_PATH, LANGUAGE);
+    }
 
     @ApiOperation(description = "获取本链相关信息,其中共识资产为本链创建共识节点交易和创建委托共识交易时，需要用到的资产", order = 001)
     @ResponseData(name = "返回值", description = "返回本链信息", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
