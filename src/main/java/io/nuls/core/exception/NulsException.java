@@ -25,6 +25,7 @@
 package io.nuls.core.exception;
 
 import io.nuls.core.constant.ErrorCode;
+import io.nuls.core.parse.I18nUtils;
 
 import java.text.MessageFormat;
 
@@ -36,6 +37,13 @@ public class NulsException extends Exception {
     private ErrorCode errorCode;
     private String code;
     private String message;
+
+    private static final String LANGUAGE = "en";
+    private static final String LANGUAGE_PATH = "languages";
+
+    static {
+        I18nUtils.loadLanguage(NulsException.class, LANGUAGE_PATH, LANGUAGE);
+    }
 
     /**
      * Constructs a new exception with the specified detail validator.  The

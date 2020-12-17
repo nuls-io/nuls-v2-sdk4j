@@ -1,13 +1,8 @@
 package io.nuls.v2;
 
 import io.nuls.core.model.StringUtils;
-import io.nuls.core.parse.I18nUtils;
 
 public class NulsSDKBootStrap {
-
-    private static final String LANGUAGE = "en";
-    private static final String LANGUAGE_PATH = "languages";
-
 
     /**
      * NULS-SDK工具初始化
@@ -94,7 +89,6 @@ public class NulsSDKBootStrap {
             throw new RuntimeException("[defaultChainId] is invalid");
         }
         SDKContext.main_chain_id = chainId;
-        I18nUtils.loadLanguage(NulsSDKBootStrap.class, LANGUAGE_PATH, LANGUAGE);
     }
 
 

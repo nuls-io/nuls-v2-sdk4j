@@ -27,6 +27,7 @@ package io.nuls.v2;
 import io.nuls.core.basic.Result;
 import io.nuls.core.crypto.HexUtil;
 import io.nuls.core.exception.NulsException;
+import io.nuls.core.parse.I18nUtils;
 import io.nuls.core.parse.JSONUtils;
 import io.nuls.v2.error.AccountErrorCode;
 import io.nuls.v2.model.Account;
@@ -54,7 +55,12 @@ public class NaboxCollectionTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.initTest("http://beta.api.nuls.io/");
+        //NulsSDKBootStrap.initTest("http://beta.api.nuls.io/");
+    }
+
+    @Test
+    public void test() throws NulsException {
+        I18nUtils.setLanguage("ee");
     }
 
     /**
