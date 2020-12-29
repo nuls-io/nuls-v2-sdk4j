@@ -38,6 +38,7 @@ import io.nuls.core.model.LongUtils;
 import io.nuls.core.model.StringUtils;
 import io.nuls.v2.constant.Constant;
 import io.nuls.v2.error.ContractErrorCode;
+import io.nuls.v2.model.dto.ProgramMultyAssetValue;
 import io.nuls.v2.tx.CallContractTransaction;
 import io.nuls.v2.tx.CreateContractTransaction;
 import io.nuls.v2.tx.DeleteContractTransaction;
@@ -53,6 +54,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 
 import static io.nuls.core.constant.TxType.*;
 import static io.nuls.core.model.StringUtils.isBlank;
@@ -321,11 +323,14 @@ public class ContractUtil {
         }
     }
 
-    public static CallContractTransaction newCallTx(int chainId, int assetId, BigInteger senderBalance, String nonce, CallContractData callContractData, String remark) {
-        return newCallTx(chainId, assetId, senderBalance, nonce, callContractData, 0, remark);
+    public static CallContractTransaction newCallTx(int chainId, int assetId, BigInteger senderBalance, String nonce, CallContractData callContractData, String remark,
+                                                    List<ProgramMultyAssetValue> multyAssetValues) {
+        return newCallTx(chainId, assetId, senderBalance, nonce, callContractData, 0, remark, multyAssetValues);
     }
 
-    public static CallContractTransaction newCallTx(int chainId, int assetsId, BigInteger senderBalance, String nonce, CallContractData callContractData, long time, String remark) {
+    public static CallContractTransaction newCallTx(int chainId, int assetId, BigInteger senderBalance, String nonce,
+                                                    CallContractData callContractData, long time, String remark,
+                                                    List<ProgramMultyAssetValue> multyAssetValues) {
         try {
             CallContractTransaction tx = new CallContractTransaction();
             if (StringUtils.isNotBlank(remark)) {
@@ -336,16 +341,93 @@ public class ContractUtil {
             } else {
                 tx.setTime(time);
             }
+
+            byte[] sender = callContractData.getSender();
+            BigInteger value = callContractData.getValue();
+            byte[] contractAddress = callContractData.getContractAddress();
+            List<CoinFrom> froms = new ArrayList<>();
+            List<CoinTo> tos = new ArrayList<>();
+            if (value.compareTo(BigInteger.ZERO) > 0) {
+                CoinFrom coinFrom = new CoinFrom(sender, chainId, assetId, value, RPCUtil.decode(nonce), (byte) 0);
+                froms.add(coinFrom);
+                CoinTo coinTo = new CoinTo(contractAddress, chainId, assetId, value);
+                tos.add(coinTo);
+            }
+            int _assetChainId, _assetId;
+            if (multyAssetValues != null) {
+                for (ProgramMultyAssetValue multyAssetValue : multyAssetValues) {
+                    BigInteger _value = multyAssetValue.getValue();
+                    _assetChainId = multyAssetValue.getAssetChainId();
+                    _assetId = multyAssetValue.getAssetId();
+
+                    CoinFrom coinFrom = new CoinFrom(sender, _assetChainId, _assetId, _value, RPCUtil.decode(multyAssetValue.getNonce()), (byte) 0);
+                    froms.add(coinFrom);
+
+                    CoinTo coinTo = new CoinTo(contractAddress, _assetChainId, _assetId, _value);
+                    tos.add(coinTo);
+                }
+            }
+
             // 计算CoinData
-            CoinData coinData = makeCoinData(chainId, assetsId, senderBalance, nonce, callContractData, tx.size(), calcSize(callContractData));
-            tx.setTxDataObj(callContractData);
-            tx.setCoinDataObj(coinData);
-            tx.serializeData();
+            CoinData coinData = new CoinData();
+            coinData.setFrom(froms);
+            coinData.setTo(tos);
+            long gasUsed = callContractData.getGasLimit();
+            BigInteger imputedValue = BigInteger.valueOf(LongUtils.mul(gasUsed, callContractData.getPrice()));
+            byte[] feeAccountBytes = sender;
+            BigInteger feeValue = imputedValue;
+            CoinFrom feeAccountFrom = null;
+            for (CoinFrom from : froms) {
+                _assetChainId = from.getAssetsChainId();
+                _assetId = from.getAssetsId();
+                if (Arrays.equals(from.getAddress(), feeAccountBytes) && _assetChainId == chainId && _assetId == assetId) {
+                    from.setAmount(from.getAmount().add(feeValue));
+                    feeAccountFrom = from;
+                    break;
+                }
+            }
+            if (feeAccountFrom == null) {
+                feeAccountFrom = new CoinFrom(feeAccountBytes, chainId, assetId, feeValue, RPCUtil.decode(nonce), (byte) 0);
+                coinData.addFrom(feeAccountFrom);
+            }
+            tx.setCoinData(coinData.serialize());
+            tx.setTxData(callContractData.serialize());
+
+            BigInteger txSizeFee = TransactionFeeCalculator.getNormalUnsignedTxFee(tx.getSize() + 130);
+            feeAccountFrom.setAmount(feeAccountFrom.getAmount().add(txSizeFee));
+
+            tx.setCoinData(coinData.serialize());
             return tx;
         } catch (IOException e) {
             Log.error(e);
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    private static CoinData makeCallCoinData(int chainId, int assetsId, BigInteger senderBalance, String nonce, ContractData contractData, int txSize, int txDataSize) {
+        CoinData coinData = new CoinData();
+        long gasUsed = contractData.getGasLimit();
+        BigInteger imputedValue = BigInteger.valueOf(LongUtils.mul(gasUsed, contractData.getPrice()));
+        // 总花费
+        BigInteger value = contractData.getValue();
+        BigInteger totalValue = imputedValue.add(value);
+
+        CoinFrom coinFrom = new CoinFrom(contractData.getSender(), chainId, assetsId, totalValue, RPCUtil.decode(nonce), (byte) 0);
+        coinData.addFrom(coinFrom);
+
+        if (value.compareTo(BigInteger.ZERO) > 0) {
+            CoinTo coinTo = new CoinTo(contractData.getContractAddress(), chainId, assetsId, value);
+            coinData.addTo(coinTo);
+        }
+
+        BigInteger fee = TransactionFeeCalculator.getNormalUnsignedTxFee(txSize + txDataSize + calcSize(coinData));
+        totalValue = totalValue.add(fee);
+        if (senderBalance.compareTo(totalValue) < 0) {
+            // Insufficient balance
+            throw new RuntimeException("Insufficient balance");
+        }
+        coinFrom.setAmount(totalValue);
+        return coinData;
     }
 
     public static DeleteContractTransaction newDeleteTx(int chainId, int assetsId, BigInteger senderBalance, String nonce, DeleteContractData deleteContractData, String remark) {
@@ -392,7 +474,6 @@ public class ContractUtil {
         coinFrom.setAmount(totalValue);
         return coinData;
     }
-
 
     private static int calcSize(NulsData nulsData) {
         if (nulsData == null) {

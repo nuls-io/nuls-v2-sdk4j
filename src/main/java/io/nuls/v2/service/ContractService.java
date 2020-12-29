@@ -25,6 +25,7 @@ import io.nuls.v2.util.*;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static io.nuls.core.constant.CommonCodeConstanst.NULL_PARAMETER;
@@ -131,14 +132,16 @@ public class ContractService {
             @Parameter(parameterName = "args", requestType = @TypeDescriptor(value = Object[].class), parameterDes = "参数列表", canNull = true),
             @Parameter(parameterName = "argsType", requestType = @TypeDescriptor(value = String[].class), parameterDes = "参数类型列表", canNull = true),
             @Parameter(parameterName = "time", requestType = @TypeDescriptor(value = long.class), parameterDes = "交易时间", canNull = true),
-            @Parameter(parameterName = "remark", parameterDes = "交易备注", canNull = true)
+            @Parameter(parameterName = "remark", parameterDes = "交易备注", canNull = true),
+            @Parameter(parameterName = "multyAssetValues", requestType = @TypeDescriptor(value = List.class, collectionElement = ProgramMultyAssetValue.class), parameterDes = "调用者向合约地址转入的其他资产金额，没有此业务时填空，规则: [[<value>,<assetChainId>,<assetId>]]", canNull = true)
     })
     @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "hash", description = "交易hash"),
             @Key(name = "txHex", description = "交易序列化字符串")
     }))
-    public Result<Map> callContractTxOffline(String sender, BigInteger senderBalance, String nonce, BigInteger value, String contractAddress, long gasLimit,
-                                             String methodName, String methodDesc, Object[] args, String[] argsType, long time, String remark) {
+    public Result<Map> callContractTxOffline(String sender, BigInteger senderBalance, String nonce, BigInteger value, String contractAddress,
+                                             long gasLimit, String methodName, String methodDesc, Object[] args, String[] argsType,
+                                             long time, String remark, List<ProgramMultyAssetValue> multyAssetValues) {
         int chainId = SDKContext.main_chain_id;
         if (!AddressTool.validAddress(chainId, sender)) {
             return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("sender [%s] is invalid", sender));
@@ -183,7 +186,7 @@ public class ContractService {
         }
 
         // 生成交易
-        Transaction tx = ContractUtil.newCallTx(chainId, assetId, senderBalance, nonce, callContractData, time, remark);
+        Transaction tx = ContractUtil.newCallTx(chainId, assetId, senderBalance, nonce, callContractData, time, remark, multyAssetValues);
         try {
             Map<String, Object> resultMap = new HashMap<>(4);
             resultMap.put("hash", tx.getHash().toHex());
@@ -290,7 +293,7 @@ public class ContractService {
             return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("contractAddress [%s] is invalid", contractAddress));
         }
         return this.callContractTxOffline(fromAddress, senderBalance, nonce, null, contractAddress, gasLimit, Constant.NRC20_METHOD_TRANSFER, null,
-                new Object[]{toAddress, amount.toString()}, new String[]{"String", "BigInteger"}, time, remark);
+                new Object[]{toAddress, amount.toString()}, new String[]{"String", "BigInteger"}, time, remark, null);
     }
 
 
@@ -323,7 +326,7 @@ public class ContractService {
         }
 
         return this.callContractTxOffline(fromAddress, senderBalance, nonce, amount, toAddress, gasLimit, Constant.BALANCE_TRIGGER_METHOD_NAME,
-                Constant.BALANCE_TRIGGER_METHOD_DESC, null, null, System.currentTimeMillis() / 1000, remark);
+                Constant.BALANCE_TRIGGER_METHOD_DESC, null, null, System.currentTimeMillis() / 1000, remark, null);
     }
 
     @Parameters(value = {
@@ -361,7 +364,7 @@ public class ContractService {
         // 跨链手续费
         BigInteger value = BigInteger.valueOf(1000_0000L);
         return this.callContractTxOffline(fromAddress, senderBalance, nonce, value, contractAddress, gasLimit, Constant.NRC20_EVENT_TRANSFER_CROSS_CHAIN, null,
-                new Object[]{toAddress, amount.toString()}, new String[]{"String", "BigInteger"},time, remark);
+                new Object[]{toAddress, amount.toString()}, new String[]{"String", "BigInteger"},time, remark, null);
     }
 
     public Result createContract(ContractCreateForm form) {
@@ -414,6 +417,7 @@ public class ContractService {
         params.put("remark", form.getRemark());
         params.put("contractAddress", form.getContractAddress());
         params.put("value", form.getValue());
+        params.put("multyAssetValues", form.getMultyAssetValues());
         params.put("methodName", form.getMethodName());
         params.put("methodDesc", form.getMethodDesc());
         params.put("args", form.getArgs());
