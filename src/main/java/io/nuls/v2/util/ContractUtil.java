@@ -404,32 +404,6 @@ public class ContractUtil {
         }
     }
 
-    private static CoinData makeCallCoinData(int chainId, int assetsId, BigInteger senderBalance, String nonce, ContractData contractData, int txSize, int txDataSize) {
-        CoinData coinData = new CoinData();
-        long gasUsed = contractData.getGasLimit();
-        BigInteger imputedValue = BigInteger.valueOf(LongUtils.mul(gasUsed, contractData.getPrice()));
-        // 总花费
-        BigInteger value = contractData.getValue();
-        BigInteger totalValue = imputedValue.add(value);
-
-        CoinFrom coinFrom = new CoinFrom(contractData.getSender(), chainId, assetsId, totalValue, RPCUtil.decode(nonce), (byte) 0);
-        coinData.addFrom(coinFrom);
-
-        if (value.compareTo(BigInteger.ZERO) > 0) {
-            CoinTo coinTo = new CoinTo(contractData.getContractAddress(), chainId, assetsId, value);
-            coinData.addTo(coinTo);
-        }
-
-        BigInteger fee = TransactionFeeCalculator.getNormalUnsignedTxFee(txSize + txDataSize + calcSize(coinData));
-        totalValue = totalValue.add(fee);
-        if (senderBalance.compareTo(totalValue) < 0) {
-            // Insufficient balance
-            throw new RuntimeException("Insufficient balance");
-        }
-        coinFrom.setAmount(totalValue);
-        return coinData;
-    }
-
     public static DeleteContractTransaction newDeleteTx(int chainId, int assetsId, BigInteger senderBalance, String nonce, DeleteContractData deleteContractData, String remark) {
         try {
             DeleteContractTransaction tx = new DeleteContractTransaction();

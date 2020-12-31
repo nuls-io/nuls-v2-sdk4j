@@ -179,7 +179,7 @@ public class ContractServiceTest {
         Sender _sender = this.sender01;
         String sender = _sender.getSender();
         String priKey = _sender.getPriKey();
-        String contractAddress = "tNULSeBaN5ZoJhP84ePhDsSENXMs5NzK24JjLX";
+        String contractAddress = "tNULSeBaN31HBrLhXsWDkSz1bjhw5qGBcjafVJ";
         long gasLimit = 200000L;
         String methodName = "_payableMultyAsset";
         String methodDesc = "";
@@ -244,7 +244,7 @@ public class ContractServiceTest {
         Sender _sender = this.sender01;
         String sender = _sender.getSender();
         String priKey = _sender.getPriKey();
-        String contractAddress = "tNULSeBaN5ZoJhP84ePhDsSENXMs5NzK24JjLX";
+        String contractAddress = "tNULSeBaN31HBrLhXsWDkSz1bjhw5qGBcjafVJ";
         long gasLimit = 200000L;
         String methodName = "receiveAllAssets";
         String methodDesc = "";
