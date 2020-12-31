@@ -989,6 +989,7 @@ public class NulsSDKTool {
             @Parameter(parameterName = "senderBalance", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "账户余额"),
             @Parameter(parameterName = "nonce", parameterDes = "账户nonce值"),
             @Parameter(parameterName = "value", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "调用者向合约地址转入的主网资产金额，没有此业务时填BigInteger.ZERO"),
+            @Parameter(parameterName = "multyAssetValues", requestType = @TypeDescriptor(value = String[][].class), parameterDes = "调用者向合约地址转入的其他资产金额，没有此业务时填空，规则: [[<value>,<assetChainId>,<assetId>]]"),
             @Parameter(parameterName = "contractAddress", parameterDes = "合约地址"),
             @Parameter(parameterName = "gasLimit", requestType = @TypeDescriptor(value = long.class), parameterDes = "设置合约执行消耗的gas上限"),
             @Parameter(parameterName = "methodName", parameterDes = "合约方法"),
@@ -1002,8 +1003,16 @@ public class NulsSDKTool {
             @Key(name = "txHex", description = "交易序列化字符串")
     }))
     public static Result<Map> callContractTxOffline(String sender, BigInteger senderBalance, String nonce, BigInteger value, String contractAddress, long gasLimit,
+                                                    String methodName, String methodDesc, Object[] args, String[] argsType, String remark,
+                                                    List<ProgramMultyAssetValue> multyAssetValues) {
+        return contractService.callContractTxOffline(sender, senderBalance, nonce, value, contractAddress, gasLimit, methodName, methodDesc,
+                args, argsType, System.currentTimeMillis() / 1000, remark, multyAssetValues);
+    }
+
+    public static Result<Map> callContractTxOffline(String sender, BigInteger senderBalance, String nonce, BigInteger value, String contractAddress, long gasLimit,
                                                     String methodName, String methodDesc, Object[] args, String[] argsType, String remark) {
-        return contractService.callContractTxOffline(sender, senderBalance, nonce, value, contractAddress, gasLimit, methodName, methodDesc, args, argsType, System.currentTimeMillis() / 1000, remark);
+        return contractService.callContractTxOffline(sender, senderBalance, nonce, value, contractAddress, gasLimit, methodName, methodDesc,
+                args, argsType, System.currentTimeMillis() / 1000, remark, null);
     }
 
     @ApiOperation(description = "离线组装 - 删除合约的交易", order = 453)
