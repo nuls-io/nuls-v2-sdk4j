@@ -89,6 +89,11 @@ public class NulsSDKBootStrap {
             throw new RuntimeException("[defaultChainId] is invalid");
         }
         SDKContext.main_chain_id = chainId;
+        try {
+            Class.forName("io.nuls.core.exception.NulsException");
+        } catch (ClassNotFoundException e) {
+            // skip it
+        }
     }
 
 

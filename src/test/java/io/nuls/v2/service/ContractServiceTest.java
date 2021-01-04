@@ -153,10 +153,10 @@ public class ContractServiceTest {
         String sender = _sender.getSender();
         String priKey = _sender.getPriKey();
         BigInteger value = BigInteger.ZERO;
-        String contractAddress = "tNULSeBaN1fUX96b3QBrmtq2GU3mt6YmHGujFy";
-        String methodName = "transfer";
+        String contractAddress = "tNULSeBaN31HBrLhXsWDkSz1bjhw5qGBcjafVJ";
+        String methodName = "transferDesignatedAsset";
         String methodDesc = "";
-        Object[] args = new Object[]{"tNULSeBaMvEtDfvZuukDf2mVyfGo3DdiN8KLRG", 3800};
+        Object[] args = new Object[]{"tNULSeBaMrbMRiFAUeeAt6swb4xVBNyi81YL24", new BigDecimal("2").multiply(BigDecimal.TEN.pow(8)).toBigInteger(), 5, 1};
         String remark = "remark_call_test";
 
         String signedTxHex = callOfflineHex(chainId, sender, priKey, value, contractAddress,
@@ -171,7 +171,7 @@ public class ContractServiceTest {
     }
 
     /**
-     * 调用合约转入多资产, 举例资产数据 5-1(NVT), 5-14(USDT)
+     * 调用合约转入多资产, 举例资产数据 5-1(NVT), 5-7(USDT)
      */
     @Test
     public void callTxWithMultyAssetOffline() throws JsonProcessingException {
@@ -189,10 +189,10 @@ public class ContractServiceTest {
         BigInteger value = BigInteger.ZERO;
         // 转入2个NVT和3个USDT, 填入资产链ID和资产ID获取账户资产的nonce
         List<ProgramMultyAssetValue> multyAssetValueList = new ArrayList<>();
-        Result accountBalance5_14 = NulsSDKTool.getAccountBalance(sender, 5, 14);
-        Map balance5_14 = (Map) accountBalance5_14.getData();
-        String nonce5_14 = balance5_14.get("nonce").toString();
-        multyAssetValueList.add(new ProgramMultyAssetValue(BigInteger.valueOf(3_000000L), nonce5_14, 5, 14));
+        Result accountBalance5_7 = NulsSDKTool.getAccountBalance(sender, 5, 7);
+        Map balance5_7 = (Map) accountBalance5_7.getData();
+        String nonce5_7 = balance5_7.get("nonce").toString();
+        multyAssetValueList.add(new ProgramMultyAssetValue(BigInteger.valueOf(3_000000L), nonce5_7, 5, 7));
 
         Result accountBalance5_1 = NulsSDKTool.getAccountBalance(sender, 5, 1);
         Map balance5_1 = (Map) accountBalance5_1.getData();
@@ -236,7 +236,7 @@ public class ContractServiceTest {
     }
 
     /**
-     * 调用合约同时转入NULS和USDT, 举例数据: NULS 其他资产 5-14(USDT)
+     * 调用合约同时转入NULS和USDT, 举例数据: NULS 其他资产 5-7(USDT)
      */
     @Test
     public void callTxWithMultyAssetOffline2() throws JsonProcessingException {
@@ -255,10 +255,10 @@ public class ContractServiceTest {
         BigInteger value = new BigDecimal("6.6").movePointRight(8).toBigInteger();
         // 转入2个USDT，填入资产链ID和资产ID 5-14获取账户USDT资产的nonce
         List<ProgramMultyAssetValue> multyAssetValueList = new ArrayList<>();
-        Result accountBalance5_14 = NulsSDKTool.getAccountBalance(sender, 5, 14);
-        Map balance5_14 = (Map) accountBalance5_14.getData();
-        String nonce5_14 = balance5_14.get("nonce").toString();
-        multyAssetValueList.add(new ProgramMultyAssetValue(BigInteger.valueOf(2_000000L), nonce5_14, 5, 14));
+        Result accountBalance5_7 = NulsSDKTool.getAccountBalance(sender, 5, 7);
+        Map balance5_7 = (Map) accountBalance5_7.getData();
+        String nonce5_7 = balance5_7.get("nonce").toString();
+        multyAssetValueList.add(new ProgramMultyAssetValue(BigInteger.valueOf(2_000000L), nonce5_7, 5, 7));
 
         // 获取调用账户余额信息
         Result accountBalanceR = NulsSDKTool.getAccountBalance(sender, chainId, SDKContext.main_asset_id);
