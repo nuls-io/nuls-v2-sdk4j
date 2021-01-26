@@ -49,6 +49,7 @@ public class Sdk4jDocTool {
         baseType.add(String.class);
         baseType.add(Object[].class);
         baseType.add(String[].class);
+        baseType.add(String[][].class);
         baseType.add(BigInteger.class);
         baseType.add(BigDecimal.class);
     }

@@ -11,7 +11,7 @@ JDK11的版本依赖：
 <dependency>
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j</artifactId>
-    <version>1.0.7.RELEASE</version>
+    <version>1.1.4.RELEASE</version>
 </dependency>
 ```
 
@@ -20,7 +20,7 @@ JDK8的版本依赖：
 <dependency>
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j-jdk8</artifactId>
-    <version>1.0.7.RELEASE</version>
+    <version>1.1.9.RELEASE</version>
 </dependency>
 ```
 
@@ -300,12 +300,12 @@ _**详细描述: 创建的账户不会保存到钱包中,接口直接返回账�
 
 参数列表
 ----
-| 参数名      |  参数类型  | 参数描述 | 是否必填 |
-| -------- |:------:| ---- |:----:|
-| chainId  |  int   | 链ID     |  是   |
-| count    |  int   | 创建数量 |  是   |
-| prefix   | string | 地址前缀 |  否   |
-| password | string | 密码   |  是   |
+| 参数名      |  参数类型  | 参数描述     | 是否必填 |
+| -------- |:------:| -------- |:----:|
+| chainId  |  int   | 地址对应的链Id |  是   |
+| count    |  int   | 创建数量     |  是   |
+| prefix   | string | 地址前缀     |  否   |
+| password | string | 密码       |  是   |
 
 返回值
 ---
@@ -715,7 +715,7 @@ _**详细描述: 查询最新区块**_
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;status                                                        |       int       | 交易状态 0:unConfirm(待确认), 1:confirm(已确认)     |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;size                                                          |       int       | 交易大小                                      |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inBlockIndex                                                  |       int       | 在区块中的顺序，存储在rocksDB中是无序的，保存区块时赋值，取出后根据此值排序 |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;form                                                          | list&lt;object> | 输入                                        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;from                                                          | list&lt;object> | 输入                                        |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address       |     string      | 账户地址                                      |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetsChainId |       int       | 资产发行链的id                                  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetsId      |       int       | 资产id                                      |
@@ -756,7 +756,7 @@ _**详细描述: 根据hash查询交易详情**_
 | status                                                        |       int       | 交易状态 0:unConfirm(待确认), 1:confirm(已确认)     |
 | size                                                          |       int       | 交易大小                                      |
 | inBlockIndex                                                  |       int       | 在区块中的顺序，存储在rocksDB中是无序的，保存区块时赋值，取出后根据此值排序 |
-| form                                                          | list&lt;object> | 输入                                        |
+| from                                                          | list&lt;object> | 输入                                        |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address       |     string      | 账户地址                                      |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetsChainId |       int       | 资产发行链的id                                  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetsId      |       int       | 资产id                                      |
@@ -830,44 +830,33 @@ _**详细描述: 发起单账户单资产的转账交易**_
 | ----- |:------:| ------ |
 | value | string | 交易hash |
 
-3.4.1 单笔跨链转账
-========
-
+3.5 单笔跨链转账
+==========
 Method: NulsSDKTool#crossTransfer
-----------------------------
-
-_**详细描述: 发起单账户单资产的转账交易**_
+---------------------------------
+_**详细描述: 发起单账户单资产的跨链转账交易**_
 
 参数列表
 ----
-
-| 参数名                                                    |   参数类型   | 参数描述     | 是否必填 |
-| --------------------------------------------------------- | :----------: | ------------ | :------: |
-| transferForm                                              | transferform | 转账交易表单 |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address   |    string    | 转账地址     |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;toAddress |    string    | 接收者地址   |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;password  |    string    | 密码         |    是    |
-| assetChainId                                              |     int      | 资产链ID     |    是    |
-| assetId                                                   |     int      | 资产ID       |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount    |  biginteger  | 转账金额     |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remark    |    string    | 交易备注     |    是    |
+| 参数名                                                          |       参数类型        | 参数描述      | 是否必填 |
+| ------------------------------------------------------------ |:-----------------:| --------- |:----:|
+| transferForm                                                 | crosstransferform | 转账交易表单    |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address      |      string       | 转账地址      |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;toAddress    |      string       | 接收者地址     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;password     |      string       | 密码        |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetChainId |        int        | 资产chainId |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetId      |        int        | 资产Id      |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount       |    biginteger     | 转账金额      |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remark       |      string       | 交易备注      |  是   |
 
 返回值
 ---
+| 字段名   |  字段类型  | 参数描述   |
+| ----- |:------:| ------ |
+| value | string | 交易hash |
 
-| 字段名 | 字段类型 | 参数描述 |
-| ------ | :------: | -------- |
-| value  |  string  | 交易hash |
-
-
-
-
-
-
-
-3.5 离线组装转账交易
+3.6 离线组装转账交易
 ============
-
 Method: NulsSDKTool#createTransferTxOffline
 -------------------------------------------
 _**详细描述: 根据inputs和outputs离线组装转账交易，用于单账户或多账户的转账交易。交易手续费为inputs里本链主资产金额总和，减去outputs里本链主资产总和**_
@@ -899,8 +888,225 @@ _**详细描述: 根据inputs和outputs离线组装转账交易，用于单账�
 | hash  | string | 交易hash       |
 | txHex | string | 交易序列化16进制字符串 |
 
-3.6 计算离线创建转账交易所需手续费
-===================
+3.7 离线组装链内非NULS资产转账交易
+=====================
+Method: NulsSDKTool#createTxSimpleTransferOfNonNuls
+---------------------------------------------------
+_**详细描述: 组装在NULS链内，转账非NULS资产的单账户对单账户普通转账。该方法会主动用fromAddress组装(NULS资产)打包手续费**_
+
+参数列表
+----
+| 参数名          |    参数类型    | 参数描述         | 是否必填 |
+| ------------ |:----------:| ------------ |:----:|
+| fromAddress  |   string   | 转出地址(NULS地址) |  是   |
+| toAddress    |   string   | 转入地址(NULS地址) |  是   |
+| assetChainId |    int     | 转账资产链id      |  是   |
+| assetId      |    int     | 转账资产id       |  是   |
+| amount       | biginteger | 到账数量         |  是   |
+| time         |    long    | 交易时间         |  是   |
+| remark       |   string   | 备注           |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述         |
+| ----- |:------:| ------------ |
+| hash  | string | 交易hash       |
+| txHex | string | 交易序列化16进制字符串 |
+
+3.8 离线组装链内非NULS资产转账交易
+=====================
+Method: NulsSDKTool#createTxSimpleTransferOfNonNuls
+---------------------------------------------------
+_**详细描述: 组装在NULS链内，转账非NULS资产的单账户对单账户普通转账。该方法会主动用fromAddress组装(NULS资产)打包手续费**_
+
+参数列表
+----
+| 参数名          |    参数类型    | 参数描述         | 是否必填 |
+| ------------ |:----------:| ------------ |:----:|
+| fromAddress  |   string   | 转出地址(NULS地址) |  是   |
+| toAddress    |   string   | 转入地址(NULS地址) |  是   |
+| assetChainId |    int     | 转账资产链id      |  是   |
+| assetId      |    int     | 转账资产id       |  是   |
+| amount       | biginteger | 到账数量         |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述         |
+| ----- |:------:| ------------ |
+| hash  | string | 交易hash       |
+| txHex | string | 交易序列化16进制字符串 |
+
+3.9 离线组装链内NULS资产转账交易
+====================
+Method: NulsSDKTool#createTxSimpleTransferOfNuls
+------------------------------------------------
+_**详细描述: 组装在NULS链内，转账NULS资产的单账户对单账户普通转账。打包手续费不包含在amount中， 本函数将从fromAddress中额外获取手续费追加到coinfrom中，请不要将手续费事先加入到amount参数中， amount参数作为实际到账的数量。**_
+
+参数列表
+----
+| 参数名         |    参数类型    | 参数描述         | 是否必填 |
+| ----------- |:----------:| ------------ |:----:|
+| fromAddress |   string   | 转出地址(NULS地址) |  是   |
+| toAddress   |   string   | 转入地址(NULS地址) |  是   |
+| amount      | biginteger | 到账数量         |  是   |
+| time        |    long    | 交易时间         |  是   |
+| remark      |   string   | 备注           |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述         |
+| ----- |:------:| ------------ |
+| hash  | string | 交易hash       |
+| txHex | string | 交易序列化16进制字符串 |
+
+3.10 离线组装链内NULS资产转账交易
+=====================
+Method: NulsSDKTool#createTxSimpleTransferOfNuls
+------------------------------------------------
+_**详细描述: 组装在NULS链内，转账NULS资产的单账户对单账户普通转账。打包手续费不包含在amount中， 本函数将从fromAddress中额外获取手续费追加到coinfrom中，请不要将手续费事先加入到amount参数中， amount参数作为实际到账的数量。**_
+
+参数列表
+----
+| 参数名         |    参数类型    | 参数描述         | 是否必填 |
+| ----------- |:----------:| ------------ |:----:|
+| fromAddress |   string   | 转出地址(NULS地址) |  是   |
+| toAddress   |   string   | 转入地址(NULS地址) |  是   |
+| amount      | biginteger | 到账数量         |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述         |
+| ----- |:------:| ------------ |
+| hash  | string | 交易hash       |
+| txHex | string | 交易序列化16进制字符串 |
+
+3.11 离线组装跨链非NULS资产转账交易
+======================
+Method: NulsSDKTool#createCrossTxSimpleTransferOfNonNuls
+--------------------------------------------------------
+_**详细描述: 组装跨链转账非NULS资产的单账户对单账户普通跨链转账(不能用于转NULS)。该方法会主动用fromAddress组装(NULS资产)打包手续费**_
+
+参数列表
+----
+| 参数名          |    参数类型    | 参数描述         | 是否必填 |
+| ------------ |:----------:| ------------ |:----:|
+| fromAddress  |   string   | 转出地址(NULS地址) |  是   |
+| toAddress    |   string   | 转入地址(NULS地址) |  是   |
+| assetChainId |    int     | 转账资产链id      |  是   |
+| assetId      |    int     | 转账资产id       |  是   |
+| amount       | biginteger | 到账数量         |  是   |
+| time         |    long    | 交易时间         |  是   |
+| remark       |   string   | 备注           |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述         |
+| ----- |:------:| ------------ |
+| hash  | string | 交易hash       |
+| txHex | string | 交易序列化16进制字符串 |
+
+3.12 离线组装跨链非NULS资产转账交易
+======================
+Method: NulsSDKTool#createCrossTxSimpleTransferOfNonNuls
+--------------------------------------------------------
+_**详细描述: 组装跨链转账非NULS资产的单账户对单账户普通跨链转账(不能用于转NULS)。该方法会主动用fromAddress组装(NULS资产)打包手续费**_
+
+参数列表
+----
+| 参数名          |    参数类型    | 参数描述         | 是否必填 |
+| ------------ |:----------:| ------------ |:----:|
+| fromAddress  |   string   | 转出地址(NULS地址) |  是   |
+| toAddress    |   string   | 转入地址(NULS地址) |  是   |
+| assetChainId |    int     | 转账资产链id      |  是   |
+| assetId      |    int     | 转账资产id       |  是   |
+| amount       | biginteger | 到账数量         |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述         |
+| ----- |:------:| ------------ |
+| hash  | string | 交易hash       |
+| txHex | string | 交易序列化16进制字符串 |
+
+3.13 离线组装跨链NULS资产转账交易
+=====================
+Method: NulsSDKTool#createCrossTxSimpleTransferOfNuls
+-----------------------------------------------------
+_**详细描述: 组装跨链转账NULS资产的单账户对单账户普通跨链转账（只能用于转NULS）打包手续费不包含在amount中， 本函数将从fromAddress中额外获取手续费追加到coinfrom中，请不要将手续费事先加入到amount参数中， amount参数作为实际到账的数量。**_
+
+参数列表
+----
+| 参数名         |    参数类型    | 参数描述         | 是否必填 |
+| ----------- |:----------:| ------------ |:----:|
+| fromAddress |   string   | 转出地址(NULS地址) |  是   |
+| toAddress   |   string   | 转入地址(NULS地址) |  是   |
+| amount      | biginteger | 到账数量         |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述         |
+| ----- |:------:| ------------ |
+| hash  | string | 交易hash       |
+| txHex | string | 交易序列化16进制字符串 |
+
+3.14 离线组装跨链NULS资产转账交易
+=====================
+Method: NulsSDKTool#createCrossTxSimpleTransferOfNuls
+-----------------------------------------------------
+_**详细描述: 组装跨链转账NULS资产的单账户对单账户普通跨链转账（只能用于转NULS）打包手续费不包含在amount中， 本函数将从fromAddress中额外获取手续费追加到coinfrom中，请不要将手续费事先加入到amount参数中， amount参数作为实际到账的数量。**_
+
+参数列表
+----
+| 参数名         |    参数类型    | 参数描述         | 是否必填 |
+| ----------- |:----------:| ------------ |:----:|
+| fromAddress |   string   | 转出地址(NULS地址) |  是   |
+| toAddress   |   string   | 转入地址(NULS地址) |  是   |
+| amount      | biginteger | 到账数量         |  是   |
+| time        |    long    | 交易时间         |  是   |
+| remark      |   string   | 备注           |  是   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述         |
+| ----- |:------:| ------------ |
+| hash  | string | 交易hash       |
+| txHex | string | 交易序列化16进制字符串 |
+
+3.15 离线组装跨链转账交易
+===============
+Method: NulsSDKTool#createCrossTransferTxOffline
+------------------------------------------------
+_**详细描述: 根据inputs和outputs离线组装转账交易，用于单账户或多账户的转账交易。交易手续费为inputs里本链主资产金额总和，减去outputs里本链主资产总和**_
+
+参数列表
+----
+| 参数名                                                                                                          |      参数类型       | 参数描述     | 是否必填 |
+| ------------------------------------------------------------------------------------------------------------ |:---------------:| -------- |:----:|
+| transferDto                                                                                                  |   transferdto   | 转账交易表单   |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inputs                                                       | list&lt;object> | 转账交易输入列表 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address      |     string      | 账户地址     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetChainId |       int       | 资产的链id   |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetId      |       int       | 资产id     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount       |   biginteger    | 资产金额     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nonce        |     string      | 资产nonce值 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;outputs                                                      | list&lt;object> | 转账交易输出列表 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address      |     string      | 账户地址     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetChainId |       int       | 资产的链id   |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetId      |       int       | 资产id     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount       |   biginteger    | 资产金额     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lockTime     |      long       | 锁定时间     |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;time                                                         |      long       | 创建时间     |  否   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remark                                                       |     string      | 交易备注     |  否   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述         |
+| ----- |:------:| ------------ |
+| hash  | string | 交易hash       |
+| txHex | string | 交易序列化16进制字符串 |
+
+3.16 计算离线创建转账交易所需手续费
+====================
 Method: NulsSDKTool#calcTransferTxFee
 -------------------------------------
 _**详细描述: 计算离线创建转账交易所需手续费**_
@@ -922,80 +1128,56 @@ _**详细描述: 计算离线创建转账交易所需手续费**_
 | --- |:----------:| ----- |
 | 返回值 | biginteger | 手续费金额 |
 
-3.6.1 离线组装跨链转账交易
-============
-
-Method: NulsSDKTool#createCrossTransferTxOffline
--------------------------------------------
-
-_**详细描述: 根据inputs和outputs离线组装转账交易，用于单账户或多账户的转账交易。交易手续费为inputs里本链主资产金额总和，减去outputs里本链主资产总和**_
-
-参数列表
-----
-
-| 参数名                                                       |    参数类型     | 参数描述         | 是否必填 |
-| ------------------------------------------------------------ | :-------------: | ---------------- | :------: |
-| transferDto                                                  |   transferdto   | 转账交易表单     |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inputs       | list&lt;object> | 转账交易输入列表 |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address |     string      | 账户地址         |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetChainId |       int       | 资产的链id       |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetId |       int       | 资产id           |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount |   biginteger    | 资产金额         |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nonce |     string      | 资产nonce值      |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;outputs      | list&lt;object> | 转账交易输出列表 |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address |     string      | 账户地址         |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetChainId |       int       | 资产的链id       |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetId |       int       | 资产id           |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount |   biginteger    | 资产金额         |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lockTime |      long       | 锁定时间         |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;time         |      long       | 创建时间         |    否    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remark       |     string      | 交易备注         |    否    |
-
-返回值
----
-
-| 字段名 | 字段类型 | 参数描述               |
-| ------ | :------: | ---------------------- |
-| hash   |  string  | 交易hash               |
-| txHex  |  string  | 交易序列化16进制字符串 |
-
-3.6 计算离线创建转账交易所需手续费
-===================
-
+3.17 计算离线创建跨链转账交易所需手续费(不建议使用)
+=============================
 Method: NulsSDKTool#calcCrossTransferTxFee
--------------------------------------
-
-_**详细描述: 计算离线创建转账交易所需手续费**_
+------------------------------------------
+_**详细描述: 计算离线创建跨链转账交易所需手续费(不建议使用)**_
 
 参数列表
 ----
-
-| 参数名                                                       |     参数类型     | 参数描述       | 是否必填 |
-| ------------------------------------------------------------ | :--------------: | -------------- | :------: |
-| TransferTxFeeDto                                             | transfertxfeedto | 转账交易手续费 |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;addressCount |       int        | 转账地址数量   |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fromLength   |       int        | 转账输入长度   |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;toLength     |       int        | 转账输出长度   |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remark       |      string      | 交易备注       |    是    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;price        |    biginteger    | 手续费单价     |    否    |
+| 参数名                                                          |         参数类型          | 参数描述    | 是否必填 |
+| ------------------------------------------------------------ |:---------------------:| ------- |:----:|
+| CrossTransferTxFeeDto                                        | crosstransfertxfeedto | 转账交易手续费 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetChainId |          int          | 资产链ID   |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetId      |          int          | 资产ID    |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;addressCount |          int          | 转账地址数量  |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fromLength   |          int          | 转账输入长度  |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;toLength     |          int          | 转账输出长度  |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remark       |        string         | 交易备注    |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;price        |      biginteger       | 手续费单价   |  否   |
 
 返回值
 ---
-
-| 字段名 |  字段类型  | 参数描述                     |
-| ------ | :--------: | ---------------------------- |
-| NULS   | biginteger | 跨链需要的NULS手续费金额     |
-| LOCAL  | biginteger | 本链组装交易需要的手续费金额 |
+| 字段名 | 字段类型 | 参数描述 || --- |:----:| ---- |
 
 
+3.18 计算离线创建跨链转账交易所需NULS手续费
+==========================
+Method: NulsSDKTool#calcCrossTransferNulsTxFee
+----------------------------------------------
+_**详细描述: 计算离线创建跨链转账交易所需NULS手续费**_
+
+参数列表
+----
+| 参数名                                                          |         参数类型          | 参数描述    | 是否必填 |
+| ------------------------------------------------------------ |:---------------------:| ------- |:----:|
+| CrossTransferTxFeeDto                                        | crosstransfertxfeedto | 转账交易手续费 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetChainId |          int          | 资产链ID   |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assetId      |          int          | 资产ID    |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;addressCount |          int          | 转账地址数量  |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fromLength   |          int          | 转账输入长度  |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;toLength     |          int          | 转账输出长度  |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remark       |        string         | 交易备注    |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;price        |      biginteger       | 手续费单价   |  否   |
+
+返回值
+---
+| 字段名 | 字段类型 | 参数描述 || --- |:----:| ---- |
 
 
-
-
-
-3.7 离线组装多签账户转账交易
-================
-
+3.19 离线组装多签账户转账交易
+=================
 Method: NulsSDKTool#createMultiSignTransferTxOffline
 ----------------------------------------------------
 _**详细描述: 根据inputs和outputs离线组装转账交易，用于单个多签账户转账。交易手续费为inputs里本链主资产金额总和，减去outputs里本链主资产总和**_
@@ -1028,8 +1210,8 @@ _**详细描述: 根据inputs和outputs离线组装转账交易，用于单个�
 | hash  | string | 交易hash       |
 | txHex | string | 交易序列化16进制字符串 |
 
-3.8 计算离线创建多签账户转账交易所需手续费
-=======================
+3.20 计算离线创建多签账户转账交易所需手续费
+========================
 Method: NulsSDKTool#calcMultiSignTransferTxFee
 ----------------------------------------------
 _**详细描述: 计算离线创建多签账户转账交易所需手续费**_
@@ -1051,8 +1233,8 @@ _**详细描述: 计算离线创建多签账户转账交易所需手续费**_
 | --- |:----------:| ----- |
 | 返回值 | biginteger | 手续费金额 |
 
-3.9 离线创建设置别名交易
-==============
+3.21 离线创建设置别名交易
+===============
 Method: NulsSDKTool#createAliasTxOffline
 ----------------------------------------
 _**详细描述: 离线创建设置别名交易**_
@@ -1074,7 +1256,7 @@ _**详细描述: 离线创建设置别名交易**_
 | hash  | string | 交易hash       |
 | txHex | string | 交易序列化16进制字符串 |
 
-3.10 离线创建多签账户设置别名交易
+3.22 离线创建多签账户设置别名交易
 ===================
 Method: NulsSDKTool#createMultiSignAliasTxOffline
 -------------------------------------------------
@@ -1125,14 +1307,15 @@ _**详细描述: 调用合约**_
 
 参数列表
 ----
-| 参数名                                                             |       参数类型       | 参数描述               | 是否必填 |
-| --------------------------------------------------------------- |:----------------:| ------------------ |:----:|
-| 调用合约                                                            | contractcallform | 调用合约表单             |  是   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contractAddress |      string      | 智能合约地址             |  是   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value           |       long       | 交易附带的货币量           |  否   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;methodName      |      string      | 方法名                |  是   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;methodDesc      |      string      | 方法签名，如果方法名不重复，可以不传 |  否   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;args            |     object[]     | 参数列表               |  否   |
+| 参数名                                                              |       参数类型       | 参数描述                                                                | 是否必填 |
+| ---------------------------------------------------------------- |:----------------:| ------------------------------------------------------------------- |:----:|
+| 调用合约                                                             | contractcallform | 调用合约表单                                                              |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contractAddress  |      string      | 智能合约地址                                                              |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value            |       long       | 交易附带的货币量                                                            |  否   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;multyAssetValues |    string[][]    | 调用者向合约地址转入的其他资产金额，没有此业务时填空，规则: [[<value>,<assetChainId>,<assetId>]] |  否   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;methodName       |      string      | 方法名                                                                 |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;methodDesc       |      string      | 方法签名，如果方法名不重复，可以不传                                                  |  否   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;args             |     object[]     | 参数列表                                                                |  否   |
 
 返回值
 ---
@@ -1446,17 +1629,18 @@ _**详细描述: 验证调用合约**_
 
 参数列表
 ----
-| 参数名                                                             |           参数类型           | 参数描述                       | 是否必填 |
-| --------------------------------------------------------------- |:------------------------:| -------------------------- |:----:|
-| 验证调用合约                                                          | contractvalidatecallform | 验证调用合约表单                   |  是   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sender          |          string          | 交易创建者                      |  是   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value           |           long           | 调用者向合约地址转入的主网资产金额，没有此业务时填0 |  否   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gasLimit        |           long           | 最大gas消耗                    |  是   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;price           |           long           | 执行合约单价                     |  是   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contractAddress |          string          | 智能合约地址                     |  是   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;methodName      |          string          | 方法名称                       |  是   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;methodDesc      |          string          | 方法描述，若合约内方法没有重载，则此参数可以为空   |  否   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;args            |         object[]         | 参数列表                       |  否   |
+| 参数名                                                              |           参数类型           | 参数描述                                                                | 是否必填 |
+| ---------------------------------------------------------------- |:------------------------:| ------------------------------------------------------------------- |:----:|
+| 验证调用合约                                                           | contractvalidatecallform | 验证调用合约表单                                                            |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sender           |          string          | 交易创建者                                                               |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value            |           long           | 调用者向合约地址转入的主网资产金额，没有此业务时填0                                          |  否   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;multyAssetValues |        string[][]        | 调用者向合约地址转入的其他资产金额，没有此业务时填空，规则: [[<value>,<assetChainId>,<assetId>]] |  否   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gasLimit         |           long           | 最大gas消耗                                                             |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;price            |           long           | 执行合约单价                                                              |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contractAddress  |          string          | 智能合约地址                                                              |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;methodName       |          string          | 方法名称                                                                |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;methodDesc       |          string          | 方法描述，若合约内方法没有重载，则此参数可以为空                                            |  否   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;args             |         object[]         | 参数列表                                                                |  否   |
 
 返回值
 ---
@@ -1517,15 +1701,16 @@ _**详细描述: 估算调用合约交易的GAS**_
 
 参数列表
 ----
-| 参数名                                                             |            参数类型            | 参数描述                       | 是否必填 |
-| --------------------------------------------------------------- |:--------------------------:| -------------------------- |:----:|
-| 估算调用合约交易的GAS                                                    | imputedgascontractcallform | 估算调用合约交易的GAS表单             |  是   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sender          |           string           | 交易创建者                      |  是   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value           |         biginteger         | 调用者向合约地址转入的主网资产金额，没有此业务时填0 |  否   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contractAddress |           string           | 智能合约地址                     |  是   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;methodName      |           string           | 方法名称                       |  是   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;methodDesc      |           string           | 方法描述，若合约内方法没有重载，则此参数可以为空   |  否   |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;args            |          object[]          | 参数列表                       |  否   |
+| 参数名                                                              |            参数类型            | 参数描述                                                                | 是否必填 |
+| ---------------------------------------------------------------- |:--------------------------:| ------------------------------------------------------------------- |:----:|
+| 估算调用合约交易的GAS                                                     | imputedgascontractcallform | 估算调用合约交易的GAS表单                                                      |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sender           |           string           | 交易创建者                                                               |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value            |         biginteger         | 调用者向合约地址转入的主网资产金额，没有此业务时填0                                          |  否   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;multyAssetValues |         string[][]         | 调用者向合约地址转入的其他资产金额，没有此业务时填空，规则: [[<value>,<assetChainId>,<assetId>]] |  否   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contractAddress  |           string           | 智能合约地址                                                              |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;methodName       |           string           | 方法名称                                                                |  是   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;methodDesc       |           string           | 方法描述，若合约内方法没有重载，则此参数可以为空                                            |  否   |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;args             |          object[]          | 参数列表                                                                |  否   |
 
 返回值
 ---
@@ -1591,19 +1776,20 @@ _**详细描述: 离线组装 - 调用合约的交易**_
 
 参数列表
 ----
-| 参数名             |    参数类型    | 参数描述                                     | 是否必填 |
-| --------------- |:----------:| ---------------------------------------- |:----:|
-| sender          |   string   | 交易创建者账户地址                                |  是   |
-| senderBalance   | biginteger | 账户余额                                     |  是   |
-| nonce           |   string   | 账户nonce值                                 |  是   |
-| value           | biginteger | 调用者向合约地址转入的主网资产金额，没有此业务时填BigInteger.ZERO |  是   |
-| contractAddress |   string   | 合约地址                                     |  是   |
-| gasLimit        |    long    | 设置合约执行消耗的gas上限                           |  是   |
-| methodName      |   string   | 合约方法                                     |  是   |
-| methodDesc      |   string   | 合约方法描述，若合约内方法没有重载，则此参数可以为空               |  否   |
-| args            |  object[]  | 参数列表                                     |  否   |
-| argsType        |  string[]  | 参数类型列表                                   |  否   |
-| remark          |   string   | 交易备注                                     |  否   |
+| 参数名              |    参数类型    | 参数描述                                                                | 是否必填 |
+| ---------------- |:----------:| ------------------------------------------------------------------- |:----:|
+| sender           |   string   | 交易创建者账户地址                                                           |  是   |
+| senderBalance    | biginteger | 账户余额                                                                |  是   |
+| nonce            |   string   | 账户nonce值                                                            |  是   |
+| value            | biginteger | 调用者向合约地址转入的主网资产金额，没有此业务时填BigInteger.ZERO                            |  是   |
+| multyAssetValues | string[][] | 调用者向合约地址转入的其他资产金额，没有此业务时填空，规则: [[<value>,<assetChainId>,<assetId>]] |  是   |
+| contractAddress  |   string   | 合约地址                                                                |  是   |
+| gasLimit         |    long    | 设置合约执行消耗的gas上限                                                      |  是   |
+| methodName       |   string   | 合约方法                                                                |  是   |
+| methodDesc       |   string   | 合约方法描述，若合约内方法没有重载，则此参数可以为空                                          |  否   |
+| args             |  object[]  | 参数列表                                                                |  否   |
+| argsType         |  string[]  | 参数类型列表                                                              |  否   |
+| remark           |   string   | 交易备注                                                                |  否   |
 
 返回值
 ---
@@ -1661,7 +1847,34 @@ _**详细描述: 离线组装 - token转账交易**_
 | hash  | string | 交易hash   |
 | txHex | string | 交易序列化字符串 |
 
-4.22 离线组装 - 从账户地址向合约地址转账(主链资产)的合约交易
+4.22 离线组装 - token转账交易
+=====================
+Method: NulsSDKTool#tokenTransferTxOffline
+------------------------------------------
+_**详细描述: 离线组装 - token转账交易**_
+
+参数列表
+----
+| 参数名             |    参数类型    | 参数描述           | 是否必填 |
+| --------------- |:----------:| -------------- |:----:|
+| fromAddress     |   string   | 转出者账户地址        |  是   |
+| senderBalance   | biginteger | 转出者账户余额        |  是   |
+| nonce           |   string   | 转出者账户nonce值    |  是   |
+| toAddress       |   string   | 转入者账户地址        |  是   |
+| contractAddress |   string   | token合约地址      |  是   |
+| gasLimit        |    long    | 设置合约执行消耗的gas上限 |  是   |
+| amount          | biginteger | 转出的token资产金额   |  是   |
+| time            |    long    | 交易时间           |  是   |
+| remark          |   string   | 交易备注           |  否   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述     |
+| ----- |:------:| -------- |
+| hash  | string | 交易hash   |
+| txHex | string | 交易序列化字符串 |
+
+4.23 离线组装 - 从账户地址向合约地址转账(主链资产)的合约交易
 ===================================
 Method: NulsSDKTool#transferToContractTxOffline
 -----------------------------------------------
@@ -2007,4 +2220,31 @@ _**详细描述: 组装交易的StopDepositDto信息，可通过查询节点的�
 | ----- |:------:| ------------ |
 | hash  | string | 交易hash       |
 | txHex | string | 交易序列化16进制字符串 |
+
+5.14 离线组装 - token转账交易
+=====================
+Method: NulsSDKTool#nrc20CrossChainTxOffline
+--------------------------------------------
+_**详细描述: 离线组装 - token转账交易**_
+
+参数列表
+----
+| 参数名             |    参数类型    | 参数描述           | 是否必填 |
+| --------------- |:----------:| -------------- |:----:|
+| fromAddress     |   string   | 转出者账户地址        |  是   |
+| senderBalance   | biginteger | 转出者账户余额        |  是   |
+| nonce           |   string   | 转出者账户nonce值    |  是   |
+| toAddress       |   string   | 转入者账户地址(NERVE) |  是   |
+| contractAddress |   string   | token合约地址      |  是   |
+| gasLimit        |    long    | 设置合约执行消耗的gas上限 |  是   |
+| amount          | biginteger | 转出的token资产金额   |  是   |
+| time            |    long    | 转出的token资产金额   |  是   |
+| remark          |   string   | 交易备注           |  否   |
+
+返回值
+---
+| 字段名   |  字段类型  | 参数描述     |
+| ----- |:------:| -------- |
+| hash  | string | 交易hash   |
+| txHex | string | 交易序列化字符串 |
 
