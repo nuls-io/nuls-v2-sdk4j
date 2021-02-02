@@ -131,9 +131,9 @@ public class ECKey {
 
     static {
         // Init proper random number generator, as some old Android installations have bugs that make it unsecure.
-        if (HexUtil.isAndroidRuntime()) {
-            new LinuxSecureRandom();
-        }
+        //if (HexUtil.isAndroidRuntime()) {
+        //    new LinuxSecureRandom();
+        //}
 
         // Tell Bouncy Castle to precompute data that's needed during secp256k1 calculations.
         FixedPointUtil.precompute(CURVE_PARAMS.getG());
