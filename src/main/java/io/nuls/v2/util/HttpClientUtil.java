@@ -144,6 +144,7 @@ public class HttpClientUtil {
 
         // 请求重试处理
         HttpRequestRetryHandler httpRequestRetryHandler = new HttpRequestRetryHandler() {
+            @Override
             public boolean retryRequest(IOException exception,
                                         int executionCount, HttpContext context) {
                 if (executionCount >= 3) {// 如果已经重试了3次，就放弃
@@ -229,8 +230,9 @@ public class HttpClientUtil {
             return result;
         } finally {
             try {
-                if (response != null)
+                if (response != null) {
                     response.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -261,8 +263,9 @@ public class HttpClientUtil {
             return result;
         } finally {
             try {
-                if (response != null)
+                if (response != null) {
                     response.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -303,8 +306,9 @@ public class HttpClientUtil {
             return result;
         } finally {
             try {
-                if (response != null)
+                if (response != null) {
                     response.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
