@@ -1,6 +1,7 @@
 package io.nuls.v2.service;
 
 import io.nuls.core.basic.Result;
+import io.nuls.core.parse.JSONUtils;
 import io.nuls.v2.NulsSDKBootStrap;
 import io.nuls.v2.model.dto.CrossTransferForm;
 import io.nuls.v2.model.dto.TransferForm;
@@ -20,7 +21,7 @@ public class AccountTxTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.initTest("http://127.0.0.1:8004/");
+        NulsSDKBootStrap.initTest("http://beta.api.nuls.io/");
     }
 
 
@@ -51,9 +52,9 @@ public class AccountTxTest {
 
 
     @Test
-    public void testTx() {
-        Result result = NulsSDKTool.getTx("49dc5c6db817d98ad4bc5152bff7cc26827fc659271057938586a1a24b7c733b");
-        System.out.println(result.getData());
+    public void testTx() throws Exception {
+        Result result = NulsSDKTool.getTx("1b83ccfe868fa361a11c44fbb39eec6c913138cfaee53962d364399aa245125d");
+        System.out.println(JSONUtils.obj2json(result.getData()));
     }
 
     @Test

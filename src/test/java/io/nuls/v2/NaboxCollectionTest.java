@@ -54,7 +54,7 @@ public class NaboxCollectionTest {
 
     @Before
     public void before() {
-        //NulsSDKBootStrap.initTest("http://beta.api.nuls.io/");
+        NulsSDKBootStrap.initTest("http://beta.api.nuls.io/");
     }
 
     /**

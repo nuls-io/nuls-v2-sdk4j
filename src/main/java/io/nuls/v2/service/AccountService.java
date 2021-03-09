@@ -30,7 +30,6 @@ import io.nuls.v2.model.dto.SignDto;
 import io.nuls.v2.util.AccountTool;
 import io.nuls.v2.util.CommonValidator;
 import io.nuls.v2.util.RestFulUtil;
-import io.nuls.v2.util.ValidateUtil;
 
 import java.io.IOException;
 import java.util.*;
@@ -314,7 +313,7 @@ public class AccountService {
             params.put("newPassword", newPassword);
 
             Result result;
-            RestFulResult restFulResult = RestFulUtil.put("api/account/password/" + address, params);
+            RestFulResult restFulResult = RestFulUtil.post("api/account/password/" + address, params);
             if (restFulResult.isSuccess()) {
                 result = Result.getSuccess(restFulResult.getData());
             } else {

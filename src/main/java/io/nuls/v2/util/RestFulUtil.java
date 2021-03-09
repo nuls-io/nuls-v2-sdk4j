@@ -37,7 +37,7 @@ public class RestFulUtil {
     public static RestFulResult<Map<String, Object>> get(String url, Map<String, Object> params) {
         try {
             url = SDKContext.wallet_url + url;
-            String resultStr = HttpClientUtil.get(url, params);
+            String resultStr = OkHttpClientUtil.getInstance().getData(url, params);
             RestFulResult<Map<String, Object>> result = toResult(resultStr);
             return result;
         } catch (Exception e) {
@@ -56,7 +56,7 @@ public class RestFulUtil {
     public static RestFulResult<List<Object>> getList(String url, Map<String, Object> params) {
         try {
             url = SDKContext.wallet_url + url;
-            String resultStr = HttpClientUtil.get(url, params);
+            String resultStr = OkHttpClientUtil.getInstance().getData(url, params);
             RestFulResult<List<Object>> result = toResultList(resultStr);
             return result;
         } catch (Exception e) {
@@ -75,7 +75,7 @@ public class RestFulUtil {
     public static RestFulResult<Map<String, Object>> post(String url, Map<String, Object> params) {
         try {
             url = SDKContext.wallet_url + url;
-            String resultStr = HttpClientUtil.post(url, params);
+            String resultStr = OkHttpClientUtil.getInstance().postJson(url, params);
             RestFulResult<Map<String, Object>> result = toResult(resultStr);
             return result;
         } catch (Exception e) {
@@ -94,7 +94,7 @@ public class RestFulUtil {
     public static RestFulResult<Map<String, Object>> put(String url, Map<String, Object> params) {
         try {
             url = SDKContext.wallet_url + url;
-            String resultStr = HttpClientUtil.put(url, params);
+            String resultStr = OkHttpClientUtil.getInstance().postJson(url, params);
             RestFulResult<Map<String, Object>> result = toResult(resultStr);
             return result;
         } catch (Exception e) {
