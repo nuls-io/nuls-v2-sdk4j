@@ -89,6 +89,11 @@ public class NulsSDKBootStrap {
             throw new RuntimeException("[defaultChainId] is invalid");
         }
         SDKContext.main_chain_id = chainId;
+        if (chainId == 2) {
+            SDKContext.addressPrefix = "tNULS";
+        } else if (chainId > 2 && "NULS".equals(SDKContext.addressPrefix)) {
+            SDKContext.addressPrefix = "";
+        }
         try {
             Class.forName("io.nuls.core.exception.NulsException");
         } catch (ClassNotFoundException e) {
