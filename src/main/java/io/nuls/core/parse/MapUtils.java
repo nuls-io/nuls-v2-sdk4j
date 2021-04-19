@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import net.sf.cglib.beans.BeanMap;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
@@ -40,10 +41,16 @@ public class MapUtils {
     public static <T> Map<String, Object> beanToMap(T bean) {
         Map<String, Object> map = new LinkedHashMap<>();
         if (bean != null) {
-            BeanMap beanMap = BeanMap.create(bean);
+            try {
+                String s = JSONUtils.obj2json(bean);
+                map = JSONUtils.json2map(s);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+           /* BeanMap beanMap = BeanMap.create(bean);
             for (Object key : beanMap.keySet()) {
                 map.put(key + "", beanMap.get(key));
-            }
+            }*/
         }
         return map;
     }
