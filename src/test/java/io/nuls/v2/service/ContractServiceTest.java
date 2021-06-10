@@ -344,15 +344,15 @@ public class ContractServiceTest {
         // 0.1NULS作为跨链手续费
         BigInteger value = BigInteger.valueOf(1000_0000L);
         // NRC20合约地址 (NULS测试网络)
-        String contractAddress = "tNULSeBaN7D88SKNPUheSKZeHUwmDCUWBH5JdH";
-        int tokenDecimals = 8;
+        String contractAddress = "tNULSeBaMzvqHiyBnr7c1TKYBLMHMvi1CcisAg";
+        int tokenDecimals = 9;
         // 调用的跨链转账函数
         String methodName = "transferCrossChain";
         String methodDesc = "";
         // 接收地址 (转到NERVE测试网络)
         String toAddress = StringUtils.isBlank(toNerveAddress) ? "TNVTdTSPEn3kK94RqiMffiKkXTQ2anRwhN1J9" : toNerveAddress;
         // 转移token数量
-        String tokenAmount = "10.56";
+        String tokenAmount = "2";
         // 交易备注 (选填)
         String remark = "token cross chain test";
         BigInteger amount = new BigDecimal(tokenAmount).multiply(BigDecimal.TEN.pow(tokenDecimals)).toBigInteger();
@@ -366,6 +366,22 @@ public class ContractServiceTest {
         String nonce = balance.get("nonce").toString();
 
 
+        // 在线接口(可跳过) - 验证调用合约的合法性，可不验证
+        ContractValidateCallForm validateCallForm = new ContractValidateCallForm();
+        validateCallForm.setSender(sender);
+        validateCallForm.setValue(value.longValue());
+        validateCallForm.setGasLimit(MAX_GASLIMIT);
+        validateCallForm.setPrice(CONTRACT_MINIMUM_PRICE);
+        validateCallForm.setContractAddress(contractAddress);
+        validateCallForm.setMethodName(methodName);
+        validateCallForm.setMethodDesc(methodDesc);
+        validateCallForm.setArgs(args);
+        Result vResult = NulsSDKTool.validateContractCall(validateCallForm);
+        Assert.assertTrue(JSONUtils.obj2PrettyJson(vResult), vResult.isSuccess());
+        Map mapValidate = (Map) vResult.getData();
+        boolean success = (boolean) mapValidate.get("success");
+        Assert.assertTrue((String) mapValidate.get("msg"), success);
+
         // 在线接口(可跳过) - 估算调用合约需要的GAS，可不估算，离线写一个合理的值
         ImputedGasContractCallForm iForm = new ImputedGasContractCallForm();
         iForm.setSender(sender);
@@ -374,6 +390,7 @@ public class ContractServiceTest {
         iForm.setMethodName(methodName);
         iForm.setMethodDesc(methodDesc);
         iForm.setArgs(args);
+
         Result iResult = NulsSDKTool.imputedContractCallGas(iForm);
         Assert.assertTrue(JSONUtils.obj2PrettyJson(iResult), iResult.isSuccess());
         Map result = (Map) iResult.getData();
