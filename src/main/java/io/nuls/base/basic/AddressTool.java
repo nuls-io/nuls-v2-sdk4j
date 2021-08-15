@@ -77,6 +77,10 @@ public class AddressTool {
             return BaseConstant.MAINNET_DEFAULT_ADDRESS_PREFIX;
         } else if (chainId == BaseConstant.TESTNET_CHAIN_ID) {
             return BaseConstant.TESTNET_DEFAULT_ADDRESS_PREFIX;
+        } else if (chainId == BaseConstant.NERVE_MAINNET_CHAIN_ID) {
+            return BaseConstant.NERVE_MAINNET_DEFAULT_ADDRESS_PREFIX;
+        } else if (chainId == BaseConstant.NERVE_TESTNET_CHAIN_ID) {
+            return BaseConstant.NERVE_TESTNET_DEFAULT_ADDRESS_PREFIX;
         } else {
             if (null == ADDRESS_PREFIX_MAP.get(chainId) && null != addressPrefixToolsInf) {
                 ADDRESS_PREFIX_MAP.putAll(addressPrefixToolsInf.syncAddressPrefix());
@@ -96,6 +100,12 @@ public class AddressTool {
         if (address.startsWith(BaseConstant.MAINNET_DEFAULT_ADDRESS_PREFIX)) {
             return BaseConstant.MAINNET_DEFAULT_ADDRESS_PREFIX;
         }
+        if (address.startsWith(BaseConstant.NERVE_TESTNET_DEFAULT_ADDRESS_PREFIX)) {
+            return BaseConstant.NERVE_TESTNET_DEFAULT_ADDRESS_PREFIX;
+        }
+        if (address.startsWith(BaseConstant.NERVE_MAINNET_DEFAULT_ADDRESS_PREFIX)) {
+            return BaseConstant.NERVE_MAINNET_DEFAULT_ADDRESS_PREFIX;
+        }
         char[] arr = address.toCharArray();
         for (int i = 0; i < arr.length; i++) {
             char val = arr[i];
@@ -112,6 +122,12 @@ public class AddressTool {
         }
         if (addressString.startsWith(BaseConstant.MAINNET_DEFAULT_ADDRESS_PREFIX)) {
             return addressString.substring(BaseConstant.MAINNET_DEFAULT_ADDRESS_PREFIX.length() + 1);
+        }
+        if (addressString.startsWith(BaseConstant.NERVE_TESTNET_DEFAULT_ADDRESS_PREFIX)) {
+            return addressString.substring(BaseConstant.NERVE_TESTNET_DEFAULT_ADDRESS_PREFIX.length() + 1);
+        }
+        if (addressString.startsWith(BaseConstant.NERVE_MAINNET_DEFAULT_ADDRESS_PREFIX)) {
+            return addressString.substring(BaseConstant.NERVE_MAINNET_DEFAULT_ADDRESS_PREFIX.length() + 1);
         }
         char[] arr = addressString.toCharArray();
         for (int i = 0; i < arr.length; i++) {

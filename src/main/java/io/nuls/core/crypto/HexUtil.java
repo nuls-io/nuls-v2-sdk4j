@@ -24,8 +24,8 @@
  */
 package io.nuls.core.crypto;
 
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
+
+import org.bouncycastle.util.encoders.Hex;
 
 /**
  * @author tag
@@ -39,18 +39,19 @@ public class HexUtil {
      * @return String 编码后的字符串
      */
     public static String encode(byte[] src) {
-        return Hex.encodeHexString(src);
-        //StringBuffer strbuf = new StringBuffer(src.length * 2);
-        //int i;
-        //
-        //for (i = 0; i < src.length; i++) {
-        //    if (((int) src[i] & 0xff) < 0x10) {
-        //        strbuf.append("0");
-        //    }
-        //    strbuf.append(Long.toString((int) src[i] & 0xff, 16));
-        //}
-        //
-        //return strbuf.toString();
+        try {
+            return Hex.toHexString(src);
+        } catch (Exception e) {
+            StringBuffer strbuf = new StringBuffer(src.length * 2);
+            int i;
+            for (i = 0; i < src.length; i++) {
+                if (((int) src[i] & 0xff) < 0x10) {
+                    strbuf.append("0");
+                }
+                strbuf.append(Long.toString((int) src[i] & 0xff, 16));
+            }
+            return strbuf.toString();
+        }
     }
 
     /**
@@ -61,8 +62,8 @@ public class HexUtil {
      */
     public static byte[] decode(String hexString) {
         try {
-            return Hex.decodeHex(hexString);
-        } catch (DecoderException e) {
+            return Hex.decode(hexString);
+        } catch (Exception e) {
             byte[] bts = new byte[hexString.length() / 2];
             for (int i = 0; i < bts.length; i++) {
                 bts[i] = (byte) Integer.parseInt(hexString.substring(2 * i, 2 * i + 2), 16);
