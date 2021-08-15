@@ -37,7 +37,6 @@ import io.nuls.core.exception.NulsRuntimeException;
 import io.nuls.core.log.Log;
 import io.nuls.core.model.StringUtils;
 import io.nuls.core.parse.SerializeUtils;
-import io.nuls.core.rpc.util.NulsDateUtils;
 import io.nuls.v2.constant.AccountConstant;
 import io.nuls.v2.error.AccountErrorCode;
 import io.nuls.v2.model.Account;
@@ -92,7 +91,7 @@ public class AccountTool {
         account.setPubKey(key.getPubKey());
         account.setPriKey(key.getPrivKeyBytes());
         account.setEncryptedPriKey(new byte[0]);
-        account.setCreateTime(NulsDateUtils.getCurrentTimeMillis());
+        account.setCreateTime(System.currentTimeMillis());
         account.setEcKey(key);
         return account;
     }
@@ -115,7 +114,7 @@ public class AccountTool {
         account.setPubKey(key.getPubKey());
         account.setPriKey(key.getPrivKeyBytes());
         account.setEncryptedPriKey(new byte[0]);
-        account.setCreateTime(NulsDateUtils.getCurrentTimeMillis());
+        account.setCreateTime(System.currentTimeMillis());
         account.setEcKey(key);
         return account;
     }
@@ -138,7 +137,7 @@ public class AccountTool {
         account.setPubKey(key.getPubKey());
         account.setPriKey(key.getPrivKeyBytes());
         account.setEncryptedPriKey(new byte[0]);
-        account.setCreateTime(NulsDateUtils.getCurrentTimeMillis());
+        account.setCreateTime(System.currentTimeMillis());
         account.setEcKey(key);
         return account;
     }
@@ -161,7 +160,7 @@ public class AccountTool {
         account.setPubKey(key.getPubKey());
         account.setPriKey(key.getPrivKeyBytes());
         account.setEncryptedPriKey(new byte[0]);
-        account.setCreateTime(NulsDateUtils.getCurrentTimeMillis());
+        account.setCreateTime(System.currentTimeMillis());
         account.setEcKey(key);
         return account;
     }
