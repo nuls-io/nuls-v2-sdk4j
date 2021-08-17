@@ -10,7 +10,6 @@ import io.nuls.core.constant.TxType;
 import io.nuls.core.crypto.HexUtil;
 import io.nuls.core.exception.NulsException;
 import io.nuls.core.model.StringUtils;
-import io.nuls.core.rpc.util.NulsDateUtils;
 import io.nuls.v2.SDKContext;
 import io.nuls.v2.constant.AccountConstant;
 import io.nuls.v2.error.AccountErrorCode;
@@ -360,7 +359,7 @@ public class TransactionService {
             if (transferDto.getTime() != 0) {
                 tx.setTime(transferDto.getTime());
             } else {
-                tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
+                tx.setTime(getCurrentTimeSeconds());
             }
             tx.setRemark(StringUtils.bytes(transferDto.getRemark()));
 
@@ -600,7 +599,7 @@ public class TransactionService {
             if (transferDto.getTime() != 0) {
                 tx.setTime(transferDto.getTime());
             } else {
-                tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
+                tx.setTime(getCurrentTimeSeconds());
             }
             tx.setRemark(StringUtils.bytes(transferDto.getRemark()));
 
@@ -667,7 +666,7 @@ public class TransactionService {
             }
 
             Transaction tx = new Transaction(TxType.TRANSFER);
-            tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
+            tx.setTime(getCurrentTimeSeconds());
             tx.setRemark(StringUtils.bytes(transferDto.getRemark()));
 
             CoinData coinData = assemblyCoinData(transferDto, tx.getSize());
@@ -762,7 +761,7 @@ public class TransactionService {
             CommonValidator.checkAliasDto(aliasDto);
 
             Transaction tx = new Transaction(TxType.ACCOUNT_ALIAS);
-            tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
+            tx.setTime(getCurrentTimeSeconds());
             tx.setRemark(StringUtils.bytes(aliasDto.getRemark()));
 
             Alias alias = new Alias(AddressTool.getAddress(aliasDto.getAddress()), aliasDto.getAlias());
@@ -834,7 +833,7 @@ public class TransactionService {
             }
 
             Transaction tx = new Transaction(TxType.REGISTER_AGENT);
-            tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
+            tx.setTime(getCurrentTimeSeconds());
 
             Agent agent = new Agent();
             agent.setAgentAddress(AddressTool.getAddress(consensusDto.getAgentAddress()));
@@ -878,7 +877,7 @@ public class TransactionService {
             }
 
             Transaction tx = new Transaction(TxType.DEPOSIT);
-            tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
+            tx.setTime(getCurrentTimeSeconds());
             Deposit deposit = new Deposit();
             deposit.setAddress(AddressTool.getAddress(dto.getAddress()));
             deposit.setAgentHash(NulsHash.fromHex(dto.getAgentHash()));
@@ -942,7 +941,7 @@ public class TransactionService {
             }
 
             Transaction tx = new Transaction(TxType.CANCEL_DEPOSIT);
-            tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
+            tx.setTime(getCurrentTimeSeconds());
 
             CancelDeposit cancelDeposit = new CancelDeposit();
             cancelDeposit.setAddress(AddressTool.getAddress(dto.getAddress()));
@@ -1019,7 +1018,7 @@ public class TransactionService {
             }
 
             Transaction tx = new Transaction(TxType.STOP_AGENT);
-            tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
+            tx.setTime(getCurrentTimeSeconds());
 
             StopAgent stopAgent = new StopAgent();
             NulsHash nulsHash = NulsHash.fromHex(dto.getAgentHash());
@@ -1091,7 +1090,7 @@ public class TransactionService {
         //计算手续费
         BigInteger fee = TxUtils.calcStopConsensusTxFee(coinFromList.size(), coinToList.size() + 1, dto.getPrice());
         //组装退回保证金的coinTo
-        CoinTo coinTo = new CoinTo(addressBytes, coinFrom.getAssetsChainId(), coinFrom.getAssetsId(), coinFrom.getAmount().subtract(fee), NulsDateUtils.getCurrentTimeSeconds() + SDKContext.STOP_AGENT_LOCK_TIME);
+        CoinTo coinTo = new CoinTo(addressBytes, coinFrom.getAssetsChainId(), coinFrom.getAssetsId(), coinFrom.getAmount().subtract(fee), getCurrentTimeSeconds() + SDKContext.STOP_AGENT_LOCK_TIME);
         coinToList.add(0, coinTo);
 
         txSize = txSize + P2PHKSignature.SERIALIZE_LENGTH;
@@ -1195,7 +1194,7 @@ public class TransactionService {
             }
 
             Transaction tx = new Transaction(TxType.REGISTER_AGENT);
-            tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
+            tx.setTime(getCurrentTimeSeconds());
 
             Agent agent = new Agent();
             agent.setAgentAddress(AddressTool.getAddress(consensusDto.getAgentAddress()));
@@ -1260,7 +1259,7 @@ public class TransactionService {
             }
 
             Transaction tx = new Transaction(TxType.DEPOSIT);
-            tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
+            tx.setTime(getCurrentTimeSeconds());
             Deposit deposit = new Deposit();
             deposit.setAddress(AddressTool.getAddress(dto.getAddress()));
             deposit.setAgentHash(NulsHash.fromHex(dto.getAgentHash()));
@@ -1311,7 +1310,7 @@ public class TransactionService {
             }
 
             Transaction tx = new Transaction(TxType.CANCEL_DEPOSIT);
-            tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
+            tx.setTime(getCurrentTimeSeconds());
 
             CancelDeposit cancelDeposit = new CancelDeposit();
             cancelDeposit.setAddress(AddressTool.getAddress(dto.getAddress()));
@@ -1359,7 +1358,7 @@ public class TransactionService {
             }
 
             Transaction tx = new Transaction(TxType.STOP_AGENT);
-            tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
+            tx.setTime(getCurrentTimeSeconds());
 
             StopAgent stopAgent = new StopAgent();
             NulsHash nulsHash = NulsHash.fromHex(dto.getAgentHash());
@@ -1395,7 +1394,7 @@ public class TransactionService {
             CommonValidator.validateMultiSignAliasDto(aliasDto);
 
             Transaction tx = new Transaction(TxType.ACCOUNT_ALIAS);
-            tx.setTime(NulsDateUtils.getCurrentTimeSeconds());
+            tx.setTime(getCurrentTimeSeconds());
             tx.setRemark(StringUtils.bytes(aliasDto.getRemark()));
 
             Alias alias = new Alias(AddressTool.getAddress(aliasDto.getAddress()), aliasDto.getAlias());
@@ -1422,6 +1421,10 @@ public class TransactionService {
         } catch (IOException e) {
             return Result.getFailed(AccountErrorCode.DATA_PARSE_ERROR).setMsg(AccountErrorCode.DATA_PARSE_ERROR.getMsg());
         }
+    }
+
+    public long getCurrentTimeSeconds() {
+        return System.currentTimeMillis() / 1000;
     }
 }
 
