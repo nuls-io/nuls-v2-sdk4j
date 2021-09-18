@@ -2,12 +2,16 @@ package io.nuls.v2;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.nuls.core.basic.Result;
+import io.nuls.core.crypto.ECKey;
+import io.nuls.core.crypto.HexUtil;
 import io.nuls.core.parse.JSONUtils;
 import io.nuls.v2.model.dto.*;
+import io.nuls.v2.util.CommonUtil;
 import io.nuls.v2.util.NulsSDKTool;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +31,21 @@ public class AccountServiceTest {
     @Before
     public void before() {
         NulsSDKBootStrap.init(5, "TNVT", "");
+    }
+
+    @Test
+    public void signTest() {
+        String msg = "Hi there from NFT Circle! Sign this message to prove you have access to this wallet and we’ll log you in, here’s a unique message ID they can’t guess: 7a34f74197d8622e81be7300c7009f022100dba51";
+        String prikey = "8212e7ba23c8b52790c45b0514490356cd819db15d364cbe08659b5888339e78";
+        String signed = NulsSDKTool.signMessage(msg, prikey);
+        System.out.println(signed);
+        ECKey ecKey = ECKey.fromPrivate(new BigInteger(1, HexUtil.decode(prikey)));
+        System.out.println(CommonUtil.verifySignedMessage(msg, signed, HexUtil.encode(ecKey.getPubKey())));
+        System.out.println(CommonUtil.verifySignedMessage(msg, "3045022100d8724349e7d2f3ddcc25e2f669e07d09b2ec1c3fd3c5c7efe2b8b4495a4d428e0220536e2f4ba7ddcab55e0fe9c0e07b2786bc428f6b47ec15636890849733c33dc9", HexUtil.encode(ecKey.getPubKey())));
+        System.out.println(CommonUtil.verifySignedMessage(msg, "3045022100d8724349e7d2f3ddcc25e2f669e07d09b2ec1c3fd3c5c7efe2b8b4495a4d428e0220536e2f4ba7ddcab55e0fe9c0e07b2786bc428f6b47ec15636890849733c33dc9", HexUtil.encode(ecKey.getPubKey())));
+        // 3045022100eb6ef8d85ed636a592a50c67201c9ca2b66c3d80cba107611c6335c64c37de7c0220373a613ddeaad9b8997ce0da4a392207cbb790d00955fc4877f0d7b9fc7ffdd6
+        // 3045022100f2a5b44988a561aaba6c0296d0696fa412a14982dd1251eda7083f3b21254b4f0220198e34c81a4f2281b8500a818e46da19258ae3b8549f14e956961c426981e9e5
+        // 3045022100f2a5b44988a561aaba6c0296d0696fa412a14982dd1251eda7083f3b21254b4f0220198e34c81a4f2281b8500a818e46da19258ae3b8549f14e956961c426981e9e5
     }
 
     @Test

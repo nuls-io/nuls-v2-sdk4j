@@ -48,7 +48,6 @@ public class NulsSDKBootStrap {
 
     /**
      * NULS-SDK工具连接NULS主网钱包初始化
-     * 设置主网钱包NULS-SDK-Provider模块的url访问地址
      *
      * @param httpUrl 钱包url访问地址(ip + port)
      */
@@ -60,11 +59,11 @@ public class NulsSDKBootStrap {
         if (StringUtils.isNotBlank(httpUrl)) {
             SDKContext.wallet_url = httpUrl;
         }
+        SDKContext.addressPrefix = "NULS";
     }
 
     /**
      * NULS-SDK工具连接NULS测试网钱包初始化
-     * 设置测试网钱包NULS-SDK-Provider模块的url访问地址
      *
      * @param httpUrl 钱包url访问地址(ip + port)
      */

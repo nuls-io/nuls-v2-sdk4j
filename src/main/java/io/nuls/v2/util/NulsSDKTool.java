@@ -1292,4 +1292,12 @@ public class NulsSDKTool {
         // key : usdPrice
         return getSuccess().setData(rpcResult.getResult());
     }
+
+    public static String signMessage(String message, String privateKey) {
+        return CommonUtil.signMessage(message, privateKey);
+    }
+
+    public static boolean verifySignedMessage(String message, String signature, String publicKey) {
+        return CommonUtil.verifySignedMessage(message, signature, publicKey);
+    }
 }
