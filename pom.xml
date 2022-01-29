@@ -6,7 +6,7 @@
 
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j-jdk8</artifactId>
-    <version>1.1.11.RELEASE</version>
+    <version>1.1.12.RELEASE</version>
 
     <name>nuls-sdk4j-jdk8</name>
 
@@ -23,7 +23,7 @@
         </license>
     </licenses>
     <scm>
-        <tag>1.1.11.RELEASE</tag>
+        <tag>1.1.12.RELEASE</tag>
         <url>https://github.com/nuls-io/nuls-v2-sdk4j</url>
         <connection>https://github.com/nuls-io/nuls-v2-sdk4j.git</connection>
         <developerConnection>https://nuls.io</developerConnection>
@@ -56,8 +56,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
         <java.version>1.8</java.version>
-        <slf4j.version>1.7.26</slf4j.version>
-        <logback.version>1.2.3</logback.version>
+        <org.slf4j.version>1.7.26</org.slf4j.version>
+        <ch.qos.logback.version>1.2.3</ch.qos.logback.version>
     </properties>
 
     <dependencies>
@@ -72,22 +72,22 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
+            <version>${org.slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-access</artifactId>
-            <version>${logback.version}</version>
+            <version>${ch.qos.logback.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-            <version>${logback.version}</version>
+            <version>${ch.qos.logback.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
+            <version>${ch.qos.logback.version}</version>
         </dependency>
         <!-- JSON -->
         <dependency>
@@ -152,7 +152,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.44.Final</version>
+            <version>4.1.71.Final</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.protobuf</groupId>
