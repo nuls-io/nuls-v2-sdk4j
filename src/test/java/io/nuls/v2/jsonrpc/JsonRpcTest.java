@@ -41,8 +41,8 @@ public class JsonRpcTest {
     @Test
     public void test() throws JsonProcessingException {
         List<Object> params = new LinkedList<>();
-        params.add(2);
-        params.add("tNULSeBaN9n5FJ3EYXENEuYwC2ZmnRE1agJffz");
+        params.add(1);
+        params.add("NULSd6HgntyX6aBo9ipFSxh9v7Tp2JZmG4rSA");
         RpcResult result = JsonRpcUtil.request("getContract", params);
         System.out.println(JSONUtils.obj2PrettyJson(result));
     }
