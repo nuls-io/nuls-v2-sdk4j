@@ -6,7 +6,7 @@
 
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j-jdk8</artifactId>
-    <version>1.1.12.RELEASE</version>
+    <version>1.1.13.RELEASE</version>
 
     <name>nuls-sdk4j-jdk8</name>
 
@@ -23,7 +23,7 @@
         </license>
     </licenses>
     <scm>
-        <tag>1.1.12.RELEASE</tag>
+        <tag>1.1.13.RELEASE</tag>
         <url>https://github.com/nuls-io/nuls-v2-sdk4j</url>
         <connection>https://github.com/nuls-io/nuls-v2-sdk4j.git</connection>
         <developerConnection>https://nuls.io</developerConnection>
@@ -56,8 +56,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
         <java.version>1.8</java.version>
-        <org.slf4j.version>1.7.26</org.slf4j.version>
-        <ch.qos.logback.version>1.2.3</ch.qos.logback.version>
+        <slf4j.version>1.7.26</slf4j.version>
+        <logback.version>1.2.3</logback.version>
     </properties>
 
     <dependencies>
@@ -69,26 +69,44 @@
         </dependency>
 
         <!-- Logger -->
+        <!-- Logger -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${org.slf4j.version}</version>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-access</artifactId>
-            <version>${ch.qos.logback.version}</version>
+            <version>${logback.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>logback-core</artifactId>
+                    <groupId>ch.qos.logback</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-            <version>${ch.qos.logback.version}</version>
+            <version>${logback.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>${ch.qos.logback.version}</version>
+            <version>${logback.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>logback-core</artifactId>
+                    <groupId>ch.qos.logback</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
         <!-- JSON -->
         <dependency>
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
@@ -99,6 +117,77 @@
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-annotations</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                    <artifactId>jackson-jaxrs-base</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.module</groupId>
+                    <artifactId>jackson-module-jaxb-annotations</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-base</artifactId>
+            <version>2.13.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-jaxb-annotations</artifactId>
+            <version>2.13.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-annotations</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>jakarta.activation</groupId>
+                    <artifactId>jakarta.activation-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <artifactId>jakarta.activation-api</artifactId>
+            <groupId>jakarta.activation</groupId>
+            <version>1.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.13.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.13.1</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jackson-annotations</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jackson-core</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -106,6 +195,7 @@
             <artifactId>jackson-annotations</artifactId>
             <version>2.13.1</version>
         </dependency>
+
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
