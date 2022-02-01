@@ -6,7 +6,7 @@
 
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j-jdk8</artifactId>
-    <version>1.1.13.RELEASE</version>
+    <version>1.1.14.RELEASE</version>
 
     <name>nuls-sdk4j-jdk8</name>
 
@@ -23,7 +23,7 @@
         </license>
     </licenses>
     <scm>
-        <tag>1.1.13.RELEASE</tag>
+        <tag>1.1.14.RELEASE</tag>
         <url>https://github.com/nuls-io/nuls-v2-sdk4j</url>
         <connection>https://github.com/nuls-io/nuls-v2-sdk4j.git</connection>
         <developerConnection>https://nuls.io</developerConnection>
@@ -68,7 +68,6 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- Logger -->
         <!-- Logger -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -242,7 +241,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.71.Final</version>
+            <version>4.1.72.Final</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.protobuf</groupId>
