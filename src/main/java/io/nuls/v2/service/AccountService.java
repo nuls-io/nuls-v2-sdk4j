@@ -10,17 +10,16 @@ import io.nuls.base.signture.P2PHKSignature;
 import io.nuls.base.signture.SignatureUtil;
 import io.nuls.core.basic.Result;
 import io.nuls.core.constant.BaseConstant;
+import io.nuls.core.constant.CommonCodeConstanst;
 import io.nuls.core.constant.ErrorCode;
-import io.nuls.core.crypto.AESEncrypt;
-import io.nuls.core.crypto.Base58;
-import io.nuls.core.crypto.ECKey;
-import io.nuls.core.crypto.HexUtil;
+import io.nuls.core.crypto.*;
 import io.nuls.core.exception.CryptoException;
 import io.nuls.core.exception.NulsException;
 import io.nuls.core.exception.NulsRuntimeException;
 import io.nuls.core.model.FormatValidUtils;
 import io.nuls.core.model.StringUtils;
 import io.nuls.v2.SDKContext;
+import io.nuls.v2.enums.EncodeType;
 import io.nuls.v2.error.AccountErrorCode;
 import io.nuls.v2.model.Account;
 import io.nuls.v2.model.dto.AccountDto;
@@ -30,8 +29,10 @@ import io.nuls.v2.model.dto.SignDto;
 import io.nuls.v2.util.AccountTool;
 import io.nuls.v2.util.CommonValidator;
 import io.nuls.v2.util.RestFulUtil;
+import io.nuls.v2.util.TxUtils;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static io.nuls.v2.util.ValidateUtil.validateChainId;
@@ -831,5 +832,22 @@ public class AccountService {
         byte[] result = new byte[23];
         System.arraycopy(bytes, 0, result, 0, 23);
         return result;
+    }
+
+    public Result decryptData(String privateKey, String encryptMsg, EncodeType encodeType) {
+        try {
+            String _privateKey = TxUtils.cleanHexPrefix(privateKey);
+            String _encryptMsg = TxUtils.cleanHexPrefix(encryptMsg);
+            byte[] decrypt = ECIESUtil.decrypt(HexUtil.decode(_privateKey), _encryptMsg);
+            String result;
+            switch (encodeType) {
+                case HEX: result = HexUtil.encode(decrypt);break;
+                case UTF8: result = new String(decrypt, StandardCharsets.UTF_8);break;
+                default: return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR);
+            }
+            return Result.getSuccess(result);
+        } catch (Throwable e) {
+            return Result.getFailed(CommonCodeConstanst.DATA_ERROR).setMsg(e.getMessage());
+        }
     }
 }
