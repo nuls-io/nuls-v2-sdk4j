@@ -38,6 +38,7 @@ import io.nuls.core.model.LongUtils;
 import io.nuls.core.model.StringUtils;
 import io.nuls.v2.constant.Constant;
 import io.nuls.v2.error.ContractErrorCode;
+import io.nuls.v2.model.dto.AccountAmountDto;
 import io.nuls.v2.model.dto.ProgramMultyAssetValue;
 import io.nuls.v2.tx.CallContractTransaction;
 import io.nuls.v2.tx.CreateContractTransaction;
@@ -324,12 +325,12 @@ public class ContractUtil {
     }
 
     public static CallContractTransaction newCallTx(int chainId, int assetId, BigInteger senderBalance, String nonce, CallContractData callContractData, String remark,
-                                                    List<ProgramMultyAssetValue> multyAssetValues) {
-        return newCallTx(chainId, assetId, senderBalance, nonce, callContractData, 0, remark, multyAssetValues);
+                                                    List<ProgramMultyAssetValue> multyAssetValues, List<AccountAmountDto> nulsValueToOthers) {
+        return newCallTx(chainId, assetId, senderBalance, nonce, callContractData, 0, remark, multyAssetValues, nulsValueToOthers);
     }
 
     public static CallContractTransaction newCallTx(int chainId, int assetId, BigInteger senderBalance, String nonce, CallContractData callContractData, long time, String remark,
-                                                    List<ProgramMultyAssetValue> multyAssetValues) {
+                                                    List<ProgramMultyAssetValue> multyAssetValues, List<AccountAmountDto> nulsValueToOthers) {
         try {
             CallContractTransaction tx = new CallContractTransaction();
             if (StringUtils.isNotBlank(remark)) {
@@ -376,6 +377,13 @@ public class ContractUtil {
             BigInteger imputedValue = BigInteger.valueOf(LongUtils.mul(gasUsed, callContractData.getPrice()));
             byte[] feeAccountBytes = sender;
             BigInteger feeValue = imputedValue;
+            // 计算向其他地址转账
+            if (nulsValueToOthers != null && !nulsValueToOthers.isEmpty()) {
+                for (AccountAmountDto dto : nulsValueToOthers) {
+                    feeValue = feeValue.add(dto.getValue());
+                    coinData.addTo(new CoinTo(AddressTool.getAddress(dto.getTo()), chainId, assetId, dto.getValue()));
+                }
+            }
             CoinFrom feeAccountFrom = null;
             for (CoinFrom from : froms) {
                 _assetChainId = from.getAssetsChainId();
