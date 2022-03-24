@@ -301,44 +301,37 @@ public class ContractServiceTest {
     @Test
     public void callTxWithAccountForTransferOnContractCallOffline() throws JsonProcessingException {
         int chainId = SDKContext.main_chain_id;
-        Sender _sender = this.sender01;
+        Sender _sender = this.sender02;
         String sender = _sender.getSender();
         String priKey = _sender.getPriKey();
-        String contractAddress = "tNULSeBaN31HBrLhXsWDkSz1bjhw5qGBcjafVJ";
-        long gasLimit = 200000L;
-        String methodName = "_payableMultyAsset";
+        long gasLimit = 500000L;
+        // 0.1NULS作为跨链手续费
+        BigInteger value = BigInteger.valueOf(1000_0000L);
+        // NRC20合约地址 (NULS测试网络)
+        String contractAddress = "tNULSeBaN7D88SKNPUheSKZeHUwmDCUWBH5JdH";
+        int tokenDecimals = 8;
+        // 调用的跨链转账函数
+        String methodName = "transferCrossChain";
         String methodDesc = "";
-        Object[] args = new Object[]{};
-        String[] argsType = new String[]{};
-        String remark = "remark_call_test";
-        BigInteger value = BigInteger.ZERO;
-        // 转入2个NVT和3个USDT, 填入资产链ID和资产ID获取账户资产的nonce
-        List<ProgramMultyAssetValue> multyAssetValueList = new ArrayList<>();
-        Result accountBalance5_7 = NulsSDKTool.getAccountBalance(sender, 5, 7);
-        Map balance5_7 = (Map) accountBalance5_7.getData();
-        String nonce5_7 = balance5_7.get("nonce").toString();
-        multyAssetValueList.add(new ProgramMultyAssetValue(BigInteger.valueOf(3_000000L), nonce5_7, 5, 7));
-
-        Result accountBalance5_1 = NulsSDKTool.getAccountBalance(sender, 5, 1);
-        Map balance5_1 = (Map) accountBalance5_1.getData();
-        String nonce5_1 = balance5_1.get("nonce").toString();
-        multyAssetValueList.add(new ProgramMultyAssetValue(BigInteger.valueOf(2_00000000L), nonce5_1, 5, 1));
-
-
+        // 接收地址 (转到NERVE测试网络)
+        String toAddress = "TNVTdTSPEn3kK94RqiMffiKkXTQ2anRwhN1J9";
+        // 转移38个token
+        String tokenAmount = "100";
+        // 交易备注 (选填)
+        String remark = "token cross chain test";
+        Object[] args = new Object[]{toAddress, new BigInteger(tokenAmount).multiply(BigInteger.TEN.pow(tokenDecimals))};
+        String[] argsType = new String[]{"Address", "BigInteger"};
         // 获取调用账户余额信息
         Result accountBalanceR = NulsSDKTool.getAccountBalance(sender, chainId, SDKContext.main_asset_id);
         Map balance = (Map) accountBalanceR.getData();
         BigInteger senderBalance = new BigInteger(balance.get("available").toString());
         String nonce = balance.get("nonce").toString();
 
-        // tNULSeBaMkzsRE6qc9RVoeY6gHq8k1xSMcdrc7
-        // tNULSeBaMfXDQeT4MJZim1RusCJRPx5j9bMKQN
         List<AccountAmountDto> nulsValueToOthers = new ArrayList<>();
-        nulsValueToOthers.add(new AccountAmountDto(BigInteger.valueOf(200000000L), "tNULSeBaMkzsRE6qc9RVoeY6gHq8k1xSMcdrc7"));
-        nulsValueToOthers.add(new AccountAmountDto(BigInteger.valueOf(300000000L), "tNULSeBaMfXDQeT4MJZim1RusCJRPx5j9bMKQN"));
+        nulsValueToOthers.add(new AccountAmountDto(BigInteger.valueOf(200000000L), "tNULSeBaMvEtDfvZuukDf2mVyfGo3DdiN8KLRG"));
 
         Result<Map> txOfflineR = NulsSDKTool.callContractTxOffline(sender, senderBalance, nonce, value, contractAddress, gasLimit,
-                methodName, methodDesc, args, argsType, remark, multyAssetValueList, nulsValueToOthers);
+                methodName, methodDesc, args, argsType, remark, null, nulsValueToOthers);
         Assert.assertTrue(JSONUtils.obj2PrettyJson(txOfflineR), txOfflineR.isSuccess());
         Map txMap = txOfflineR.getData();
         String txHex = (String) txMap.get("txHex");
