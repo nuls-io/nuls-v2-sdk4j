@@ -95,8 +95,8 @@ public class ContractUtil {
                         result[k] = valueOf(Array.get(arg, k));
                     }
                     two[i] = result;
-                } else if (arg instanceof ArrayList) {
-                    ArrayList resultArg = (ArrayList) arg;
+                } else if (arg instanceof List) {
+                    List resultArg = (List) arg;
                     int size = resultArg.size();
                     String[] result = new String[size];
                     for (int k = 0; k < size; k++) {
