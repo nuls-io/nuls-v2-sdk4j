@@ -1,7 +1,17 @@
 package io.nuls.v2;
 
+import io.nuls.base.basic.AddressTool;
+import io.nuls.base.data.CoinData;
+import io.nuls.base.data.CoinFrom;
+import io.nuls.base.data.CoinTo;
 import io.nuls.base.data.Transaction;
+import io.nuls.base.signture.P2PHKSignature;
+import io.nuls.base.signture.SignatureUtil;
+import io.nuls.base.signture.TransactionSignature;
 import io.nuls.core.basic.Result;
+import io.nuls.core.crypto.ECKey;
+import io.nuls.core.crypto.HexUtil;
+import io.nuls.core.model.StringUtils;
 import io.nuls.v2.model.dto.*;
 import io.nuls.v2.util.NulsSDKTool;
 import org.junit.Before;
@@ -571,23 +581,36 @@ public class TransationServiceTest {
 
     @Test
     public void testTx() {
-        String txHex = "0b00c325c15d00e903626e620131055454424e428af8e801010300000003001747ef013e4954857e6fd078df53d73c70d029b5d3082f401747ef0169fdf4bd90d5e9f20bcba8cd77f05a6dae78fbb61747ef01728e8f8c34396600f424c6a371f9c9a136fd84cb4200c80047ef0100036e626e03626e6200205fa01200000000000000000000000000000000000000000000000000000000c817a8040000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000050017020001f7ec6473df12e751d64cf20a8baa7edd50810f81fd15010117020001f7ec6473df12e751d64cf20a8baa7edd50810f8102000100a03e66d94500000000000000000000000000000000000000000000000000000008000000000000000000031702000199092280b81a34b28901654601bbaa764ea0b385020001000040be4025000000000000000000000000000000000000000000000000000000000000000000000017020001f7ec6473df12e751d64cf20a8baa7edd50810f810200010000205fa012000000000000000000000000000000000000000000000000000000ffffffffffffffffff1702000129cfc6376255a78451eeb4b129ed8eacffa2feef02000100005847f80d0000000000000000000000000000000000000000000000000000000000000000000000692103958b790c331954ed367d37bac901de5c2f06ac8368b37d7bd6cd5ae143c1d7e3463044022038ea5240e0ac9a3aa8e3f682c8f3f2d4eab8983f150ab9d46377ef257bb26d9c02200a3b0ac2195990b4dd3e48c7fc8eb830835ada750ab79332a56edb12a386b943";
-
         try {
+            String txHex = "0b00c325c15d00e903626e620131055454424e428af8e801010300000003001747ef013e4954857e6fd078df53d73c70d029b5d3082f401747ef0169fdf4bd90d5e9f20bcba8cd77f05a6dae78fbb61747ef01728e8f8c34396600f424c6a371f9c9a136fd84cb4200c80047ef0100036e626e03626e6200205fa01200000000000000000000000000000000000000000000000000000000c817a8040000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000050017020001f7ec6473df12e751d64cf20a8baa7edd50810f81fd15010117020001f7ec6473df12e751d64cf20a8baa7edd50810f8102000100a03e66d94500000000000000000000000000000000000000000000000000000008000000000000000000031702000199092280b81a34b28901654601bbaa764ea0b385020001000040be4025000000000000000000000000000000000000000000000000000000000000000000000017020001f7ec6473df12e751d64cf20a8baa7edd50810f810200010000205fa012000000000000000000000000000000000000000000000000000000ffffffffffffffffff1702000129cfc6376255a78451eeb4b129ed8eacffa2feef02000100005847f80d0000000000000000000000000000000000000000000000000000000000000000000000692103958b790c331954ed367d37bac901de5c2f06ac8368b37d7bd6cd5ae143c1d7e3463044022038ea5240e0ac9a3aa8e3f682c8f3f2d4eab8983f150ab9d46377ef257bb26d9c02200a3b0ac2195990b4dd3e48c7fc8eb830835ada750ab79332a56edb12a386b943";
             Result result = NulsSDKTool.deserializeTxHex(txHex);
             Transaction tx = (Transaction) result.getData();
-            tx.getCoinDataInstance();
-            NulsSDKTool.validateTx(txHex);
-//            CoinData coinData = tx.getCoinDataInstance();
-//            for (CoinFrom from : coinData.getFrom()) {
-//                String fromAddress = AddressTool.getStringAddressByBytes(from.getAddress());
-//                System.out.println(fromAddress);
-//                System.out.println(from.getAmount().toString());
-//            }
-//            for (CoinTo to : coinData.getTo()) {
-//                String toAddress = AddressTool.getStringAddressByBytes(to.getAddress());
-//                System.out.println(toAddress);
-//            }
+            CoinData coinData = tx.getCoinDataInstance();
+            for (CoinFrom from : coinData.getFrom()) {
+                String fromAddress = AddressTool.getStringAddressByBytes(from.getAddress());
+                System.out.println(fromAddress);
+                System.out.println(from.getAmount().toString());
+            }
+            for (CoinTo to : coinData.getTo()) {
+                String toAddress = AddressTool.getStringAddressByBytes(to.getAddress());
+                System.out.println(toAddress);
+            }
+
+            // 追加签名
+            String prikeyOfOther = "";
+            if (StringUtils.isNotBlank(prikeyOfOther)) {
+                TransactionSignature transactionSignature = new TransactionSignature();
+                transactionSignature.parse(tx.getTransactionSignature(), 0);
+                List<P2PHKSignature> p2PHKSignatures = transactionSignature.getP2PHKSignatures();
+                ECKey ecKey =  ECKey.fromPrivate(new BigInteger(1, HexUtil.decode(prikeyOfOther)));
+                byte[] signBytes = SignatureUtil.signDigest(tx.getHash().getBytes(), ecKey).serialize();
+                P2PHKSignature signature = new P2PHKSignature(signBytes, ecKey.getPubKey());
+                p2PHKSignatures.add(signature);
+                transactionSignature.setP2PHKSignatures(p2PHKSignatures);
+                tx.setTransactionSignature(transactionSignature.serialize());
+            }
+            // 最终交易的序列化
+            System.out.println(HexUtil.encode(tx.serialize()));
         } catch (Exception e) {
             e.printStackTrace();
         }
