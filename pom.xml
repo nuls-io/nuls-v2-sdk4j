@@ -10,7 +10,7 @@
 
     <name>nuls-sdk4j-jdk8</name>
 
-    <parent>
+    <!--<parent>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
         <version>7</version>
@@ -37,19 +37,19 @@
     </developers>
     <distributionManagement>
         <snapshotRepository>
-            <!-- 这个id需要在setting.xml中设置  -->
+            &lt;!&ndash; 这个id需要在setting.xml中设置  &ndash;&gt;
             <id>ossrh</id>
             <name>OSS Snapshots Repository</name>
-            <!-- 这里的url就是Issue中回复的snapshots 的repo地址-->
+            &lt;!&ndash; 这里的url就是Issue中回复的snapshots 的repo地址&ndash;&gt;
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
         </snapshotRepository>
         <repository>
             <id>ossrh</id>
             <name>OSS Staging Repository</name>
-            <!-- 这里的url就是Issue中回复的staging 的repo地址-->
+            &lt;!&ndash; 这里的url就是Issue中回复的staging 的repo地址&ndash;&gt;
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
-    </distributionManagement>
+    </distributionManagement>-->
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -262,13 +262,13 @@
         </dependency>
     </dependencies>
 
-    <profiles>
+    <!--<profiles>
         <profile>
             <id>disable-javadoc-doclint</id>
             <activation>
                 <jdk>[1.8,)</jdk>
             </activation>
-            <!-- java8版本导致javadoc打包编译失败时候，添加-->
+            &lt;!&ndash; java8版本导致javadoc打包编译失败时候，添加&ndash;&gt;
             <properties>
                 <javadoc.opts>-Xdoclint:none</javadoc.opts>
             </properties>
@@ -337,7 +337,7 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-javadoc-plugin -->
+                    &lt;!&ndash; https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-javadoc-plugin &ndash;&gt;
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
@@ -355,7 +355,7 @@
                             <failOnError>false</failOnError>
                         </configuration>
                     </plugin>
-                    <!--<plugin>
+                    &lt;!&ndash;<plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>2.10.4</version>
@@ -372,11 +372,11 @@
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>-->
+                    </plugin>&ndash;&gt;
                 </plugins>
             </build>
         </profile>
-    </profiles>
+    </profiles>-->
 
     <build>
         <finalName>nuls-sdk4j-jdk8</finalName>
@@ -392,4 +392,15 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>maven-releases</id>
+            <url>http://nexus.nuls.io/repository/nuls-release/</url>
+        </repository>
+        <snapshotRepository>
+            <id>maven-snapshots</id>
+            <url>http://nexus.nuls.io/repository/nuls-snapshot/</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
