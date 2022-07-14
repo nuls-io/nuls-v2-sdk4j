@@ -124,4 +124,12 @@ public class TxUtils {
         System.arraycopy(txHash, txHash.length - 8, targetArr, 0, 8);
         return targetArr;
     }
+
+    public static String cleanHexPrefix(String input) {
+        return containsHexPrefix(input) ? input.substring(2) : input;
+    }
+
+    public static boolean containsHexPrefix(String input) {
+        return !StringUtils.isBlank(input) && input.length() > 1 && input.charAt(0) == '0' && input.charAt(1) == 'x';
+    }
 }

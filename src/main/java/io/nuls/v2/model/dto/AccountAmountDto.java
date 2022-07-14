@@ -1,7 +1,7 @@
 /**
  * MIT License
  * <p>
- * Copyright (c) 2017-2018 nuls.io
+ * Copyright (c) 2017-2019 nuls.io
  * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,29 +21,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.nuls.v2.jsonrpc;
+package io.nuls.v2.model.dto;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import io.nuls.core.parse.JSONUtils;
-import io.nuls.v2.model.dto.RpcResult;
-import io.nuls.v2.util.JsonRpcUtil;
-import org.junit.Test;
+import io.nuls.core.rpc.model.ApiModel;
+import io.nuls.core.rpc.model.ApiModelProperty;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.math.BigInteger;
 
 /**
  * @author: PierreLuo
- * @date: 2019-07-01
+ * @date: 2019-03-06
  */
-public class JsonRpcTest {
+@ApiModel
+public class AccountAmountDto {
+    @ApiModelProperty(description = "转入金额")
+    private BigInteger value;
+    @ApiModelProperty(description = "转入地址")
+    private String to;
 
-    @Test
-    public void test() throws JsonProcessingException {
-        List<Object> params = new LinkedList<>();
-        params.add(1);
-        params.add("NULSd6HgntyX6aBo9ipFSxh9v7Tp2JZmG4rSA");
-        RpcResult result = JsonRpcUtil.request("getContract", params);
-        System.out.println(JSONUtils.obj2PrettyJson(result));
+    public AccountAmountDto(BigInteger value, String to) {
+        this.value = value;
+        this.to = to;
+    }
+
+    public AccountAmountDto() {
+    }
+
+    public BigInteger getValue() {
+        return value;
+    }
+
+    public void setValue(BigInteger value) {
+        this.value = value;
+    }
+
+    public String getTo() {
+        return to;
+    }
+
+    public void setTo(String to) {
+        this.to = to;
     }
 }

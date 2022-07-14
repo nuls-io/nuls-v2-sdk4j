@@ -153,10 +153,10 @@ public class ContractServiceTest {
         String sender = _sender.getSender();
         String priKey = _sender.getPriKey();
         BigInteger value = BigInteger.ZERO;
-        String contractAddress = "tNULSeBaN1fUX96b3QBrmtq2GU3mt6YmHGujFy";
-        String methodName = "transfer";
+        String contractAddress = "tNULSeBaN31HBrLhXsWDkSz1bjhw5qGBcjafVJ";
+        String methodName = "transferDesignatedAsset";
         String methodDesc = "";
-        Object[] args = new Object[]{"tNULSeBaMvEtDfvZuukDf2mVyfGo3DdiN8KLRG", 3800};
+        Object[] args = new Object[]{"tNULSeBaMrbMRiFAUeeAt6swb4xVBNyi81YL24", new BigDecimal("2").multiply(BigDecimal.TEN.pow(8)).toBigInteger(), 5, 1};
         String remark = "remark_call_test";
 
         String signedTxHex = callOfflineHex(chainId, sender, priKey, value, contractAddress,
@@ -253,7 +253,7 @@ public class ContractServiceTest {
         String remark = "remark_call_test";
         // 转入6.6个NULS
         BigInteger value = new BigDecimal("6.6").movePointRight(8).toBigInteger();
-        // 转入2个USDT，填入资产链ID和资产ID 5-7 获取账户USDT资产的nonce
+        // 转入2个USDT，填入资产链ID和资产ID 5-14获取账户USDT资产的nonce
         List<ProgramMultyAssetValue> multyAssetValueList = new ArrayList<>();
         Result accountBalance5_7 = NulsSDKTool.getAccountBalance(sender, 5, 7);
         Map balance5_7 = (Map) accountBalance5_7.getData();
@@ -296,15 +296,15 @@ public class ContractServiceTest {
     }
 
     /**
-     * nrc20资产跨链转账 离线交易
+     * 调用合约的同时，支持向其他地址转账
      */
     @Test
-    public void nrc20CrossOutOffline() throws JsonProcessingException {
+    public void callTxWithAccountForTransferOnContractCallOffline() throws JsonProcessingException {
         int chainId = SDKContext.main_chain_id;
-        // 账户信息
-        Sender _sender = this.sender01;
+        Sender _sender = this.sender02;
         String sender = _sender.getSender();
         String priKey = _sender.getPriKey();
+        long gasLimit = 500000L;
         // 0.1NULS作为跨链手续费
         BigInteger value = BigInteger.valueOf(1000_0000L);
         // NRC20合约地址 (NULS测试网络)
@@ -320,15 +320,79 @@ public class ContractServiceTest {
         // 交易备注 (选填)
         String remark = "token cross chain test";
         Object[] args = new Object[]{toAddress, new BigInteger(tokenAmount).multiply(BigInteger.TEN.pow(tokenDecimals))};
-        String signedTxHex = callOfflineHex(chainId, sender, priKey, value, contractAddress,
-                methodName, methodDesc, args, remark);
+        String[] argsType = new String[]{"Address", "BigInteger"};
+        // 获取调用账户余额信息
+        Result accountBalanceR = NulsSDKTool.getAccountBalance(sender, chainId, SDKContext.main_asset_id);
+        Map balance = (Map) accountBalanceR.getData();
+        BigInteger senderBalance = new BigInteger(balance.get("available").toString());
+        String nonce = balance.get("nonce").toString();
 
+        List<AccountAmountDto> nulsValueToOthers = new ArrayList<>();
+        nulsValueToOthers.add(new AccountAmountDto(BigInteger.valueOf(200000000L), "tNULSeBaMvEtDfvZuukDf2mVyfGo3DdiN8KLRG"));
+
+        Result<Map> txOfflineR = NulsSDKTool.callContractTxOffline(sender, senderBalance, nonce, value, contractAddress, gasLimit,
+                methodName, methodDesc, args, argsType, remark, null, nulsValueToOthers);
+        Assert.assertTrue(JSONUtils.obj2PrettyJson(txOfflineR), txOfflineR.isSuccess());
+        Map txMap = txOfflineR.getData();
+        String txHex = (String) txMap.get("txHex");
+        String hash = (String) txMap.get("hash");
+        System.out.println(String.format("未签名交易信息 - hash: %s, txHex: %s", hash, txHex));
+
+        // 离线接口 - 签名交易
+        /*Result<Map> signTxR = NulsSDKTool.sign(txHex, sender, priKey);
+        Assert.assertTrue(JSONUtils.obj2PrettyJson(signTxR), signTxR.isSuccess());
+        Map resultData = signTxR.getData();
+        String _hash = (String) resultData.get("hash");
+        Assert.assertEquals("hash不一致", hash, _hash);
+        String signedTxHex = (String) resultData.get("txHex");
+        System.out.println(String.format("已签名交易信息 - hash: %s, txHex: %s", _hash, signedTxHex));
+
+        boolean broadcast = true;
+        if (!broadcast) {
+            return;
+        }
         // 在线接口 - 广播交易
         Result<Map> broadcaseTxR = NulsSDKTool.broadcast(signedTxHex);
         Assert.assertTrue(JSONUtils.obj2PrettyJson(broadcaseTxR), broadcaseTxR.isSuccess());
         Map data = broadcaseTxR.getData();
         String hash1 = (String) data.get("hash");
-        System.out.println(String.format("hash: %s", hash1));
+        System.out.println(String.format("已广播交易 - hash: %s", hash1));*/
+    }
+
+    /**
+     * nrc20资产跨链转账 离线交易
+     */
+    @Test
+    public void nrc20CrossOutOffline() throws JsonProcessingException {
+        int chainId = SDKContext.main_chain_id;
+        // 账户信息
+        Sender _sender = this.sender01;
+        String sender = _sender.getSender();
+        String priKey = _sender.getPriKey();
+        // 0.1NULS作为跨链手续费
+        BigInteger value = BigInteger.valueOf(1000_0000L);
+        // NRC20合约地址 (NULS测试网络)
+        String contractAddress = "tNULSeBaMzvqHiyBnr7c1TKYBLMHMvi1CcisAg";
+        int tokenDecimals = 8;
+        // 调用的跨链转账函数
+        String methodName = "transferCrossChain";
+        String methodDesc = "";
+        // 接收地址 (转到NERVE测试网络)
+        String toAddress = "TNVTdTSPEn3kK94RqiMffiKkXTQ2anRwhN1J9";
+        // 转移38个token
+        String tokenAmount = "100";
+        // 交易备注 (选填)
+        String remark = "token cross chain test";
+        Object[] args = new Object[]{toAddress, new BigInteger(tokenAmount).multiply(BigInteger.TEN.pow(tokenDecimals))};
+        String signedTxHex = callOfflineHex(chainId, sender, priKey, value, contractAddress,
+                methodName, methodDesc, args, remark);
+
+        // 在线接口 - 广播交易
+        //Result<Map> broadcaseTxR = NulsSDKTool.broadcast(signedTxHex);
+        //Assert.assertTrue(JSONUtils.obj2PrettyJson(broadcaseTxR), broadcaseTxR.isSuccess());
+        //Map data = broadcaseTxR.getData();
+        //String hash1 = (String) data.get("hash");
+        //System.out.println(String.format("hash: %s", hash1));
     }
 
     /**

@@ -2,6 +2,18 @@ package io.nuls.v2;
 
 import io.nuls.base.data.Transaction;
 import io.nuls.core.basic.Result;
+import io.nuls.base.basic.AddressTool;
+import io.nuls.base.data.CoinData;
+import io.nuls.base.data.CoinFrom;
+import io.nuls.base.data.CoinTo;
+import io.nuls.base.data.Transaction;
+import io.nuls.base.signture.P2PHKSignature;
+import io.nuls.base.signture.SignatureUtil;
+import io.nuls.base.signture.TransactionSignature;
+import io.nuls.core.basic.Result;
+import io.nuls.core.crypto.ECKey;
+import io.nuls.core.crypto.HexUtil;
+import io.nuls.core.model.StringUtils;
 import io.nuls.v2.model.dto.*;
 import io.nuls.v2.util.NulsSDKTool;
 import org.junit.Before;
@@ -28,7 +40,7 @@ public class TransationServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.init(5, 5, "TNVT", "http://192.168.1.60:18004/");
+        NulsSDKBootStrap.init(5, 2, "TNVT", "http://192.168.1.60:17004/");
     }
 
     @Test
@@ -54,8 +66,8 @@ public class TransationServiceTest {
 
     @Test
     public void testCreateTransferTx() {
-        String fromAddress = "TNVTdTSPFnCMgr9mzvgibQ4hKspVSGEc6XTKE";
-        String toAddress = "TNVTdTSPVcqUCdfVYWwrbuRtZ1oM6GpSgsgF5";
+        String fromAddress = "TNVTdTSPLmP6SKyn2RigSA8Lr9bMTgjUhnve4";
+        String toAddress = "tNULSeBaMsEfHKEXvaFPPpQomXipeCYrru6t81";
 
         TransferTxFeeDto feeDto = new TransferTxFeeDto();
         feeDto.setAddressCount(1);
@@ -69,16 +81,16 @@ public class TransationServiceTest {
 
         CoinFromDto from = new CoinFromDto();
         from.setAddress(fromAddress);
-        from.setAmount(new BigInteger("100000000").add(fee));
+        from.setAmount(new BigInteger("10000000").add(fee));
         from.setAssetChainId(SDKContext.main_chain_id);
         from.setAssetId(SDKContext.main_asset_id);
-        from.setNonce("8966ed405941fa7c");
+        from.setNonce("0000000000000000");
         inputs.add(from);
 
         List<CoinToDto> outputs = new ArrayList<>();
         CoinToDto to = new CoinToDto();
         to.setAddress(toAddress);
-        to.setAmount(new BigInteger("100000000"));
+        to.setAmount(new BigInteger("10000000"));
         to.setAssetChainId(SDKContext.main_chain_id);
         to.setAssetId(SDKContext.main_asset_id);
         outputs.add(to);
@@ -90,14 +102,13 @@ public class TransationServiceTest {
         String txHex = (String) result.getData().get("txHex");
 
         //签名
-        result = NulsSDKTool.sign(txHex, fromAddress, priKey);
+        String prikey = "";
+        result = NulsSDKTool.sign(txHex, fromAddress, prikey);
         txHex = (String) result.getData().get("txHex");
 
         String txHash = (String) result.getData().get("hash");
-        System.out.println("hash: " + txHash);
-        System.out.println("hex: " + txHex);
         //广播
-//        result = NulsSDKTool.broadcast(txHex);
+        result = NulsSDKTool.broadcast(txHex);
     }
 
 
@@ -261,6 +272,9 @@ public class TransationServiceTest {
 
 //        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
         List<String> pubKeys = new ArrayList<>();
+        pubKeys.add("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db");
+        pubKeys.add("03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+
         transferDto.setPubKeys(pubKeys);
         transferDto.setMinSigns(2);
 
@@ -432,8 +446,11 @@ public class TransationServiceTest {
         BigInteger deposit = new BigInteger("2000000000000");
         BigInteger fee = SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE;
 
-        // List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+//        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
         List<String> pubKeys = new ArrayList<>();
+        pubKeys.add("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db");
+        pubKeys.add("03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+
         MultiSignConsensusDto dto = new MultiSignConsensusDto();
         dto.setAgentAddress("tNULSeBaNTcZo37gNC5mNjJuB39u8zT3TAy8jy");
         dto.setPackingAddress("tNULSeBaMowgMLTbRUngAuj2BvGy2RmVLt3okv");
@@ -462,8 +479,12 @@ public class TransationServiceTest {
         //委托共识金额
         BigInteger deposit = new BigInteger("200000000000");
         BigInteger fee = SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE;
-        //List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+//        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
         List<String> pubKeys = new ArrayList<>();
+        pubKeys.add("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db");
+        pubKeys.add("03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+
+
         MultiSignDepositDto depositDto = new MultiSignDepositDto();
         depositDto.setPubKeys(pubKeys);
         depositDto.setMinSigns(2);
@@ -490,8 +511,11 @@ public class TransationServiceTest {
     public void testMultiSignWithDrawDepositTx() {
         BigInteger deposit = new BigInteger("200000000000");
         BigInteger price = SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE;
-        //List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+//        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
         List<String> pubKeys = new ArrayList<>();
+        pubKeys.add("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db");
+        pubKeys.add("03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+
         MultiSignWithDrawDto drawDto = new MultiSignWithDrawDto();
         drawDto.setPubKeys(pubKeys);
         drawDto.setMinSigns(2);
@@ -516,8 +540,11 @@ public class TransationServiceTest {
     @Test
     public void testMultiSignStopConsensusTx() {
         MultiSignStopConsensusDto dto = new MultiSignStopConsensusDto();
-        // List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+//        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
         List<String> pubKeys = new ArrayList<>();
+        pubKeys.add("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db");
+        pubKeys.add("03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+
         dto.setPubKeys(pubKeys);
         dto.setMinSigns(2);
         dto.setAgentHash("e67ed0f09cea8bd4e2ad3b4b6d83a39841f9f83dd2a9e5737b73b4d5ad203537");
@@ -556,23 +583,36 @@ public class TransationServiceTest {
 
     @Test
     public void testTx() {
-        String txHex = "0b00c325c15d00e903626e620131055454424e428af8e801010300000003001747ef013e4954857e6fd078df53d73c70d029b5d3082f401747ef0169fdf4bd90d5e9f20bcba8cd77f05a6dae78fbb61747ef01728e8f8c34396600f424c6a371f9c9a136fd84cb4200c80047ef0100036e626e03626e6200205fa01200000000000000000000000000000000000000000000000000000000c817a8040000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000050017020001f7ec6473df12e751d64cf20a8baa7edd50810f81fd15010117020001f7ec6473df12e751d64cf20a8baa7edd50810f8102000100a03e66d94500000000000000000000000000000000000000000000000000000008000000000000000000031702000199092280b81a34b28901654601bbaa764ea0b385020001000040be4025000000000000000000000000000000000000000000000000000000000000000000000017020001f7ec6473df12e751d64cf20a8baa7edd50810f810200010000205fa012000000000000000000000000000000000000000000000000000000ffffffffffffffffff1702000129cfc6376255a78451eeb4b129ed8eacffa2feef02000100005847f80d0000000000000000000000000000000000000000000000000000000000000000000000692103958b790c331954ed367d37bac901de5c2f06ac8368b37d7bd6cd5ae143c1d7e3463044022038ea5240e0ac9a3aa8e3f682c8f3f2d4eab8983f150ab9d46377ef257bb26d9c02200a3b0ac2195990b4dd3e48c7fc8eb830835ada750ab79332a56edb12a386b943";
-
         try {
+            String txHex = "0b00c325c15d00e903626e620131055454424e428af8e801010300000003001747ef013e4954857e6fd078df53d73c70d029b5d3082f401747ef0169fdf4bd90d5e9f20bcba8cd77f05a6dae78fbb61747ef01728e8f8c34396600f424c6a371f9c9a136fd84cb4200c80047ef0100036e626e03626e6200205fa01200000000000000000000000000000000000000000000000000000000c817a8040000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000050017020001f7ec6473df12e751d64cf20a8baa7edd50810f81fd15010117020001f7ec6473df12e751d64cf20a8baa7edd50810f8102000100a03e66d94500000000000000000000000000000000000000000000000000000008000000000000000000031702000199092280b81a34b28901654601bbaa764ea0b385020001000040be4025000000000000000000000000000000000000000000000000000000000000000000000017020001f7ec6473df12e751d64cf20a8baa7edd50810f810200010000205fa012000000000000000000000000000000000000000000000000000000ffffffffffffffffff1702000129cfc6376255a78451eeb4b129ed8eacffa2feef02000100005847f80d0000000000000000000000000000000000000000000000000000000000000000000000692103958b790c331954ed367d37bac901de5c2f06ac8368b37d7bd6cd5ae143c1d7e3463044022038ea5240e0ac9a3aa8e3f682c8f3f2d4eab8983f150ab9d46377ef257bb26d9c02200a3b0ac2195990b4dd3e48c7fc8eb830835ada750ab79332a56edb12a386b943";
             Result result = NulsSDKTool.deserializeTxHex(txHex);
             Transaction tx = (Transaction) result.getData();
-            tx.getCoinDataInstance();
-            NulsSDKTool.validateTx(txHex);
-//            CoinData coinData = tx.getCoinDataInstance();
-//            for (CoinFrom from : coinData.getFrom()) {
-//                String fromAddress = AddressTool.getStringAddressByBytes(from.getAddress());
-//                System.out.println(fromAddress);
-//                System.out.println(from.getAmount().toString());
-//            }
-//            for (CoinTo to : coinData.getTo()) {
-//                String toAddress = AddressTool.getStringAddressByBytes(to.getAddress());
-//                System.out.println(toAddress);
-//            }
+            CoinData coinData = tx.getCoinDataInstance();
+            for (CoinFrom from : coinData.getFrom()) {
+                String fromAddress = AddressTool.getStringAddressByBytes(from.getAddress());
+                System.out.println(fromAddress);
+                System.out.println(from.getAmount().toString());
+            }
+            for (CoinTo to : coinData.getTo()) {
+                String toAddress = AddressTool.getStringAddressByBytes(to.getAddress());
+                System.out.println(toAddress);
+            }
+
+            // 追加签名
+            String prikeyOfOther = "";
+            if (StringUtils.isNotBlank(prikeyOfOther)) {
+                TransactionSignature transactionSignature = new TransactionSignature();
+                transactionSignature.parse(tx.getTransactionSignature(), 0);
+                List<P2PHKSignature> p2PHKSignatures = transactionSignature.getP2PHKSignatures();
+                ECKey ecKey =  ECKey.fromPrivate(new BigInteger(1, HexUtil.decode(prikeyOfOther)));
+                byte[] signBytes = SignatureUtil.signDigest(tx.getHash().getBytes(), ecKey).serialize();
+                P2PHKSignature signature = new P2PHKSignature(signBytes, ecKey.getPubKey());
+                p2PHKSignatures.add(signature);
+                transactionSignature.setP2PHKSignatures(p2PHKSignatures);
+                tx.setTransactionSignature(transactionSignature.serialize());
+            }
+            // 最终交易的序列化
+            System.out.println(HexUtil.encode(tx.serialize()));
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -21,29 +21,59 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.nuls.v2.jsonrpc;
+package io.nuls.v2.random;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import io.nuls.core.parse.JSONUtils;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import io.nuls.v2.base.RpcBase;
 import io.nuls.v2.model.dto.RpcResult;
+import io.nuls.v2.util.ContractUtil;
 import io.nuls.v2.util.JsonRpcUtil;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.LinkedList;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: PierreLuo
- * @date: 2019-07-01
+ * @date: 2020-04-15
  */
-public class JsonRpcTest {
+public class RandomTest extends RpcBase {
+
+    @BeforeClass
+    public static void beforeClass() {
+        LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+        context.getLogger(Logger.ROOT_LOGGER_NAME).setLevel(Level.INFO);
+    }
+
+    @Before
+    public void before() throws InterruptedException {
+        super.before();
+    }
+
+    /**
+     * 设置主网或测试网NULS-API
+     */
+    @Override
+    public String getNulsApiHost() {
+        return testNulsApiHost;
+    }
 
     @Test
-    public void test() throws JsonProcessingException {
-        List<Object> params = new LinkedList<>();
-        params.add(1);
-        params.add("NULSd6HgntyX6aBo9ipFSxh9v7Tp2JZmG4rSA");
-        RpcResult result = JsonRpcUtil.request("getContract", params);
-        System.out.println(JSONUtils.obj2PrettyJson(result));
+    public void test() {
+        for(int i=0;i<100;i++) {
+            RpcResult request = JsonRpcUtil.request("getRandomSeedByCount", List.of(2, 740892 - i * 10, 5, "sha3"));
+            Map map = (Map) request.getResult();
+            String seed = new BigInteger(map.get("seed").toString()).abs().toString();
+            System.out.println("0".repeat(77 - seed.length()) + seed);
+        }
     }
+
 }

@@ -5,7 +5,7 @@ public interface Constant {
     /**
      * NULS主网链id
      */
-     int NULS_CHAIN_ID = 1;
+    int NULS_CHAIN_ID = 1;
     /**
      * NULS主资产id
      */

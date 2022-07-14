@@ -12,7 +12,6 @@ import org.junit.Test;
 import java.util.Map;
 
 public class BlockServiceTest {
-
     @Before
     public void before() {
         NulsSDKBootStrap.initTest("http://39.98.226.51:18004");

@@ -21,29 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.nuls.v2.jsonrpc;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import io.nuls.core.parse.JSONUtils;
-import io.nuls.v2.model.dto.RpcResult;
-import io.nuls.v2.util.JsonRpcUtil;
-import org.junit.Test;
-
-import java.util.LinkedList;
-import java.util.List;
+package io.nuls.v2.enums;
 
 /**
  * @author: PierreLuo
- * @date: 2019-07-01
+ * @date: 2022/3/14
  */
-public class JsonRpcTest {
-
-    @Test
-    public void test() throws JsonProcessingException {
-        List<Object> params = new LinkedList<>();
-        params.add(1);
-        params.add("NULSd6HgntyX6aBo9ipFSxh9v7Tp2JZmG4rSA");
-        RpcResult result = JsonRpcUtil.request("getContract", params);
-        System.out.println(JSONUtils.obj2PrettyJson(result));
-    }
+public enum EncodeType {
+    HEX,
+    UTF8
 }

@@ -99,14 +99,6 @@ public class ContractInfoDto {
         this.alias = alias;
     }
 
-    public int getTokenType() {
-        return tokenType;
-    }
-
-    public void setTokenType(int tokenType) {
-        this.tokenType = tokenType;
-    }
-
     public long getCreateTime() {
         return createTime;
     }
@@ -129,6 +121,14 @@ public class ContractInfoDto {
 
     public void setDirectPayable(boolean directPayable) {
         isDirectPayable = directPayable;
+    }
+
+    public int getTokenType() {
+        return tokenType;
+    }
+
+    public void setTokenType(int tokenType) {
+        this.tokenType = tokenType;
     }
 
     public boolean isNrc20() {

@@ -7,8 +7,6 @@ public class NulsSDKBootStrap {
 
     private static final String LANGUAGE = "en";
     private static final String LANGUAGE_PATH = "languages";
-    
-
     /**
      * NULS-SDK工具初始化
      * 设置对接的链的ID和钱包NULS-SDK-Provider模块的url访问地址
@@ -101,6 +99,11 @@ public class NulsSDKBootStrap {
             SDKContext.addressPrefix = "tNULS";
         } else if (chainId > 2 && "NULS".equals(SDKContext.addressPrefix)) {
             SDKContext.addressPrefix = "";
+        }
+        try {
+            Class.forName("io.nuls.core.exception.NulsException");
+        } catch (ClassNotFoundException e) {
+            // skip it
         }
     }
 

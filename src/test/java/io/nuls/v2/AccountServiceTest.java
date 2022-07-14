@@ -2,12 +2,18 @@ package io.nuls.v2;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.nuls.core.basic.Result;
+import io.nuls.core.crypto.ECIESUtil;
+import io.nuls.core.crypto.HexUtil;
 import io.nuls.core.parse.JSONUtils;
 import io.nuls.v2.model.dto.*;
+import io.nuls.v2.enums.EncodeType;
+import io.nuls.v2.model.dto.*;
+import io.nuls.v2.service.AccountService;
 import io.nuls.v2.util.NulsSDKTool;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +32,7 @@ public class AccountServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.init(2, "tNULS", "");
+        NulsSDKBootStrap.initTest("http://beta.api.nuls.io");
     }
 
     @Test
@@ -79,8 +85,8 @@ public class AccountServiceTest {
 
     @Test
     public void testGetPriKeyOffline() {
-        String address = "tNULSeBaMoRp6QhNYSF8xjiwBFYnvCoCjkQzvU";
-        String encryptedPrivateKey = "c15450ff689c55f4faf773e51caefa95649ae8983e75e6a473329f620613c700e735909ad61a5f54469e821e286dda8e";
+        String address = "TNVTdTSPFnCMgr9mzvgibQ4hKspVSGEc6XTKE";
+        String encryptedPrivateKey = "c515283abe7f653222ab5bcd11be650347c8ad0eb3f5bb72bfce3d88c3f5efa79d75db7bf2d0681745253313611a3524";
         Result result = NulsSDKTool.getPriKeyOffline(address, encryptedPrivateKey, password);
         Map map = (Map) result.getData();
         System.out.println(map);
@@ -137,7 +143,7 @@ public class AccountServiceTest {
 
     @Test
     public void testBalance() {
-        Result result = NulsSDKTool.getAccountBalance("tNULSeBaMshNPEnuqiDhMdSA4iNs6LMgjY6tcL", 2, 1);
+        Result result = NulsSDKTool.getAccountBalance("tNULSeBaMvEtDfvZuukDf2mVyfGo3DdiN8KLRG", 2, 1);
         System.out.println(result);
     }
 
@@ -158,7 +164,9 @@ public class AccountServiceTest {
     public void testMultiSignAliasTx() {
         String address = "tNULSeBaNTcZo37gNC5mNjJuB39u8zT3TAy8jy";
         String alias = "aaddbbees";
-        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+        //List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
+        List<String> pubKeys = new ArrayList<>();
+
 
         MultiSignAliasDto aliasDto = new MultiSignAliasDto();
         aliasDto.setPubKeys(pubKeys);
@@ -191,6 +199,21 @@ public class AccountServiceTest {
         String address = "Nsdwnd4auFisFJKU6iDvBxTdPkeg8qkB";
         Result result = NulsSDKTool.changeV1addressToV2address(address);
         System.out.println(result);
+    }
+
+    @Test
+    public void encrypAndDecryptMsgTest() throws Exception {
+        String pri = "9ce21dad67e0f0af2599b41b515a7f7018059418bab892a7b68f283d489abc4b";
+        String pub = "03958b790c331954ed367d37bac901de5c2f06ac8368b37d7bd6cd5ae143c1d7e3";
+        String msg = "werwerwerwe新光天地，没有#$%^&*()cvbcvbcvb";
+        byte[] encrypt = ECIESUtil.encrypt(HexUtil.decode(pub), msg.getBytes(StandardCharsets.UTF_8));
+        String encryptMsg = HexUtil.encode(encrypt);
+        Result result = NulsSDKTool.decryptData(pri, encryptMsg, EncodeType.UTF8);
+        System.out.println(result.isSuccess());
+        System.out.println(result.getData());
+        System.out.println(result.getErrorCode().getCode());
+        System.out.println(result.getMsg());
+
     }
 
 }

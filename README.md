@@ -24,7 +24,8 @@ JDK8的版本依赖：
 </dependency>
 ```
 
-注：调用`NULS-SDK-4J`提供的在线接口时，必须先运行`NULS2.0`的`NULS-API`模块。[点击进入NULS-API文档](https://github.com/nuls-io/nuls-v2/blob/master/module/nuls-api/README.md)
+注：调用`NULS-SDK-4J`提供的在线接口时，必须先运行`NULS2.0`的`NULS-API`模块。[点击进入NULS-API文档](https://github.com/nuls-io/nuls-v2/blob/release/module/nuls-api/README.md)
+
 
 ## 初始化
 
