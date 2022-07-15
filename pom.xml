@@ -278,11 +278,11 @@
 
     <distributionManagement>
         <repository>
-            <id>maven-releases</id>
+            <id>nuls-release</id>
             <url>http://nexus.nuls.io/repository/nuls-release/</url>
         </repository>
         <snapshotRepository>
-            <id>maven-snapshots</id>
+            <id>nuls-snapshot</id>
             <url>http://nexus.nuls.io/repository/nuls-snapshot/</url>
         </snapshotRepository>
     </distributionManagement>
