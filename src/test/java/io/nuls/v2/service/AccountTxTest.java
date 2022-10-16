@@ -1,9 +1,14 @@
 package io.nuls.v2.service;
 
+import io.nuls.base.signture.TransactionSignature;
 import io.nuls.core.basic.Result;
+import io.nuls.core.crypto.HexUtil;
+import io.nuls.core.exception.NulsException;
 import io.nuls.v2.NulsSDKBootStrap;
+import io.nuls.v2.model.Account;
 import io.nuls.v2.model.dto.CrossTransferForm;
 import io.nuls.v2.model.dto.TransferForm;
+import io.nuls.v2.util.AccountTool;
 import io.nuls.v2.util.NulsSDKTool;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,11 +54,24 @@ public class AccountTxTest {
         System.out.println(result.getData());
     }
 
+    @Test
+    public void signData() throws Exception {
+        String txSign = "210232bdaf6573319eba3b433ed88d6d4b0d06ea3ad9a504596fe967a2dbf95fc07c473045022100f4e1f683803a103b79eeb420a6d04089a673f93b2ea3d3012508320846f91c5302205c133ff512d6865fcb47c7fe07c7d930dfe6857cd5d69ab8065609435929a439";
+        TransactionSignature sign = new TransactionSignature();
+        sign.parse(HexUtil.decode(txSign),0);
+        System.out.println(HexUtil.encode(sign.getP2PHKSignatures().get(0).getSignData().getSignBytes()));
+    }
 
     @Test
     public void testTx() {
         Result result = NulsSDKTool.getTx("49dc5c6db817d98ad4bc5152bff7cc26827fc659271057938586a1a24b7c733b");
         System.out.println(result.getData());
+    }
+
+    @Test
+    public void testAccount() throws NulsException {
+        Account account = AccountTool.createAccount(2, null);
+        System.out.println();
     }
 
     @Test

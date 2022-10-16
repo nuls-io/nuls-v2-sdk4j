@@ -237,15 +237,15 @@ public class NaboxCollectionTest {
 
         //转账金额
         String amountStr = "2.5";
+        String remark = "<交易备注>";
         int tokenDecimals = 8;
-        BigInteger amountTo = new BigDecimal(amountStr)
-                .multiply(BigDecimal.TEN.pow(tokenDecimals))
-                .toBigInteger();
-        BigInteger amountFrom = amountTo.multiply(new BigInteger(toAddress.length + ""));
+        BigInteger amountTo = new BigDecimal(amountStr).movePointRight(8).toBigInteger();
+        BigInteger amountFrom = amountTo.multiply(BigInteger.valueOf(toAddress.length));
         TransferTxFeeDto feeDto = new TransferTxFeeDto();
         feeDto.setAddressCount(1);
         feeDto.setFromLength(1);
-        feeDto.setToLength(1);
+        feeDto.setToLength(toAddress.length);
+        feeDto.setRemark(remark);
         BigInteger fee = NulsSDKTool.calcTransferTxFee(feeDto);
 
 

@@ -659,6 +659,18 @@ public class ContractServiceTest {
         }
     }
 
+    @Test
+    public void invokeView() throws Exception {
+        ContractViewCallForm form = new ContractViewCallForm();
+        form.setContractAddress("tNULSeBaN5N97wF3YYZHTTHmpz7zv1JTJx9Z7Z");
+        form.setMethodName("userNftBalances");
+        List<String> list = new ArrayList<>();
+        list.add("tNULSeBaN3pt33tTJxgqR6E7KpDf4dy44JXw7t");
+        form.setArgs(new Object[]{"tNULSeBaMoixxbUovqmzPyJ2AwYFAX2evKbuy9", list.toArray()});
+        Result result = NulsSDKTool.invokeView(form);
+        System.out.println(JSONUtils.obj2PrettyJson(result));
+    }
+    
     private String callOfflineHex(int chainId, String sender, String priKey, BigInteger value, String contractAddress,
                                   String methodName, String methodDesc, Object[] args, String remark) throws JsonProcessingException {
         // 在线接口(可跳过) - 验证调用合约的合法性，可不验证
