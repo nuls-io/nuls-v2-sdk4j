@@ -473,11 +473,10 @@ public class TransationServiceTest {
     }
 
     @Test
-    public void testMultiCreateDepositTx() {
-        //委托共识金额
+    public void testMultiSignDepositTx() {
+        // deposit amount
         BigInteger deposit = new BigInteger("200000000000");
         BigInteger fee = SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE;
-//        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
         List<String> pubKeys = new ArrayList<>();
         pubKeys.add("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db");
         pubKeys.add("03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
@@ -501,15 +500,12 @@ public class TransationServiceTest {
 
         Result result = NulsSDKTool.createMultiSignDepositTxOffline(depositDto);
         System.out.println(result.getData());
-        //05003ad9155d005700d0ed902e00000000000000000000000000000000000000000000000000000064000115423f8fc2f9f62496cb98d43e3347bd7996327d584ae3c9af9a42c4e68fcde0736fce670a913262346ed10f827dfaef75714ebd8c011764000115423f8fc2f9f62496cb98d43e3347bd7996327d640001004012fd902e00000000000000000000000000000000000000000000000000000008827dfaef75714ebd00011764000115423f8fc2f9f62496cb98d43e3347bd7996327d6400010000d0ed902e000000000000000000000000000000000000000000000000000000ffffffffffffffff00
-        //f0065601e5b94a4c9fa6be808d67bfbc80e74a6afd631232622f795c2196d64f
     }
 
     @Test
-    public void testMultiSignWithDrawDepositTx() {
+    public void testMultiSignWithdrawTx() {
         BigInteger deposit = new BigInteger("200000000000");
         BigInteger price = SDKContext.NULS_DEFAULT_OTHER_TX_FEE_PRICE;
-//        List<String> pubKeys = List.of("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db", "03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
         List<String> pubKeys = new ArrayList<>();
         pubKeys.add("0377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db");
         pubKeys.add("03f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1");
@@ -531,8 +527,6 @@ public class TransationServiceTest {
 
         Result result = NulsSDKTool.createMultiSignWithdrawDepositTxOffline(drawDto);
         System.out.println(result.getData());
-        //txHex：06005ae5155d0020f0065601e5b94a4c9fa6be808d67bfbc80e74a6afd631232622f795c2196d64f8c011764000115423f8fc2f9f62496cb98d43e3347bd7996327d6400010000d0ed902e00000000000000000000000000000000000000000000000000000008622f795c2196d64fff011764000115423f8fc2f9f62496cb98d43e3347bd7996327d64000100c08dde902e000000000000000000000000000000000000000000000000000000000000000000000000
-        //hash：84fd9e76616f6ff6ac82628bc99d20ebff20da7478df79743724bf007e4c2805
     }
 
     @Test
