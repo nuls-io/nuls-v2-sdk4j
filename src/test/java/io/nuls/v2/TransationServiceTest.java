@@ -64,7 +64,7 @@ public class TransationServiceTest {
 
     @Test
     public void testCreateTransferTx() {
-        String fromAddress = "TNVTdTSPLmP6SKyn2RigSA8Lr9bMTgjUhnve4";
+        String fromAddress = "tNULSeBaMvEtDfvZuukDf2mVyfGo3DdiN8KLRG";
         String toAddress = "tNULSeBaMsEfHKEXvaFPPpQomXipeCYrru6t81";
 
         TransferTxFeeDto feeDto = new TransferTxFeeDto();
