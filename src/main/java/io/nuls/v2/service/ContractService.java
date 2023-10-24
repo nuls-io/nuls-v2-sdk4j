@@ -269,7 +269,7 @@ public class ContractService {
             @Parameter(parameterName = "contractAddress", parameterDes = "token合约地址"),
             @Parameter(parameterName = "gasLimit", requestType = @TypeDescriptor(value = long.class), parameterDes = "设置合约执行消耗的gas上限"),
             @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的token资产金额"),
-            @Parameter(parameterName = "time", requestType = @TypeDescriptor(value = long.class), parameterDes = "转出的token资产金额"),
+            @Parameter(parameterName = "time", requestType = @TypeDescriptor(value = long.class), parameterDes = "交易时间"),
             @Parameter(parameterName = "remark", parameterDes = "交易备注", canNull = true)
     })
     @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
@@ -717,5 +717,28 @@ public class ContractService {
         return result;
     }
 
+
+    public Result<Map> token1155TransferTxOffline(String fromAddress, BigInteger senderBalance, String nonce,
+                                                  String contractAddress, String toAddress, BigInteger tokenId, BigInteger amount,
+                                                  long gasLimit, long time, String remark) {
+        int chainId = SDKContext.main_chain_id;
+        if (amount == null || amount.compareTo(BigInteger.ZERO) <= 0) {
+            return Result.getFailed(ContractErrorCode.PARAMETER_ERROR).setMsg(String.format("amount [%s] is invalid", amount));
+        }
+
+        if (!AddressTool.validAddress(chainId, fromAddress)) {
+            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("fromAddress [%s] is invalid", fromAddress));
+        }
+
+        if (!AddressTool.validAddress(chainId, toAddress)) {
+            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("toAddress [%s] is invalid", toAddress));
+        }
+
+        if (!AddressTool.validAddress(chainId, contractAddress)) {
+            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("contractAddress [%s] is invalid", contractAddress));
+        }
+        return this.callContractTxOffline(fromAddress, senderBalance, nonce, null, contractAddress, gasLimit, Constant.NRC1155_METHOD_TRANSFER, null,
+                new Object[]{fromAddress, toAddress, tokenId.toString(), amount.toString(), "blank data"}, new String[]{"Address", "Address", "BigInteger", "BigInteger", "String"}, time, remark, null, null);
+    }
 
 }
