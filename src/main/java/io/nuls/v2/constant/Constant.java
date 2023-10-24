@@ -44,4 +44,5 @@ public interface Constant {
     String NRC20_EVENT_TRANSFER = "TransferEvent";
     String NRC20_EVENT_APPROVAL = "ApprovalEvent";
     String NRC20_EVENT_TRANSFER_CROSS_CHAIN = "transferCrossChain";
+    String NRC1155_METHOD_TRANSFER = "safeTransferFrom";
 }
