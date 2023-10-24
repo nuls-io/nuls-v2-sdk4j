@@ -17,6 +17,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.sound.midi.Soundbank;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -67,6 +68,45 @@ public class ContractServiceTest {
         String hex = "...";
         CallContractData txData = new CallContractData();
         txData.parse(new NulsByteBuffer(HexUtil.decode(hex)));
+    }
+
+    @Test
+    public void token1155TransferTxOffline() throws Exception {
+        Sender _sender = this.sender02;
+        String fromAddress = _sender.getSender();
+        String privateKey = _sender.getPriKey();
+
+        // 在线接口(不可跳过，一定要调用的接口) - 获取账户余额信息
+        Result accountBalanceR = NulsSDKTool.getAccountBalance(fromAddress, SDKContext.main_chain_id, SDKContext.main_asset_id);
+        Assert.assertTrue(JSONUtils.obj2PrettyJson(accountBalanceR), accountBalanceR.isSuccess());
+        Map balance = (Map) accountBalanceR.getData();
+        BigInteger senderFeeBalance = new BigInteger(balance.get("available").toString());
+        String nonce = balance.get("nonce").toString();
+
+        String toAddress = this.sender01.getSender();
+        String contractAddress = "tNULSeBaNC2FUGi8s8Fkg6AUjheG5cyxtprxQu";
+
+        // 转移tokenId
+        BigInteger tokenId = new BigInteger("12");
+        // 转移token数量
+        BigInteger tokenAmount = new BigInteger("2");
+
+
+        Long gasLimit = 200000l;
+
+        Result<Map> map = NulsSDKTool.token1155TransferTxOffline(fromAddress, senderFeeBalance, nonce, contractAddress, toAddress, tokenId, tokenAmount, gasLimit, 0, "token1155TransferTxOffline");
+        String txHex = map.getData().get("txHex").toString();
+        // 签名
+        Result res = NulsSDKTool.sign(txHex, fromAddress, privateKey);
+        Map signMap = (Map) res.getData();
+        // 在线接口 - 广播交易
+        String signedTxHex = signMap.get("txHex").toString();
+        System.out.println(String.format("signedTxHex: %s", signedTxHex));
+        Result<Map> broadcaseTxR = NulsSDKTool.broadcast(signedTxHex);
+        Assert.assertTrue(JSONUtils.obj2PrettyJson(broadcaseTxR), broadcaseTxR.isSuccess());
+        Map data = broadcaseTxR.getData();
+        String hash1 = (String) data.get("hash");
+        System.out.println(String.format("hash: %s", hash1));
     }
 
     @Test
@@ -149,14 +189,14 @@ public class ContractServiceTest {
     @Test
     public void callTxOffline() throws JsonProcessingException {
         int chainId = SDKContext.main_chain_id;
-        Sender _sender = this.sender01;
+        Sender _sender = this.sender02;
         String sender = _sender.getSender();
         String priKey = _sender.getPriKey();
         BigInteger value = BigInteger.ZERO;
-        String contractAddress = "tNULSeBaN31HBrLhXsWDkSz1bjhw5qGBcjafVJ";
-        String methodName = "transferDesignatedAsset";
+        String contractAddress = "tNULSeBaN8g59jWonJK3DaJRLyCdMKfzhNRgY3";
+        String methodName = "safeTransferFrom";
         String methodDesc = "";
-        Object[] args = new Object[]{"tNULSeBaMrbMRiFAUeeAt6swb4xVBNyi81YL24", new BigDecimal("2").multiply(BigDecimal.TEN.pow(8)).toBigInteger(), 5, 1};
+        Object[] args = new Object[]{"tNULSeBaMnrs6JKrCy6TQdzYJZkMZJDng7QAsD", "tNULSeBaMvEtDfvZuukDf2mVyfGo3DdiN8KLRG", 23, "blank data"};
         String remark = "remark_call_test";
 
         String signedTxHex = callOfflineHex(chainId, sender, priKey, value, contractAddress,
