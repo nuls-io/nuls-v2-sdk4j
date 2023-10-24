@@ -6,7 +6,7 @@
 
     <groupId>io.nuls.v2</groupId>
     <artifactId>sdk4j-jdk8</artifactId>
-    <version>1.1.23-android</version>
+    <version>1.1.24-android</version>
 
     <name>nuls-sdk4j-jdk8</name>
 
@@ -278,11 +278,11 @@
 
     <distributionManagement>
         <repository>
-            <id>nuls-release</id>
+            <id>maven-releases</id>
             <url>http://nexus.nuls.io/repository/nuls-release/</url>
         </repository>
         <snapshotRepository>
-            <id>nuls-snapshot</id>
+            <id>maven-snapshots</id>
             <url>http://nexus.nuls.io/repository/nuls-snapshot/</url>
         </snapshotRepository>
     </distributionManagement>
