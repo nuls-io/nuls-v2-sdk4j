@@ -29,4 +29,10 @@ package io.nuls.core.exception;
  * date 2018/6/13.
  */
 public class CryptoException extends Exception {
+    public CryptoException() {
+    }
+
+    public CryptoException(Throwable cause) {
+        super(cause);
+    }
 }

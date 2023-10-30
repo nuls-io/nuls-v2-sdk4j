@@ -149,7 +149,7 @@ public class AESEncrypt {
 
             return Arrays.copyOf(decryptedBytes, length1 + length2);
         } catch (Exception e) {
-            throw new CryptoException();
+            throw new CryptoException(e);
         }
     }
 
