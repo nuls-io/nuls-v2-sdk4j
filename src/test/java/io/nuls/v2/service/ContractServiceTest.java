@@ -9,9 +9,11 @@ import io.nuls.core.model.StringUtils;
 import io.nuls.core.parse.JSONUtils;
 import io.nuls.v2.NulsSDKBootStrap;
 import io.nuls.v2.SDKContext;
+import io.nuls.v2.constant.Constant;
 import io.nuls.v2.model.dto.*;
 import io.nuls.v2.txdata.CallContractData;
 import io.nuls.v2.util.JsonRpcUtil;
+import io.nuls.v2.util.ListUtil;
 import io.nuls.v2.util.NulsSDKTool;
 import org.junit.Assert;
 import org.junit.Before;
@@ -189,14 +191,14 @@ public class ContractServiceTest {
     @Test
     public void callTxOffline() throws JsonProcessingException {
         int chainId = SDKContext.main_chain_id;
-        Sender _sender = this.sender02;
+        Sender _sender = this.sender01;
         String sender = _sender.getSender();
         String priKey = _sender.getPriKey();
         BigInteger value = BigInteger.ZERO;
-        String contractAddress = "tNULSeBaN8g59jWonJK3DaJRLyCdMKfzhNRgY3";
-        String methodName = "safeTransferFrom";
+        String contractAddress = "tNULSeBaNC2FUGi8s8Fkg6AUjheG5cyxtprxQu";
+        String methodName = "safeBatchTransferFrom";
         String methodDesc = "";
-        Object[] args = new Object[]{"tNULSeBaMnrs6JKrCy6TQdzYJZkMZJDng7QAsD", "tNULSeBaMvEtDfvZuukDf2mVyfGo3DdiN8KLRG", 23, "blank data"};
+        Object[] args = new Object[]{"tNULSeBaMvEtDfvZuukDf2mVyfGo3DdiN8KLRG", "tNULSeBaMnrs6JKrCy6TQdzYJZkMZJDng7QAsD", new Object[]{"33", "12"}, new Object[]{"3", "2"}, "blank data"};
         String remark = "remark_call_test";
 
         String signedTxHex = callOfflineHex(chainId, sender, priKey, value, contractAddress,
@@ -209,6 +211,9 @@ public class ContractServiceTest {
         String hash1 = (String) data.get("hash");
         System.out.println(String.format("hash: %s", hash1));
     }
+
+    //this.callContractTxOffline(fromAddress, senderBalance, nonce, null,contractAddress, gasLimit, Constant.NRC1155_METHOD_TRANSFER, null,
+    //        new Object[]{fromAddress, toAddress, tokenId.toString(), amount.toString(), "blank data"}, new String[]{"Address", "Address", "BigInteger", "BigInteger", "String"}, time, remark, null, null);
 
     /**
      * 调用合约转入多资产, 举例资产数据 5-1(NVT), 5-7(USDT)
