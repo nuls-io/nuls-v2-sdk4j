@@ -1,6 +1,14 @@
 package io.nuls.v2;
 
 import io.nuls.core.model.StringUtils;
+import io.nuls.v2.model.ChainFeeSetting;
+import io.nuls.v2.util.TxFeeUtil;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class NulsSDKBootStrap {
 
@@ -60,6 +68,12 @@ public class NulsSDKBootStrap {
             SDKContext.wallet_url = httpUrl;
         }
         SDKContext.addressPrefix = "NULS";
+        initChainFeeSetting(1, null);
+    }
+
+    public static void initMainWithChainFeeSetting(String httpUrl, List<ChainFeeSetting> settings) {
+        initMain(httpUrl);
+        initChainFeeSetting(1, settings);
     }
 
     /**
@@ -76,6 +90,12 @@ public class NulsSDKBootStrap {
             SDKContext.wallet_url = httpUrl;
         }
         SDKContext.addressPrefix = "tNULS";
+        initChainFeeSetting(2, null);
+    }
+
+    public static void initTestWithChainFeeSetting(String httpUrl, List<ChainFeeSetting> settings) {
+        initTest(httpUrl);
+        initChainFeeSetting(2, settings);
     }
 
     /**
@@ -98,6 +118,19 @@ public class NulsSDKBootStrap {
         } catch (ClassNotFoundException e) {
             // skip it
         }
+    }
+
+    public static void initChainFeeSetting(int chainId, List<ChainFeeSetting> settings) {
+        if (settings != null && !settings.isEmpty()) {
+            SDKContext.CHAIN_FEE_SETTING_MAP = settings.stream().collect(Collectors.toMap(ChainFeeSetting::getSymbol, Function.identity()));
+            return;
+        }
+        if (chainId == 1) {
+            settings = TxFeeUtil.DEFAULT_MAINNET_CHAIN_FEE_SETTING;
+        } else {
+            settings = TxFeeUtil.DEFAULT_TESTNET_CHAIN_FEE_SETTING;
+        }
+        SDKContext.CHAIN_FEE_SETTING_MAP = settings.stream().collect(Collectors.toMap(ChainFeeSetting::getSymbol, Function.identity()));
     }
 
 

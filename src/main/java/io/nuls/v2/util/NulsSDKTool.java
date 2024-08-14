@@ -9,6 +9,7 @@ import io.nuls.core.crypto.HexUtil;
 import io.nuls.core.exception.NulsException;
 import io.nuls.core.rpc.model.*;
 import io.nuls.v2.SDKContext;
+import io.nuls.v2.enums.ChainFeeSettingType;
 import io.nuls.v2.enums.EncodeType;
 import io.nuls.v2.model.annotation.ApiOperation;
 import io.nuls.v2.model.dto.*;
@@ -516,6 +517,10 @@ public class NulsSDKTool {
         return transactionService.createTxSimpleTransferOfNonNuls(fromAddress, toAddress, assetChainId, assetId, amount, time, remark);
     }
 
+    public static Result createTxSimpleTransferOfNonNulsByFeeType(String fromAddress, String toAddress, int assetChainId, int assetId, BigInteger amount, long time, String remark, ChainFeeSettingType feeType) {
+        return transactionService.createTxSimpleTransferOfNonNulsByFeeType(fromAddress, toAddress, assetChainId, assetId, amount, time, remark, feeType);
+    }
+
     /**
      * 便捷版 组装在NULS链内，转账NULS资产的单账户对单账户普通转账(只能用于转NULS)。
      * !! 打包手续费不包含在amount中， 本函数将从fromAddress中额外获取手续费追加到coinfrom中，
@@ -572,6 +577,10 @@ public class NulsSDKTool {
     }))
     public static Result createTxSimpleTransferOfNuls(String fromAddress, String toAddress, BigInteger amount, long time, String remark) {
         return transactionService.createTxSimpleTransferOfNuls(fromAddress, toAddress, amount, time, remark);
+    }
+
+    public static Result createTxSimpleTransferOfNulsByFeeType(String fromAddress, String toAddress, BigInteger amount, long time, String remark, ChainFeeSettingType feeType) {
+        return transactionService.createTxSimpleTransferOfNulsByFeeType(fromAddress, toAddress, amount, time, remark, feeType);
     }
 
 
@@ -1088,6 +1097,10 @@ public class NulsSDKTool {
     }))
     public static Result<Map> tokenTransferTxOffline(String fromAddress, BigInteger senderBalance, String nonce, String toAddress, String contractAddress, long gasLimit, BigInteger amount, long time, String remark) {
         return contractService.tokenTransferTxOffline(fromAddress, senderBalance, nonce, toAddress, contractAddress, gasLimit, amount, time, remark);
+    }
+
+    public static Result<Map> createTokenTransferTxByFeeType(String fromAddress, String toAddress, String contractAddress, long gasLimit, BigInteger amount, long time, String remark, ChainFeeSettingType feeType) {
+        return contractService.tokenTransferByFeeType(fromAddress, toAddress, contractAddress, gasLimit, amount, time, remark, feeType);
     }
 
     @ApiOperation(description = "离线组装 - 从账户地址向合约地址转账(主链资产)的合约交易", order = 455)

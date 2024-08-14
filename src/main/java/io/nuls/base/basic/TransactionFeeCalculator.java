@@ -115,4 +115,12 @@ public class TransactionFeeCalculator {
         }
         return fee;
     }
+
+    public static final BigInteger getFeeByPrice(int size, BigInteger price) {
+        BigInteger fee = price.multiply(new BigInteger(String.valueOf(size/KB)));
+        if (size % KB > 0) {
+            fee = fee.add(price);
+        }
+        return fee;
+    }
 }

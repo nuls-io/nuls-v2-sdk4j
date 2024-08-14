@@ -13,6 +13,7 @@ import io.nuls.core.parse.MapUtils;
 import io.nuls.core.rpc.model.*;
 import io.nuls.v2.SDKContext;
 import io.nuls.v2.constant.Constant;
+import io.nuls.v2.enums.ChainFeeSettingType;
 import io.nuls.v2.error.ContractErrorCode;
 import io.nuls.v2.model.annotation.Api;
 import io.nuls.v2.model.annotation.ApiType;
@@ -198,6 +199,73 @@ public class ContractService {
         }
     }
 
+    public Result<Map> callContractTxByFeeType(String sender, BigInteger value, String contractAddress,
+                                               long gasLimit, String methodName, String methodDesc, Object[] args, String[] argsType,
+                                               long time, String remark, List<ProgramMultyAssetValue> multyAssetValues, List<AccountAmountDto> nulsValueToOthers, ChainFeeSettingType feeType) {
+        if (feeType == null || feeType == ChainFeeSettingType.NULS) {
+            String fromAddress = sender;
+            Result accountBalanceNuls = NulsSDKTool.getAccountBalance(fromAddress, SDKContext.main_chain_id, SDKContext.main_asset_id);
+            if (!accountBalanceNuls.isSuccess()) {
+                throw new RuntimeException(accountBalanceNuls.getErrorCode().toString() + ", " + accountBalanceNuls.getMsg());
+            }
+            Map balanceNuls = (Map) accountBalanceNuls.getData();
+            BigInteger senderNulsBalance = new BigInteger(balanceNuls.get("available").toString());
+            String nonceNuls = balanceNuls.get("nonce").toString();
+            return this.callContractTxOffline(sender, senderNulsBalance, nonceNuls, value, contractAddress, gasLimit, methodName, methodDesc, args, argsType, time, remark, multyAssetValues, nulsValueToOthers);
+        }
+        int chainId = SDKContext.main_chain_id;
+        if (!AddressTool.validAddress(chainId, sender)) {
+            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("sender [%s] is invalid", sender));
+        }
+
+        if (!AddressTool.validAddress(chainId, contractAddress)) {
+            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("contractAddress [%s] is invalid", contractAddress));
+        }
+
+        if (StringUtils.isBlank(methodName)) {
+            return Result.getFailed(NULL_PARAMETER).setMsg("methodName is empty");
+        }
+        if (value == null) {
+            value = BigInteger.ZERO;
+        }
+
+        // 生成参数的二维数组
+        String[][] finalArgs = null;
+        if (args != null && args.length > 0) {
+            if(argsType == null || argsType.length != args.length) {
+                return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("size of 'argsType' array not match 'args' array");
+            }
+            finalArgs = ContractUtil.twoDimensionalArray(args, argsType);
+        }
+
+        // 组装交易的txData
+        byte[] contractAddressBytes = AddressTool.getAddress(contractAddress);
+        byte[] senderBytes = AddressTool.getAddress(sender);
+        CallContractData callContractData = new CallContractData();
+        callContractData.setContractAddress(contractAddressBytes);
+        callContractData.setSender(senderBytes);
+        callContractData.setValue(value);
+        callContractData.setPrice(CONTRACT_MINIMUM_PRICE);
+        callContractData.setGasLimit(gasLimit);
+        callContractData.setMethodName(methodName);
+        callContractData.setMethodDesc(methodDesc);
+        if (finalArgs != null) {
+            callContractData.setArgsCount((short) finalArgs.length);
+            callContractData.setArgs(finalArgs);
+        }
+
+        // 生成交易
+        Transaction tx = ContractUtil.newCallTxByFeeType(callContractData, time, remark, multyAssetValues, nulsValueToOthers, feeType);
+        try {
+            Map<String, Object> resultMap = new HashMap<>(4);
+            resultMap.put("hash", tx.getHash().toHex());
+            resultMap.put("txHex", HexUtil.encode(tx.serialize()));
+            return getSuccess().setData(resultMap);
+        } catch (IOException e) {
+            return getFailed().setMsg(e.getMessage());
+        }
+    }
+
     //@ApiOperation(description = "离线组装 - 删除合约的交易")
     @Parameters(value = {
             @Parameter(parameterName = "sender", parameterDes = "交易创建者账户地址"),
@@ -297,6 +365,20 @@ public class ContractService {
                 new Object[]{toAddress, amount.toString()}, new String[]{"String", "BigInteger"}, time, remark, null, null);
     }
 
+    public Result<Map> tokenTransferByFeeType(String fromAddress, String toAddress, String contractAddress, long gasLimit, BigInteger amount, long time, String remark, ChainFeeSettingType feeType) {
+        if (feeType == null || feeType == ChainFeeSettingType.NULS) {
+            Result accountBalanceNuls = NulsSDKTool.getAccountBalance(fromAddress, SDKContext.main_chain_id, SDKContext.main_asset_id);
+            if (!accountBalanceNuls.isSuccess()) {
+                throw new RuntimeException(accountBalanceNuls.getErrorCode().toString() + ", " + accountBalanceNuls.getMsg());
+            }
+            Map balanceNuls = (Map) accountBalanceNuls.getData();
+            BigInteger senderNulsBalance = new BigInteger(balanceNuls.get("available").toString());
+            String nonceNuls = balanceNuls.get("nonce").toString();
+            return this.tokenTransferTxOffline(fromAddress, senderNulsBalance, nonceNuls, toAddress, contractAddress, gasLimit, amount, time, remark);
+        }
+        return this.callContractTxByFeeType(fromAddress, null, contractAddress, gasLimit, Constant.NRC20_METHOD_TRANSFER, null,
+                new Object[]{toAddress, amount.toString()}, new String[]{"String", "BigInteger"}, time, remark, null, null, feeType);
+    }
 
     //@ApiOperation(description = "离线组装 - 从账户地址向合约地址转账(主链资产)的合约交易")
     @Parameters(value = {

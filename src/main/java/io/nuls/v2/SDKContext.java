@@ -1,6 +1,10 @@
 package io.nuls.v2;
 
+import io.nuls.v2.model.ChainFeeSetting;
+
 import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SDKContext {
 
@@ -34,6 +38,8 @@ public class SDKContext {
      * 访问钱包的http接口url地址
      */
     public static String wallet_url = "https://api.nuls.io/";
+
+    public static Map<String, ChainFeeSetting> CHAIN_FEE_SETTING_MAP;
 
 
 

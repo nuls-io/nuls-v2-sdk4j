@@ -2,11 +2,13 @@ package io.nuls.v2;
 
 import io.nuls.base.data.Transaction;
 import io.nuls.core.basic.Result;
+import io.nuls.v2.enums.ChainFeeSettingType;
 import io.nuls.v2.model.dto.*;
 import io.nuls.v2.util.NulsSDKTool;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +30,55 @@ public class TransationServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.init(5, 2, "TNVT", "http://192.168.1.60:17004/");
+        NulsSDKBootStrap.initTest("http://beta.api.nuls.io");
+    }
+
+    @Test
+    public void testCreateTxByType() {
+        //SDKContext.CHAIN_FEE_SETTING_MAP.get("ETH").setAssetId("5-2");
+        String from = "tNULSeBaMvEtDfvZuukDf2mVyfGo3DdiN8KLRG";
+        String to = "tNULSeBaMnrs6JKrCy6TQdzYJZkMZJDng7QAsD";
+        BigInteger amount = new BigDecimal("0.123").movePointRight(8).toBigInteger();
+        long time = System.currentTimeMillis() / 1000;
+        String remark = "feeType test";
+        // String fromAddress, String toAddress, BigInteger amount, long time, String remark, ChainFeeSettingType feeType
+        Result<Map> result = NulsSDKTool.createTxSimpleTransferOfNulsByFeeType(from, to, amount, time, remark, ChainFeeSettingType.NULS);
+        String txHex = (String) result.getData().get("txHex");
+        System.out.println("transfer NULS by NULS fee: " + txHex);
+        result = NulsSDKTool.createTxSimpleTransferOfNulsByFeeType(from, to, amount, time, remark, ChainFeeSettingType.ETH);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println("transfer NULS by ETH fee: " + txHex);
+        result = NulsSDKTool.createTxSimpleTransferOfNulsByFeeType(from, to, amount, time, remark, ChainFeeSettingType.BTC);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println("transfer NULS by BTC fee: " + txHex);
+
+        int assetChainId = 5;
+        int assetId = 1;
+        // String fromAddress, String toAddress, int assetChainId, int assetId, BigInteger amount, long time, String remark, ChainFeeSettingType feeType
+        result = NulsSDKTool.createTxSimpleTransferOfNonNulsByFeeType(from, to, assetChainId, assetId, amount, time, remark, ChainFeeSettingType.NULS);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println("transfer NVT by NULS fee: " + txHex);
+        result = NulsSDKTool.createTxSimpleTransferOfNonNulsByFeeType(from, to, assetChainId, assetId, amount, time, remark, ChainFeeSettingType.ETH);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println("transfer NVT by ETH fee: " + txHex);
+        result = NulsSDKTool.createTxSimpleTransferOfNonNulsByFeeType(from, to, assetChainId, assetId, amount, time, remark, ChainFeeSettingType.BTC);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println("transfer NVT by BTC fee: " + txHex);
+
+        String contractAddress = "tNULSeBaMyPq6kY8wbofhqs1qpLhNGMJkbRpPh";
+        amount = new BigDecimal("0.123").movePointRight(18).toBigInteger();
+        long gasLimit = 500000;
+        // String fromAddress, String toAddress, String contractAddress, long gasLimit, BigInteger amount, long time, String remark, ChainFeeSettingType feeType
+        result = NulsSDKTool.createTokenTransferTxByFeeType(from, to, contractAddress, gasLimit, amount, time, remark, ChainFeeSettingType.NULS);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println("transfer NRC20 by NULS fee: " + txHex);
+        result = NulsSDKTool.createTokenTransferTxByFeeType(from, to, contractAddress, gasLimit, amount, time, remark, ChainFeeSettingType.ETH);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println("transfer NRC20 by ETH fee: " + txHex);
+        result = NulsSDKTool.createTokenTransferTxByFeeType(from, to, contractAddress, gasLimit, amount, time, remark, ChainFeeSettingType.BTC);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println("transfer NRC20 by BTC fee: " + txHex);
+
     }
 
     @Test

@@ -12,7 +12,9 @@ import io.nuls.core.exception.NulsException;
 import io.nuls.core.model.StringUtils;
 import io.nuls.v2.SDKContext;
 import io.nuls.v2.constant.AccountConstant;
+import io.nuls.v2.enums.ChainFeeSettingType;
 import io.nuls.v2.error.AccountErrorCode;
+import io.nuls.v2.model.ChainFeeSetting;
 import io.nuls.v2.model.dto.*;
 import io.nuls.v2.txdata.*;
 import io.nuls.v2.util.*;
@@ -184,6 +186,19 @@ public class TransactionService {
      * @return
      */
     public Result createTxSimpleTransferOfNonNuls(String fromAddress, String toAddress, int assetChainId, int assetId, BigInteger amount, long time, String remark) {
+        return this.createTxSimpleTransferOfNonNuls(fromAddress, toAddress, assetChainId, assetId, amount, time, remark, SDKContext.main_chain_id, SDKContext.main_asset_id, null);
+    }
+
+    public Result createTxSimpleTransferOfNonNulsByFeeType(String fromAddress, String toAddress, int assetChainId, int assetId, BigInteger amount, long time, String remark, ChainFeeSettingType feeType) {
+        if (feeType == null || feeType == ChainFeeSettingType.NULS) {
+            return this.createTxSimpleTransferOfNonNuls(fromAddress, toAddress, assetChainId, assetId, amount, time, remark);
+        }
+        ChainFeeSetting feeSetting = SDKContext.CHAIN_FEE_SETTING_MAP.get(feeType.name());
+        Asset feeAsset = feeSetting.getAsset();
+        return this.createTxSimpleTransferOfNonNuls(fromAddress, toAddress, assetChainId, assetId, amount, time, remark, feeAsset.getAssetChainId(), feeAsset.getAssetId(), new BigInteger(feeSetting.getFeePerKB()));
+    }
+
+    public Result createTxSimpleTransferOfNonNuls(String fromAddress, String toAddress, int assetChainId, int assetId, BigInteger amount, long time, String remark, int feeChainId, int feeAssetId, BigInteger sizePrice) {
         Result accountBalanceR = NulsSDKTool.getAccountBalance(fromAddress, assetChainId, assetId);
         if (!accountBalanceR.isSuccess()) {
             return Result.getFailed(accountBalanceR.getErrorCode()).setMsg(accountBalanceR.getMsg());
@@ -207,7 +222,7 @@ public class TransactionService {
         from.setNonce(nonce);
         inputs.add(from);
 
-        Result accountBalanceFeeR = NulsSDKTool.getAccountBalance(fromAddress, SDKContext.main_chain_id, SDKContext.main_asset_id);
+        Result accountBalanceFeeR = NulsSDKTool.getAccountBalance(fromAddress, feeChainId, feeAssetId);
         if (!accountBalanceFeeR.isSuccess()) {
             return Result.getFailed(accountBalanceFeeR.getErrorCode()).setMsg(accountBalanceFeeR.getMsg());
         }
@@ -219,6 +234,7 @@ public class TransactionService {
         feeDto.setFromLength(2);
         feeDto.setToLength(1);
         feeDto.setRemark(remark);
+        feeDto.setPrice(sizePrice);
         BigInteger feeNeed = NulsSDKTool.calcTransferTxFee(feeDto);
         if (senderBalanceFee.compareTo(feeNeed) < 0) {
             return Result.getFailed(AccountErrorCode.INSUFFICIENT_FEE);
@@ -228,8 +244,8 @@ public class TransactionService {
         CoinFromDto fromFee = new CoinFromDto();
         fromFee.setAddress(fromAddress);
         fromFee.setAmount(feeNeed);
-        fromFee.setAssetChainId(SDKContext.main_chain_id);
-        fromFee.setAssetId(SDKContext.main_asset_id);
+        fromFee.setAssetChainId(feeChainId);
+        fromFee.setAssetId(feeAssetId);
         fromFee.setNonce(nonceFee);
         inputs.add(fromFee);
 
@@ -245,7 +261,7 @@ public class TransactionService {
         transferDto.setOutputs(outputs);
         transferDto.setTime(time);
         transferDto.setRemark(remark);
-        return createTransferTx(transferDto);
+        return createTransferTx(transferDto, false);
     }
 
 
@@ -326,6 +342,77 @@ public class TransactionService {
         return createTransferTx(transferDto);
     }
 
+    public Result createTxSimpleTransferOfNulsByFeeType(String fromAddress, String toAddress, BigInteger amount, long time, String remark, ChainFeeSettingType type) {
+        if (type == null || type == ChainFeeSettingType.NULS) {
+            return createTxSimpleTransferOfNuls(fromAddress, toAddress, amount, time, remark);
+        }
+        ChainFeeSetting feeSetting = SDKContext.CHAIN_FEE_SETTING_MAP.get(type.name());
+        Asset feeAsset = feeSetting.getAsset();
+        Result accountBalanceNuls = NulsSDKTool.getAccountBalance(fromAddress, SDKContext.main_chain_id, SDKContext.main_asset_id);
+        if (!accountBalanceNuls.isSuccess()) {
+            return Result.getFailed(accountBalanceNuls.getErrorCode()).setMsg(accountBalanceNuls.getMsg());
+        }
+        Result accountBalanceFee = NulsSDKTool.getAccountBalance(fromAddress, feeAsset.getAssetChainId(), feeAsset.getAssetId());
+        if (!accountBalanceFee.isSuccess()) {
+            return Result.getFailed(accountBalanceFee.getErrorCode()).setMsg(accountBalanceFee.getMsg());
+        }
+        Map balanceNuls = (Map) accountBalanceNuls.getData();
+        BigInteger senderBalanceNuls = new BigInteger(balanceNuls.get("available").toString());
+        Map balanceFee = (Map) accountBalanceFee.getData();
+        BigInteger senderBalanceFee = new BigInteger(balanceFee.get("available").toString());
+
+        TransferTxFeeDto feeDto = new TransferTxFeeDto();
+        feeDto.setAddressCount(1);
+        feeDto.setFromLength(2);
+        feeDto.setToLength(1);
+        feeDto.setRemark(remark);
+        feeDto.setPrice(new BigInteger(feeSetting.getFeePerKB()));
+        BigInteger feeNeed = NulsSDKTool.calcTransferTxFee(feeDto);
+
+        if (senderBalanceNuls.compareTo(amount) < 0) {
+            return Result.getFailed(AccountErrorCode.INSUFFICIENT_BALANCE);
+        }
+        if (senderBalanceFee.compareTo(feeNeed) < 0) {
+            return Result.getFailed(AccountErrorCode.INSUFFICIENT_BALANCE);
+        }
+        String nonce = balanceNuls.get("nonce").toString();
+        String nonceFee = balanceFee.get("nonce").toString();
+
+        TransferDto transferDto = new TransferDto();
+        List<CoinFromDto> inputs = new ArrayList<>();
+        //转账资产
+        CoinFromDto from = new CoinFromDto();
+        from.setAddress(fromAddress);
+        from.setAmount(amount);
+        from.setAssetChainId(SDKContext.main_chain_id);
+        from.setAssetId(SDKContext.main_asset_id);
+        from.setNonce(nonce);
+        inputs.add(from);
+        CoinFromDto fromFee = new CoinFromDto();
+        fromFee.setAddress(fromAddress);
+        fromFee.setAmount(feeNeed);
+        fromFee.setAssetChainId(feeAsset.getAssetChainId());
+        fromFee.setAssetId(feeAsset.getAssetId());
+        fromFee.setNonce(nonceFee);
+        inputs.add(fromFee);
+
+        List<CoinToDto> outputs = new ArrayList<>();
+        CoinToDto to = new CoinToDto();
+        to.setAddress(toAddress);
+        to.setAmount(amount);
+        to.setAssetChainId(SDKContext.main_chain_id);
+        to.setAssetId(SDKContext.main_asset_id);
+        outputs.add(to);
+
+        transferDto.setInputs(inputs);
+        transferDto.setOutputs(outputs);
+        transferDto.setTime(time);
+        transferDto.setRemark(remark);
+        return createTransferTx(transferDto, false);
+
+    }
+
+
     /**
      * 创建转账交易(离线)
      * create transfer transaction(off-line)
@@ -334,6 +421,10 @@ public class TransactionService {
      * @return
      */
     public Result createTransferTx(TransferDto transferDto) {
+        return createTransferTx(transferDto, true);
+    }
+
+    public Result createTransferTx(TransferDto transferDto, boolean checkTxSize) {
         validateChainId();
         try {
             CommonValidator.checkTransferDto(transferDto);
@@ -363,7 +454,7 @@ public class TransactionService {
             }
             tx.setRemark(StringUtils.bytes(transferDto.getRemark()));
 
-            CoinData coinData = assemblyCoinData(transferDto.getInputs(), transferDto.getOutputs(), tx.getSize());
+            CoinData coinData = assemblyCoinData(transferDto.getInputs(), transferDto.getOutputs(), tx.getSize(), checkTxSize);
             tx.setCoinData(coinData.serialize());
             tx.setHash(NulsHash.calcHash(tx.serializeForHash()));
 
@@ -385,7 +476,7 @@ public class TransactionService {
      * @return coinData
      * @throws NulsException
      */
-    private CoinData assemblyCoinData(List<CoinFromDto> inputs, List<CoinToDto> outputs, int txSize) throws NulsException {
+    private CoinData assemblyCoinData(List<CoinFromDto> inputs, List<CoinToDto> outputs, int txSize, boolean checkTxSize) throws NulsException {
         List<CoinFrom> coinFroms = new ArrayList<>();
         for (CoinFromDto from : inputs) {
             byte[] address = AddressTool.getAddress(from.getAddress());
@@ -402,7 +493,9 @@ public class TransactionService {
         }
 
         txSize = txSize + getSignatureSize(coinFroms);
-        TxUtils.calcTxFee(coinFroms, coinTos, txSize);
+        if (checkTxSize) {
+            TxUtils.calcTxFee(coinFroms, coinTos, txSize);
+        }
         CoinData coinData = new CoinData();
         coinData.setFrom(coinFroms);
         coinData.setTo(coinTos);
