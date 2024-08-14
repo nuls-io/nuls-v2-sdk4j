@@ -75,6 +75,14 @@ public class AccountTxTest {
     }
 
     @Test
+    public void testAccountBatch() throws Exception {
+        for (int i=0;i<50;i++) {
+            Account account = AccountTool.createAccount(1, null);
+            System.out.println(String.format("\"%s\": \"%s\"", account.getAddress().toString(), HexUtil.encode(account.getPriKey())));
+        }
+    }
+
+    @Test
     public void testa() {
         double d = 100;
 
