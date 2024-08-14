@@ -58,3 +58,5 @@ target
 logs
 /DEVNOTE.md
 /backup
+p.json
+PocmDepositTest.java
