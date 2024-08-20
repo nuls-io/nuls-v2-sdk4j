@@ -186,19 +186,23 @@ public class TransactionService {
      * @return
      */
     public Result createTxSimpleTransferOfNonNuls(String fromAddress, String toAddress, int assetChainId, int assetId, BigInteger amount, long time, String remark) {
-        return this.createTxSimpleTransferOfNonNuls(fromAddress, toAddress, assetChainId, assetId, amount, time, remark, SDKContext.main_chain_id, SDKContext.main_asset_id, null);
+        return this.createTxSimpleTransferOfNonNuls(fromAddress, toAddress, assetChainId, assetId, amount, time, remark, SDKContext.main_chain_id, SDKContext.main_asset_id, SDKContext.NULS_DEFAULT_NORMAL_TX_FEE_PRICE, null, null);
     }
 
-    public Result createTxSimpleTransferOfNonNulsByFeeType(String fromAddress, String toAddress, int assetChainId, int assetId, BigInteger amount, long time, String remark, ChainFeeSettingType feeType) {
-        if (feeType == null || feeType == ChainFeeSettingType.NULS) {
-            return this.createTxSimpleTransferOfNonNuls(fromAddress, toAddress, assetChainId, assetId, amount, time, remark);
+    public Result createTxSimpleTransferOfNonNulsByFeeType(String fromAddress, String toAddress, int assetChainId, int assetId, BigInteger amount, long time, String remark, ChainFeeSettingType feeType, String teamAddr, BigInteger teamFee) {
+        if (feeType == null) {
+            feeType = ChainFeeSettingType.NULS;
         }
         ChainFeeSetting feeSetting = SDKContext.CHAIN_FEE_SETTING_MAP.get(feeType.name());
         Asset feeAsset = feeSetting.getAsset();
-        return this.createTxSimpleTransferOfNonNuls(fromAddress, toAddress, assetChainId, assetId, amount, time, remark, feeAsset.getAssetChainId(), feeAsset.getAssetId(), new BigInteger(feeSetting.getFeePerKB()));
+        return this.createTxSimpleTransferOfNonNuls(fromAddress, toAddress, assetChainId, assetId, amount, time, remark, feeAsset.getAssetChainId(), feeAsset.getAssetId(), new BigInteger(feeSetting.getFeePerKB()), teamAddr, teamFee);
     }
 
-    public Result createTxSimpleTransferOfNonNuls(String fromAddress, String toAddress, int assetChainId, int assetId, BigInteger amount, long time, String remark, int feeChainId, int feeAssetId, BigInteger sizePrice) {
+    public Result createTxSimpleTransferOfNonNuls(String fromAddress, String toAddress, int assetChainId, int assetId, BigInteger amount, long time, String remark, int feeChainId, int feeAssetId, BigInteger sizePrice, String teamAddr, BigInteger teamFee) {
+        boolean hasTeamFee = false;
+        if (AddressTool.validAddress(SDKContext.main_chain_id, teamAddr) && teamFee != null && teamFee.compareTo(BigInteger.ZERO) > 0) {
+            hasTeamFee = true;
+        }
         Result accountBalanceR = NulsSDKTool.getAccountBalance(fromAddress, assetChainId, assetId);
         if (!accountBalanceR.isSuccess()) {
             return Result.getFailed(accountBalanceR.getErrorCode()).setMsg(accountBalanceR.getMsg());
@@ -233,21 +237,31 @@ public class TransactionService {
         feeDto.setAddressCount(1);
         feeDto.setFromLength(2);
         feeDto.setToLength(1);
+        if (hasTeamFee) {
+            feeDto.setToLength(2);
+        }
         feeDto.setRemark(remark);
         feeDto.setPrice(sizePrice);
         BigInteger feeNeed = NulsSDKTool.calcTransferTxFee(feeDto);
+        if (hasTeamFee) {
+            feeNeed = feeNeed.add(teamFee);
+        }
         if (senderBalanceFee.compareTo(feeNeed) < 0) {
             return Result.getFailed(AccountErrorCode.INSUFFICIENT_FEE);
         }
         String nonceFee = balanceFee.get("nonce").toString();
         //手续费资产
-        CoinFromDto fromFee = new CoinFromDto();
-        fromFee.setAddress(fromAddress);
-        fromFee.setAmount(feeNeed);
-        fromFee.setAssetChainId(feeChainId);
-        fromFee.setAssetId(feeAssetId);
-        fromFee.setNonce(nonceFee);
-        inputs.add(fromFee);
+        if (assetChainId == feeChainId && assetId == feeAssetId) {
+            from.setAmount(from.getAmount().add(feeNeed));
+        } else {
+            CoinFromDto fromFee = new CoinFromDto();
+            fromFee.setAddress(fromAddress);
+            fromFee.setAmount(feeNeed);
+            fromFee.setAssetChainId(feeChainId);
+            fromFee.setAssetId(feeAssetId);
+            fromFee.setNonce(nonceFee);
+            inputs.add(fromFee);
+        }
 
         List<CoinToDto> outputs = new ArrayList<>();
         CoinToDto to = new CoinToDto();
@@ -256,6 +270,18 @@ public class TransactionService {
         to.setAssetChainId(assetChainId);
         to.setAssetId(assetId);
         outputs.add(to);
+        if (hasTeamFee) {
+            if (assetChainId == feeChainId && assetId == feeAssetId && toAddress.equals(teamAddr)) {
+                to.setAmount(to.getAmount().add(teamFee));
+            } else {
+                CoinToDto teamFeeTo = new CoinToDto();
+                teamFeeTo.setAddress(teamAddr);
+                teamFeeTo.setAmount(teamFee);
+                teamFeeTo.setAssetChainId(feeChainId);
+                teamFeeTo.setAssetId(feeAssetId);
+                outputs.add(teamFeeTo);
+            }
+        }
 
         transferDto.setInputs(inputs);
         transferDto.setOutputs(outputs);
@@ -342,9 +368,45 @@ public class TransactionService {
         return createTransferTx(transferDto);
     }
 
-    public Result createTxSimpleTransferOfNulsByFeeType(String fromAddress, String toAddress, BigInteger amount, long time, String remark, ChainFeeSettingType type) {
+    public Result createTxSimpleTransferOfNulsByFeeType(String fromAddress, String toAddress, BigInteger amount, long time, String remark, ChainFeeSettingType type, String teamAddr, BigInteger teamFee) {
+        boolean hasTeamFee = false;
+        if (AddressTool.validAddress(SDKContext.main_chain_id, teamAddr) && teamFee != null && teamFee.compareTo(BigInteger.ZERO) > 0) {
+            hasTeamFee = true;
+        }
         if (type == null || type == ChainFeeSettingType.NULS) {
-            return createTxSimpleTransferOfNuls(fromAddress, toAddress, amount, time, remark);
+            Result result = createTxSimpleTransferOfNuls(fromAddress, toAddress, amount, time, remark);
+            if (result.isFailed() || !hasTeamFee) {
+                return result;
+            }
+            Map map = (Map) result.getData();
+            String txHex = (String) map.get("txHex");
+            Transaction tx = new Transaction();
+            try {
+                tx.parse(HexUtil.decode(txHex), 0);
+                CoinData coinData = tx.getCoinDataInstance();
+                CoinFrom from = coinData.getFrom().get(0);
+                TransferTxFeeDto feeDto = new TransferTxFeeDto();
+                feeDto.setAddressCount(1);
+                feeDto.setFromLength(2);
+                feeDto.setToLength(2);
+                feeDto.setRemark(remark);
+                BigInteger feeNeed = NulsSDKTool.calcTransferTxFee(feeDto);
+                BigInteger amountTotal = amount.add(feeNeed).add(teamFee);
+                from.setAmount(amountTotal);
+                coinData.getTo().add(new CoinTo(
+                        AddressTool.getAddress(teamAddr),
+                        SDKContext.main_chain_id, SDKContext.main_asset_id,
+                        teamFee,
+                        0
+                ));
+                tx.setCoinData(coinData.serialize());
+                map.put("hash", tx.getHash().toHex());
+                map.put("txHex", HexUtil.encode(tx.serialize()));
+                return result;
+            } catch (Exception e) {
+                return Result.getFailed(AccountErrorCode.DATA_PARSE_ERROR);
+            }
+
         }
         ChainFeeSetting feeSetting = SDKContext.CHAIN_FEE_SETTING_MAP.get(type.name());
         Asset feeAsset = feeSetting.getAsset();
@@ -361,13 +423,20 @@ public class TransactionService {
         Map balanceFee = (Map) accountBalanceFee.getData();
         BigInteger senderBalanceFee = new BigInteger(balanceFee.get("available").toString());
 
+        int toLength = 1;
+        if (hasTeamFee) {
+            toLength++;
+        }
         TransferTxFeeDto feeDto = new TransferTxFeeDto();
         feeDto.setAddressCount(1);
         feeDto.setFromLength(2);
-        feeDto.setToLength(1);
+        feeDto.setToLength(toLength);
         feeDto.setRemark(remark);
         feeDto.setPrice(new BigInteger(feeSetting.getFeePerKB()));
         BigInteger feeNeed = NulsSDKTool.calcTransferTxFee(feeDto);
+        if (hasTeamFee) {
+            feeNeed = feeNeed.add(teamFee);
+        }
 
         if (senderBalanceNuls.compareTo(amount) < 0) {
             return Result.getFailed(AccountErrorCode.INSUFFICIENT_BALANCE);
@@ -403,6 +472,14 @@ public class TransactionService {
         to.setAssetChainId(SDKContext.main_chain_id);
         to.setAssetId(SDKContext.main_asset_id);
         outputs.add(to);
+        if (hasTeamFee) {
+            CoinToDto teamFeeTo = new CoinToDto();
+            teamFeeTo.setAddress(teamAddr);
+            teamFeeTo.setAmount(teamFee);
+            teamFeeTo.setAssetChainId(feeAsset.getAssetChainId());
+            teamFeeTo.setAssetId(feeAsset.getAssetId());
+            outputs.add(teamFeeTo);
+        }
 
         transferDto.setInputs(inputs);
         transferDto.setOutputs(outputs);

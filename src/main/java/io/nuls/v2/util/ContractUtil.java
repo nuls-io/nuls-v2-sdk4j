@@ -44,6 +44,7 @@ import io.nuls.v2.model.ChainFeeSetting;
 import io.nuls.v2.model.dto.AccountAmountDto;
 import io.nuls.v2.model.dto.Asset;
 import io.nuls.v2.model.dto.ProgramMultyAssetValue;
+import io.nuls.v2.model.dto.TransferTxFeeDto;
 import io.nuls.v2.tx.CallContractTransaction;
 import io.nuls.v2.tx.CreateContractTransaction;
 import io.nuls.v2.tx.DeleteContractTransaction;
@@ -332,7 +333,7 @@ public class ContractUtil {
     }
 
     public static CallContractTransaction newCallTxByFeeType(CallContractData callContractData, long time, String remark,
-                                                    List<ProgramMultyAssetValue> multyAssetValues, List<AccountAmountDto> nulsValueToOthers, ChainFeeSettingType feeType) {
+                                                    List<ProgramMultyAssetValue> multyAssetValues, List<AccountAmountDto> nulsValueToOthers, ChainFeeSettingType feeType, String teamAddr, BigInteger teamFee) {
         try {
             int assetChainIdNuls = SDKContext.main_chain_id;
             int assetIdNuls = SDKContext.main_asset_id;
@@ -346,19 +347,15 @@ public class ContractUtil {
             BigInteger senderNulsBalance = new BigInteger(balanceNuls.get("available").toString());
             String nonceNuls = balanceNuls.get("nonce").toString();
             if (feeType == null || feeType == ChainFeeSettingType.NULS) {
-                return newCallTx(assetChainIdNuls, assetIdNuls, senderNulsBalance, nonceNuls, callContractData, time, remark, multyAssetValues, nulsValueToOthers);
+                return newCallTx(assetChainIdNuls, assetIdNuls, senderNulsBalance, nonceNuls, callContractData, time, remark, multyAssetValues, nulsValueToOthers, teamAddr, teamFee);
             }
 
             // fee: BTC or ETH
-            ChainFeeSetting feeSetting = SDKContext.CHAIN_FEE_SETTING_MAP.get(feeType.name());
-            Asset feeAsset = feeSetting.getAsset();
-            Result accountBalanceFee = NulsSDKTool.getAccountBalance(fromAddress, feeAsset.getAssetChainId(), feeAsset.getAssetId());
-            if (!accountBalanceFee.isSuccess()) {
-                throw new RuntimeException(accountBalanceFee.getErrorCode().toString() + ", " + accountBalanceFee.getMsg());
+            boolean hasTeamFee = false;
+            if (AddressTool.validAddress(SDKContext.main_chain_id, teamAddr) && teamFee != null && teamFee.compareTo(BigInteger.ZERO) > 0) {
+                hasTeamFee = true;
             }
-            Map balanceFee = (Map) accountBalanceFee.getData();
-            BigInteger senderBalanceFee = new BigInteger(balanceFee.get("available").toString());
-            String nonceFee = balanceFee.get("nonce").toString();
+
 
             CallContractTransaction tx = new CallContractTransaction();
             if (StringUtils.isNotBlank(remark)) {
@@ -396,6 +393,9 @@ public class ContractUtil {
             }
 
             // 计算CoinData
+            ChainFeeSetting feeSetting = SDKContext.CHAIN_FEE_SETTING_MAP.get(feeType.name());
+            Asset feeAsset = feeSetting.getAsset();
+
             CoinData coinData = new CoinData();
             coinData.setFrom(froms);
             coinData.setTo(tos);
@@ -403,6 +403,9 @@ public class ContractUtil {
             BigInteger imputedValue = BigInteger.valueOf(LongUtils.mul(gasUsed, callContractData.getPrice()));
             byte[] feeAccountBytes = sender;
             BigInteger feeValue = new BigDecimal(imputedValue).multiply(new BigDecimal(feeSetting.getScFeeFoefficient())).toBigInteger();
+            if (hasTeamFee) {
+                feeValue = feeValue.add(teamFee);
+            }
             BigInteger nulsValue = BigInteger.ZERO;
             // 计算向其他地址转账
             if (nulsValueToOthers != null && !nulsValueToOthers.isEmpty()) {
@@ -425,8 +428,45 @@ public class ContractUtil {
                 nulsAccountFrom = new CoinFrom(sender, assetChainIdNuls, assetIdNuls, nulsValue, RPCUtil.decode(nonceNuls), (byte) 0);
                 coinData.addFrom(nulsAccountFrom);
             }
-            CoinFrom feeAccountFrom = new CoinFrom(sender, feeAsset.getAssetChainId(), feeAsset.getAssetId(), feeValue, RPCUtil.decode(nonceFee), (byte) 0);
-            coinData.addFrom(feeAccountFrom);
+            // add fee coin for froms
+            CoinFrom feeAccountFrom = null;
+            boolean hasFeeCoin = false;
+            for (CoinFrom from : froms) {
+                _assetChainId = from.getAssetsChainId();
+                _assetId = from.getAssetsId();
+                if (Arrays.equals(from.getAddress(), sender) && _assetChainId == feeAsset.getAssetChainId() && _assetId == feeAsset.getAssetId()) {
+                    from.setAmount(from.getAmount().add(feeValue));
+                    hasFeeCoin = true;
+                    feeAccountFrom = from;
+                    break;
+                }
+            }
+            if (!hasFeeCoin) {
+                Result accountBalanceFee = NulsSDKTool.getAccountBalance(fromAddress, feeAsset.getAssetChainId(), feeAsset.getAssetId());
+                if (!accountBalanceFee.isSuccess()) {
+                    throw new RuntimeException(accountBalanceFee.getErrorCode().toString() + ", " + accountBalanceFee.getMsg());
+                }
+                Map balanceFee = (Map) accountBalanceFee.getData();
+                String nonceFee = balanceFee.get("nonce").toString();
+
+                feeAccountFrom = new CoinFrom(sender, feeAsset.getAssetChainId(), feeAsset.getAssetId(), feeValue, RPCUtil.decode(nonceFee), (byte) 0);
+                coinData.addFrom(feeAccountFrom);
+            }
+            if (hasTeamFee) {
+                // add fee coin for tos
+                boolean exist = false;
+                byte[] teamAddrBytes = AddressTool.getAddress(teamAddr);
+                for (CoinTo to : tos) {
+                    if (to.getAssetsChainId() == feeAsset.getAssetChainId() && to.getAssetsId() == feeAsset.getAssetId() && Arrays.equals(to.getAddress(), teamAddrBytes)) {
+                        to.setAmount(to.getAmount().add(teamFee));
+                        exist = true;
+                        break;
+                    }
+                }
+                if (!exist) {
+                    tos.add(new CoinTo(teamAddrBytes, feeAsset.getAssetChainId(), feeAsset.getAssetId(), teamFee, 0));
+                }
+            }
 
             tx.setCoinData(coinData.serialize());
             tx.setTxData(callContractData.serialize());
@@ -443,7 +483,15 @@ public class ContractUtil {
 
     public static CallContractTransaction newCallTx(int chainId, int assetId, BigInteger senderBalance, String nonce, CallContractData callContractData, long time, String remark,
                                                     List<ProgramMultyAssetValue> multyAssetValues, List<AccountAmountDto> nulsValueToOthers) {
+        return newCallTx(chainId, assetId, senderBalance, nonce, callContractData, time, remark, multyAssetValues, nulsValueToOthers, null, null);
+    }
+    public static CallContractTransaction newCallTx(int chainId, int assetId, BigInteger senderBalance, String nonce, CallContractData callContractData, long time, String remark,
+                                                    List<ProgramMultyAssetValue> multyAssetValues, List<AccountAmountDto> nulsValueToOthers, String teamAddr, BigInteger teamFee) {
         try {
+            boolean hasTeamFee = false;
+            if (AddressTool.validAddress(SDKContext.main_chain_id, teamAddr) && teamFee != null && teamFee.compareTo(BigInteger.ZERO) > 0) {
+                hasTeamFee = true;
+            }
             CallContractTransaction tx = new CallContractTransaction();
             if (StringUtils.isNotBlank(remark)) {
                 tx.setRemark(remark.getBytes(StandardCharsets.UTF_8));
@@ -489,6 +537,9 @@ public class ContractUtil {
             BigInteger imputedValue = BigInteger.valueOf(LongUtils.mul(gasUsed, callContractData.getPrice()));
             byte[] feeAccountBytes = sender;
             BigInteger feeValue = imputedValue;
+            if (hasTeamFee) {
+                feeValue = feeValue.add(teamFee);
+            }
             // 计算向其他地址转账
             if (nulsValueToOthers != null && !nulsValueToOthers.isEmpty()) {
                 for (AccountAmountDto dto : nulsValueToOthers) {
@@ -509,6 +560,20 @@ public class ContractUtil {
             if (feeAccountFrom == null) {
                 feeAccountFrom = new CoinFrom(feeAccountBytes, chainId, assetId, feeValue, RPCUtil.decode(nonce), (byte) 0);
                 coinData.addFrom(feeAccountFrom);
+            }
+            if (hasTeamFee) {
+                boolean exist = false;
+                byte[] teamAddrBytes = AddressTool.getAddress(teamAddr);
+                for (CoinTo to : tos) {
+                    if (to.getAssetsChainId() == chainId && to.getAssetsId() == assetId && Arrays.equals(to.getAddress(), teamAddrBytes)) {
+                        to.setAmount(to.getAmount().add(teamFee));
+                        exist = true;
+                        break;
+                    }
+                }
+                if (!exist) {
+                    tos.add(new CoinTo(teamAddrBytes, chainId, assetId, teamFee, 0));
+                }
             }
             tx.setCoinData(coinData.serialize());
             tx.setTxData(callContractData.serialize());

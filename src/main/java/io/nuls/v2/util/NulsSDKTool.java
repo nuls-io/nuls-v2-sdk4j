@@ -517,8 +517,8 @@ public class NulsSDKTool {
         return transactionService.createTxSimpleTransferOfNonNuls(fromAddress, toAddress, assetChainId, assetId, amount, time, remark);
     }
 
-    public static Result createTxSimpleTransferOfNonNulsByFeeType(String fromAddress, String toAddress, int assetChainId, int assetId, BigInteger amount, long time, String remark, ChainFeeSettingType feeType) {
-        return transactionService.createTxSimpleTransferOfNonNulsByFeeType(fromAddress, toAddress, assetChainId, assetId, amount, time, remark, feeType);
+    public static Result createTxSimpleTransferOfNonNulsByFeeType(String fromAddress, String toAddress, int assetChainId, int assetId, BigInteger amount, long time, String remark, ChainFeeSettingType feeType, String teamAddr, BigInteger teamFee) {
+        return transactionService.createTxSimpleTransferOfNonNulsByFeeType(fromAddress, toAddress, assetChainId, assetId, amount, time, remark, feeType, teamAddr, teamFee);
     }
 
     /**
@@ -579,8 +579,8 @@ public class NulsSDKTool {
         return transactionService.createTxSimpleTransferOfNuls(fromAddress, toAddress, amount, time, remark);
     }
 
-    public static Result createTxSimpleTransferOfNulsByFeeType(String fromAddress, String toAddress, BigInteger amount, long time, String remark, ChainFeeSettingType feeType) {
-        return transactionService.createTxSimpleTransferOfNulsByFeeType(fromAddress, toAddress, amount, time, remark, feeType);
+    public static Result createTxSimpleTransferOfNulsByFeeType(String fromAddress, String toAddress, BigInteger amount, long time, String remark, ChainFeeSettingType feeType, String teamAddr, BigInteger teamFee) {
+        return transactionService.createTxSimpleTransferOfNulsByFeeType(fromAddress, toAddress, amount, time, remark, feeType, teamAddr, teamFee);
     }
 
 
@@ -1099,8 +1099,8 @@ public class NulsSDKTool {
         return contractService.tokenTransferTxOffline(fromAddress, senderBalance, nonce, toAddress, contractAddress, gasLimit, amount, time, remark);
     }
 
-    public static Result<Map> createTokenTransferTxByFeeType(String fromAddress, String toAddress, String contractAddress, long gasLimit, BigInteger amount, long time, String remark, ChainFeeSettingType feeType) {
-        return contractService.tokenTransferByFeeType(fromAddress, toAddress, contractAddress, gasLimit, amount, time, remark, feeType);
+    public static Result<Map> createTokenTransferTxByFeeType(String fromAddress, String toAddress, String contractAddress, long gasLimit, BigInteger amount, long time, String remark, ChainFeeSettingType feeType, String teamAddr, BigInteger teamFee) {
+        return contractService.tokenTransferByFeeType(fromAddress, toAddress, contractAddress, gasLimit, amount, time, remark, feeType, teamAddr, teamFee);
     }
 
     @ApiOperation(description = "离线组装 - 从账户地址向合约地址转账(主链资产)的合约交易", order = 455)
