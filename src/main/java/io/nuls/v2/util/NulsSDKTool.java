@@ -1050,6 +1050,12 @@ public class NulsSDKTool {
         return contractService.callContractTxOfflineByFeeType(sender, value, contractAddress, gasLimit, methodName, methodDesc,
                 args, argsType, System.currentTimeMillis() / 1000, remark, multyAssetValues, null, feeType, teamAddr, teamFee);
     }
+    public static Result<Map> txFeeForCallContractTxOfflineByFeeType(String sender, BigInteger value, String contractAddress, long gasLimit,
+                                                    String methodName, String methodDesc, Object[] args, String[] argsType, String remark,
+                                                    List<ProgramMultyAssetValue> multyAssetValues, ChainFeeSettingType feeType, String teamAddr, BigInteger teamFee) {
+        return contractService.txFeeForCallContractTxOfflineByFeeType(sender, value, contractAddress, gasLimit, methodName, methodDesc,
+                args, argsType, System.currentTimeMillis() / 1000, remark, multyAssetValues, null, feeType, teamAddr, teamFee);
+    }
 
     @ApiOperation(description = "离线组装 - 删除合约的交易", order = 453)
     @Parameters(value = {

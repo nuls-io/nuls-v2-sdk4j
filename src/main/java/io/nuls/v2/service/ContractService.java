@@ -882,4 +882,55 @@ public class ContractService {
             return getFailed().setMsg(e.getMessage());
         }
     }
+
+    public Result<Map> txFeeForCallContractTxOfflineByFeeType(String sender, BigInteger value, String contractAddress, long gasLimit, String methodName, String methodDesc,
+                                                      Object[] args, String[] argsType, long time, String remark, List<ProgramMultyAssetValue> multyAssetValues, List<AccountAmountDto> nulsValueToOthers,
+                                                      ChainFeeSettingType feeType, String teamAddr, BigInteger teamFee) {
+        int chainId = SDKContext.main_chain_id;
+        if (!AddressTool.validAddress(chainId, sender)) {
+            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("sender [%s] is invalid", sender));
+        }
+
+        if (!AddressTool.validAddress(chainId, contractAddress)) {
+            return Result.getFailed(ADDRESS_ERROR).setMsg(String.format("contractAddress [%s] is invalid", contractAddress));
+        }
+
+        if (StringUtils.isBlank(methodName)) {
+            return Result.getFailed(NULL_PARAMETER).setMsg("methodName is empty");
+        }
+        if (value == null) {
+            value = BigInteger.ZERO;
+        }
+
+        int assetChainId = SDKContext.main_chain_id;
+        int assetId = SDKContext.main_asset_id;
+        // 生成参数的二维数组
+        String[][] finalArgs = null;
+        if (args != null && args.length > 0) {
+            if(argsType == null || argsType.length != args.length) {
+                return Result.getFailed(CommonCodeConstanst.PARAMETER_ERROR).setMsg("size of 'argsType' array not match 'args' array");
+            }
+            finalArgs = ContractUtil.twoDimensionalArray(args, argsType);
+        }
+
+        // 组装交易的txData
+        byte[] contractAddressBytes = AddressTool.getAddress(contractAddress);
+        byte[] senderBytes = AddressTool.getAddress(sender);
+        CallContractData callContractData = new CallContractData();
+        callContractData.setContractAddress(contractAddressBytes);
+        callContractData.setSender(senderBytes);
+        callContractData.setValue(value);
+        callContractData.setPrice(CONTRACT_MINIMUM_PRICE);
+        callContractData.setGasLimit(gasLimit);
+        callContractData.setMethodName(methodName);
+        callContractData.setMethodDesc(methodDesc);
+        if (finalArgs != null) {
+            callContractData.setArgsCount((short) finalArgs.length);
+            callContractData.setArgs(finalArgs);
+        }
+
+        // 生成手续费数据
+        Map result = ContractUtil.txFeeForNewCallTxByFeeType(callContractData, time, remark, multyAssetValues, nulsValueToOthers, feeType, teamAddr, teamFee);
+        return getSuccess().setData(result);
+    }
 }

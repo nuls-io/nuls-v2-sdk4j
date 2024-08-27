@@ -1,5 +1,7 @@
 package io.nuls.v2.constant;
 
+import java.math.BigInteger;
+
 public interface Constant {
 
     /**
@@ -45,4 +47,7 @@ public interface Constant {
     String NRC20_EVENT_APPROVAL = "ApprovalEvent";
     String NRC20_EVENT_TRANSFER_CROSS_CHAIN = "transferCrossChain";
     String NRC1155_METHOD_TRANSFER = "safeTransferFrom";
+
+    String MOCK_NONCE = "0000000000000000";
+    BigInteger MOCK_NULS_BALANCE = new BigInteger("10000000000000000");
 }
