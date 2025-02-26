@@ -246,8 +246,6 @@ public class ContractServiceTest {
         Sender _sender = this.sender01;
         String sender = _sender.getSender();
         String priKey = _sender.getPriKey();
-        //String sender = "NULSd6HgZnYzztV5LzDmUzyrPp7uqF7RDDGUy";
-        //String priKey = "0c09276c4b5835f495616db2b320b49fa69f44bdf2d85630b5cf61224a";
         String signedTxHex = callOfflineHexWithoutValidation(chainId, sender, priKey, value, contractAddress,
                 methodName, methodDesc, args, argsType, remark);
 
@@ -265,8 +263,6 @@ public class ContractServiceTest {
         Sender _sender = this.sender01;
         String sender = _sender.getSender();
         String priKey = _sender.getPriKey();
-        //String sender = "NULSd6HgZnYzztV5LzDmUzyrPp7uqF7RDDGUy";
-        //String priKey = "0c09276c4b5835f495616db2b320b49fa69f44bdf2d85630b5cf61224a";
 
         // 在线接口(可跳过) - 验证发布合约的合法性，可不验证
         if (false) {
