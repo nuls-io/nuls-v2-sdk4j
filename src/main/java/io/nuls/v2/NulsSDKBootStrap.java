@@ -1,6 +1,7 @@
 package io.nuls.v2;
 
 import io.nuls.core.model.StringUtils;
+import io.nuls.v2.enums.ChainFeeSettingType;
 import io.nuls.v2.model.ChainFeeSetting;
 import io.nuls.v2.util.TxFeeUtil;
 
@@ -123,6 +124,11 @@ public class NulsSDKBootStrap {
     public static void initChainFeeSetting(int chainId, List<ChainFeeSetting> settings) {
         if (settings != null && !settings.isEmpty()) {
             SDKContext.CHAIN_FEE_SETTING_MAP = settings.stream().collect(Collectors.toMap(ChainFeeSetting::getSymbol, Function.identity()));
+            if (chainId == 2) {
+                SDKContext.CHAIN_FEE_SETTING_MAP.put(ChainFeeSettingType.NULS.name(), TxFeeUtil.DEFAULT_TESTNET_NULS_FEE_SETTING);
+            } else {
+                SDKContext.CHAIN_FEE_SETTING_MAP.put(ChainFeeSettingType.NULS.name(), TxFeeUtil.DEFAULT_MAINNET_NULS_FEE_SETTING);
+            }
             return;
         }
         if (chainId == 1) {
@@ -131,6 +137,11 @@ public class NulsSDKBootStrap {
             settings = TxFeeUtil.DEFAULT_TESTNET_CHAIN_FEE_SETTING;
         }
         SDKContext.CHAIN_FEE_SETTING_MAP = settings.stream().collect(Collectors.toMap(ChainFeeSetting::getSymbol, Function.identity()));
+        if (chainId == 2) {
+            SDKContext.CHAIN_FEE_SETTING_MAP.put(ChainFeeSettingType.NULS.name(), TxFeeUtil.DEFAULT_TESTNET_NULS_FEE_SETTING);
+        } else {
+            SDKContext.CHAIN_FEE_SETTING_MAP.put(ChainFeeSettingType.NULS.name(), TxFeeUtil.DEFAULT_MAINNET_NULS_FEE_SETTING);
+        }
     }
 
 
