@@ -3,6 +3,7 @@ package io.nuls.v2.service;
 import io.nuls.core.basic.Result;
 import io.nuls.core.parse.JSONUtils;
 import io.nuls.v2.NulsSDKBootStrap;
+import io.nuls.v2.SDKContext;
 import io.nuls.v2.model.dto.CrossTransferForm;
 import io.nuls.v2.model.dto.TransferForm;
 import io.nuls.v2.util.NulsSDKTool;
@@ -24,6 +25,13 @@ public class AccountTxTest {
         NulsSDKBootStrap.initTest("http://beta.api.nuls.io/");
     }
 
+
+
+    @Test
+    public void testGetBalance() throws Exception {
+        Result result = NulsSDKTool.getAccountBalance("tNULSeBaMvCL5jpJiaiUmo2sBEFAVbypXG692o", SDKContext.main_chain_id, SDKContext.main_asset_id);
+        System.out.println(JSONUtils.obj2PrettyJson(result));
+    }
 
     @Test
     public void testTransfer() {

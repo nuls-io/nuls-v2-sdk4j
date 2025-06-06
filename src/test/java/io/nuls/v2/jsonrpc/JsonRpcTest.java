@@ -27,12 +27,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.nuls.base.data.CoinData;
 import io.nuls.core.crypto.HexUtil;
 import io.nuls.core.parse.JSONUtils;
+import io.nuls.core.parse.MapUtils;
+import io.nuls.v2.model.dto.ContractViewCallForm;
 import io.nuls.v2.model.dto.RpcResult;
 import io.nuls.v2.util.JsonRpcUtil;
 import org.junit.Test;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: PierreLuo
@@ -55,5 +58,13 @@ public class JsonRpcTest {
         CoinData coinData = new CoinData();
         coinData.parse(HexUtil.decode(hex), 0);
         System.out.println(coinData);
+
+        ContractViewCallForm form = new ContractViewCallForm();
+        Map<String, Object> params = MapUtils.beanToMap(form);
+        System.out.println(params);
     }
+
+
+
+
 }
