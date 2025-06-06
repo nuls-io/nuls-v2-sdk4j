@@ -4,6 +4,8 @@ import io.nuls.core.parse.JSONUtils;
 import okhttp3.*;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -15,6 +17,8 @@ public class OkHttpClientUtil {
     private static final byte[] LOCKER = new byte[0];
     private static OkHttpClientUtil mInstance;
     private OkHttpClient okHttpClient;
+    //private static Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 1087));
+    private static Proxy proxy = null;
     private OkHttpClientUtil() {
 
         okhttp3.OkHttpClient.Builder clientBuilder = new okhttp3.OkHttpClient.Builder();
@@ -24,7 +28,11 @@ public class OkHttpClientUtil {
         clientBuilder.connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS);
         //写入超时
         clientBuilder.writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS);
-        okHttpClient = clientBuilder.build();
+        if (proxy != null) {
+            okHttpClient = clientBuilder.proxy(proxy).build();
+        } else {
+            okHttpClient = clientBuilder.build();
+        }
     }
     /**
      * 单例模式获取 NetUtils
