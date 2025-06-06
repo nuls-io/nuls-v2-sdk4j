@@ -25,9 +25,9 @@ public class AccountServiceTest {
 
     static String address = "tNULSeBaMkm6c3ShAFMzfDX8RKdapZdUcseSw8";
     static String pubKey = "03ac18d40eb3131f934441f81c631b3898097b606a84893da1559de61fe3d3cfe9";
-    static String priKey = "6df381435098e47b685cdc00fa1d7c66fa2ba9cc441179c6dd1a5686153fb0ee";
-    static String encryptedPrivateKey = "0c8e925d27660dbd04104455c001efe7a5d4cba8fc484d06506c8ff4baa653be2d69e31c971243e2185782cabbbe265a";
-    static String password = "nuls123456";
+    static String priKey = "???";
+    static String encryptedPrivateKey = "???";
+    static String password = "???";
 
 
     @Before
@@ -71,7 +71,7 @@ public class AccountServiceTest {
 
     @Test
     public void testImportPriKey() {
-        Result result = NulsSDKTool.importPriKey("57b65cefbfcf73ec000158f3e6a98cfcac0ff36b70d68171955b87522360ddbf", password);
+        Result result = NulsSDKTool.importPriKey("???", password);
         System.out.println(result.getData());
         System.out.println(result);
     }
@@ -86,7 +86,7 @@ public class AccountServiceTest {
     @Test
     public void testGetPriKeyOffline() {
         String address = "TNVTdTSPFnCMgr9mzvgibQ4hKspVSGEc6XTKE";
-        String encryptedPrivateKey = "c515283abe7f653222ab5bcd11be650347c8ad0eb3f5bb72bfce3d88c3f5efa79d75db7bf2d0681745253313611a3524";
+        String encryptedPrivateKey = "???";
         Result result = NulsSDKTool.getPriKeyOffline(address, encryptedPrivateKey, password);
         Map map = (Map) result.getData();
         System.out.println(map);
@@ -117,8 +117,8 @@ public class AccountServiceTest {
 
         List<SignDto> signDtoList = new ArrayList<>();
         SignDto signDto = new SignDto();
-        signDto.setAddress("tNULSeBaMhAVf6adiYevadhtmFiGCYKFWARpsa");
-        signDto.setPriKey("5192cb5907e975f59ee411c6e1d255c27631775a7fb165cf1f24817d085f3364");
+        signDto.setAddress("tNULSeBaMidSH7amSTjaNvVkL9VDdFEc9rUztf");
+        signDto.setPriKey("???");
 //        signDto.setEncryptedPrivateKey("298d69f9a7ed29d734769945a1788beecc0498d596da622e1d89909af29c07629ccd8a9df1b60196a4659e0e3c6cf9ce");
 //        signDto.setPassword(password);
         signDtoList.add(signDto);
@@ -133,8 +133,7 @@ public class AccountServiceTest {
         String txHex = "02002ef2435d0672656d61726b008c0117020003f6231825aa05e4d25b4772909a15c9ba3c0b6fe202000100402a86481700000000000000000000000000000000000000000000000000000008e2a45f6068c4bb7a00011702000191866cefc8c9e1181b4e1e068b64fa288405b3e60200010000e87648170000000000000000000000000000000000000000000000000000000000000000000000460202210377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db2103f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1";
         SignDto signDto = new SignDto();
         signDto.setAddress("tNULSeBaMoDwD9pvR4cYMvBdJYPs9LmTnHyq8y");
-        signDto.setEncryptedPrivateKey("298d69f9a7ed29d734769945a1788beecc0498d596da622e1d89909af29c07629ccd8a9df1b60196a4659e0e3c6cf9ce");
-        signDto.setPassword(password);
+        signDto.setPriKey("???");
 
         Result result = NulsSDKTool.multiSign(signDto, txHex);
         Map map = (Map) result.getData();

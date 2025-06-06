@@ -430,6 +430,34 @@ public class ContractUtil {
         }
     }
 
+    public static String[][] multyAssetStringArray(List<ProgramMultyAssetValue> multyAssetValues) {
+        int length;
+        if (multyAssetValues == null || (length = multyAssetValues.size()) == 0) {
+            return null;
+        }
+        String[][] array = new String[length][];
+        ProgramMultyAssetValue value;
+        for (int i = 0; i < length; i++) {
+            value = multyAssetValues.get(i);
+            array[i] = new String[]{value.getValue().toString(), String.valueOf(value.getAssetChainId()), String.valueOf(value.getAssetId())};
+        }
+        return array;
+    }
+
+    public static String[][] multyAssetStringArray(ProgramMultyAssetValue[] multyAssetValues) {
+        int length;
+        if (multyAssetValues == null || (length = multyAssetValues.length) == 0) {
+            return null;
+        }
+        String[][] array = new String[length][];
+        ProgramMultyAssetValue value;
+        for (int i = 0; i < length; i++) {
+            value = multyAssetValues[i];
+            array[i] = new String[]{value.getValue().toString(), String.valueOf(value.getAssetChainId()), String.valueOf(value.getAssetId())};
+        }
+        return array;
+    }
+
     private static CoinData makeCoinData(int chainId, int assetsId, BigInteger senderBalance, String nonce, ContractData contractData, int txSize, int txDataSize) {
         CoinData coinData = new CoinData();
         long gasUsed = contractData.getGasLimit();

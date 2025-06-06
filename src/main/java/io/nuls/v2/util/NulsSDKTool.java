@@ -993,15 +993,20 @@ public class NulsSDKTool {
             @Parameter(parameterName = "gasLimit", requestType = @TypeDescriptor(value = long.class), parameterDes = "设置合约执行消耗的gas上限"),
             @Parameter(parameterName = "args", requestType = @TypeDescriptor(value = Object[].class), parameterDes = "参数列表", canNull = true),
             @Parameter(parameterName = "argsType", requestType = @TypeDescriptor(value = String[].class), parameterDes = "参数类型列表", canNull = true),
-            @Parameter(parameterName = "remark", parameterDes = "交易备注", canNull = true)
+            @Parameter(parameterName = "remark", parameterDes = "交易备注", canNull = true),
+            @Parameter(parameterName = "contractAddress", parameterDes = "交易备注", canNull = true)
     })
     @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "hash", description = "交易hash"),
             @Key(name = "txHex", description = "交易序列化字符串"),
             @Key(name = "contractAddress", description = "生成的合约地址")
     }))
+    public static Result<Map> createContractTxOffline(String sender, BigInteger senderBalance, String nonce, String alias, String contractCode, long gasLimit, Object[] args, String[] argsType, String remark, String contractAddress) {
+        return contractService.createContractTxOffline(sender, senderBalance, nonce, alias, contractCode, gasLimit, args, argsType, remark, contractAddress);
+    }
+
     public static Result<Map> createContractTxOffline(String sender, BigInteger senderBalance, String nonce, String alias, String contractCode, long gasLimit, Object[] args, String[] argsType, String remark) {
-        return contractService.createContractTxOffline(sender, senderBalance, nonce, alias, contractCode, gasLimit, args, argsType, remark);
+        return contractService.createContractTxOffline(sender, senderBalance, nonce, alias, contractCode, gasLimit, args, argsType, remark, null);
     }
 
     @ApiOperation(description = "离线组装 - 调用合约的交易", order = 452)
@@ -1300,6 +1305,29 @@ public class NulsSDKTool {
     }))
     public static Result<Map> nrc20CrossChainTxOffline(String fromAddress, BigInteger senderBalance, String nonce, String toAddress, String contractAddress, long gasLimit, BigInteger amount, long time, String remark) {
         return contractService.nrc20CrossChainTxOffline(fromAddress, senderBalance, nonce, toAddress, contractAddress, gasLimit, amount, time, remark);
+    }
+
+    @ApiOperation(description = "离线组装 - token1155转账交易", order = 560)
+    @Parameters(value = {
+            @Parameter(parameterName = "fromAddress", parameterDes = "转出者账户地址"),
+            @Parameter(parameterName = "senderBalance", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出者账户余额"),
+            @Parameter(parameterName = "nonce", parameterDes = "转出者账户nonce值"),
+            @Parameter(parameterName = "contractAddress", parameterDes = "token合约地址"),
+            @Parameter(parameterName = "toAddress", parameterDes = "转入者账户地址"),
+            @Parameter(parameterName = "tokenId", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的tokenId"),
+            @Parameter(parameterName = "amount", requestType = @TypeDescriptor(value = BigInteger.class), parameterDes = "转出的token资产金额"),
+            @Parameter(parameterName = "gasLimit", requestType = @TypeDescriptor(value = long.class), parameterDes = "设置合约执行消耗的gas上限"),
+            @Parameter(parameterName = "time", requestType = @TypeDescriptor(value = long.class), parameterDes = "转出的token资产金额"),
+            @Parameter(parameterName = "remark", parameterDes = "交易备注", canNull = true)
+    })
+    @ResponseData(name = "返回值", description = "返回一个Map", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
+            @Key(name = "hash", description = "交易hash"),
+            @Key(name = "txHex", description = "交易序列化字符串")
+    }))
+    public static Result<Map> token1155TransferTxOffline(String fromAddress, BigInteger senderBalance, String nonce,
+                                                         String contractAddress, String toAddress, BigInteger tokenId, BigInteger amount,
+                                                         long gasLimit, long time, String remark) {
+        return contractService.token1155TransferTxOffline(fromAddress, senderBalance, nonce, contractAddress, toAddress, tokenId, amount, gasLimit, time, remark);
     }
 
 

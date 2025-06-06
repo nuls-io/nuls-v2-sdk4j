@@ -58,10 +58,13 @@ public class HttpClientUtil {
         // httpRequestBase.setHeader("Accept-Charset",
         // "ISO-8859-1,utf-8,gbk,gb2312;q=0.7,*;q=0.7");
 
-        // 配置请求的超时设置
-        RequestConfig requestConfig = RequestConfig.custom()
+        RequestConfig.Builder builder = RequestConfig.custom()
                 .setConnectionRequestTimeout(timeOut)
-                .setConnectTimeout(timeOut).setSocketTimeout(timeOut).build();
+                .setConnectTimeout(timeOut).setSocketTimeout(timeOut);
+        //HttpHost proxy = new HttpHost("127.0.0.1", 1087);
+        //builder.setProxy(proxy);
+        // 配置请求的超时设置
+        RequestConfig requestConfig = builder.build();
         httpRequestBase.setConfig(requestConfig);
     }
 

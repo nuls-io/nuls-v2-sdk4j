@@ -9,14 +9,17 @@ import io.nuls.core.model.StringUtils;
 import io.nuls.core.parse.JSONUtils;
 import io.nuls.v2.NulsSDKBootStrap;
 import io.nuls.v2.SDKContext;
+import io.nuls.v2.constant.Constant;
 import io.nuls.v2.model.dto.*;
 import io.nuls.v2.txdata.CallContractData;
 import io.nuls.v2.util.JsonRpcUtil;
+import io.nuls.v2.util.ListUtil;
 import io.nuls.v2.util.NulsSDKTool;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.sound.midi.Soundbank;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -67,6 +70,45 @@ public class ContractServiceTest {
         String hex = "...";
         CallContractData txData = new CallContractData();
         txData.parse(new NulsByteBuffer(HexUtil.decode(hex)));
+    }
+
+    @Test
+    public void token1155TransferTxOffline() throws Exception {
+        Sender _sender = this.sender02;
+        String fromAddress = _sender.getSender();
+        String privateKey = _sender.getPriKey();
+
+        // 在线接口(不可跳过，一定要调用的接口) - 获取账户余额信息
+        Result accountBalanceR = NulsSDKTool.getAccountBalance(fromAddress, SDKContext.main_chain_id, SDKContext.main_asset_id);
+        Assert.assertTrue(JSONUtils.obj2PrettyJson(accountBalanceR), accountBalanceR.isSuccess());
+        Map balance = (Map) accountBalanceR.getData();
+        BigInteger senderFeeBalance = new BigInteger(balance.get("available").toString());
+        String nonce = balance.get("nonce").toString();
+
+        String toAddress = this.sender01.getSender();
+        String contractAddress = "tNULSeBaNC2FUGi8s8Fkg6AUjheG5cyxtprxQu";
+
+        // 转移tokenId
+        BigInteger tokenId = new BigInteger("12");
+        // 转移token数量
+        BigInteger tokenAmount = new BigInteger("2");
+
+
+        Long gasLimit = 200000l;
+
+        Result<Map> map = NulsSDKTool.token1155TransferTxOffline(fromAddress, senderFeeBalance, nonce, contractAddress, toAddress, tokenId, tokenAmount, gasLimit, 0, "token1155TransferTxOffline");
+        String txHex = map.getData().get("txHex").toString();
+        // 签名
+        Result res = NulsSDKTool.sign(txHex, fromAddress, privateKey);
+        Map signMap = (Map) res.getData();
+        // 在线接口 - 广播交易
+        String signedTxHex = signMap.get("txHex").toString();
+        System.out.println(String.format("signedTxHex: %s", signedTxHex));
+        Result<Map> broadcaseTxR = NulsSDKTool.broadcast(signedTxHex);
+        Assert.assertTrue(JSONUtils.obj2PrettyJson(broadcaseTxR), broadcaseTxR.isSuccess());
+        Map data = broadcaseTxR.getData();
+        String hash1 = (String) data.get("hash");
+        System.out.println(String.format("hash: %s", hash1));
     }
 
     @Test
@@ -153,10 +195,10 @@ public class ContractServiceTest {
         String sender = _sender.getSender();
         String priKey = _sender.getPriKey();
         BigInteger value = BigInteger.ZERO;
-        String contractAddress = "tNULSeBaN31HBrLhXsWDkSz1bjhw5qGBcjafVJ";
-        String methodName = "transferDesignatedAsset";
+        String contractAddress = "tNULSeBaNC2FUGi8s8Fkg6AUjheG5cyxtprxQu";
+        String methodName = "safeBatchTransferFrom";
         String methodDesc = "";
-        Object[] args = new Object[]{"tNULSeBaMrbMRiFAUeeAt6swb4xVBNyi81YL24", new BigDecimal("2").multiply(BigDecimal.TEN.pow(8)).toBigInteger(), 5, 1};
+        Object[] args = new Object[]{"tNULSeBaMvEtDfvZuukDf2mVyfGo3DdiN8KLRG", "tNULSeBaMnrs6JKrCy6TQdzYJZkMZJDng7QAsD", new Object[]{"33", "12"}, new Object[]{"3", "2"}, "blank data"};
         String remark = "remark_call_test";
 
         String signedTxHex = callOfflineHex(chainId, sender, priKey, value, contractAddress,
@@ -169,6 +211,9 @@ public class ContractServiceTest {
         String hash1 = (String) data.get("hash");
         System.out.println(String.format("hash: %s", hash1));
     }
+
+    //this.callContractTxOffline(fromAddress, senderBalance, nonce, null,contractAddress, gasLimit, Constant.NRC1155_METHOD_TRANSFER, null,
+    //        new Object[]{fromAddress, toAddress, tokenId.toString(), amount.toString(), "blank data"}, new String[]{"Address", "Address", "BigInteger", "BigInteger", "String"}, time, remark, null, null);
 
     /**
      * 调用合约转入多资产, 举例资产数据 5-1(NVT), 5-7(USDT)
@@ -659,6 +704,18 @@ public class ContractServiceTest {
         }
     }
 
+    @Test
+    public void invokeView() throws Exception {
+        ContractViewCallForm form = new ContractViewCallForm();
+        form.setContractAddress("tNULSeBaN5N97wF3YYZHTTHmpz7zv1JTJx9Z7Z");
+        form.setMethodName("userNftBalances");
+        List<String> list = new ArrayList<>();
+        list.add("tNULSeBaN3pt33tTJxgqR6E7KpDf4dy44JXw7t");
+        form.setArgs(new Object[]{"tNULSeBaMoixxbUovqmzPyJ2AwYFAX2evKbuy9", list.toArray()});
+        Result result = NulsSDKTool.invokeView(form);
+        System.out.println(JSONUtils.obj2PrettyJson(result));
+    }
+    
     private String callOfflineHex(int chainId, String sender, String priKey, BigInteger value, String contractAddress,
                                   String methodName, String methodDesc, Object[] args, String remark) throws JsonProcessingException {
         // 在线接口(可跳过) - 验证调用合约的合法性，可不验证
@@ -765,7 +822,7 @@ public class ContractServiceTest {
         return signedTxHex;
     }
 
-    Sender senderMain = new Sender("NULSd6HgZ8xEbCKo9J5MwgJYVy9F3Cpzvh2GY", "598f2ab7adc660b26021c771644d3eb540e7849134a5ef96a9bdec3223c169f0");
+    Sender senderMain = new Sender("NULSd6HgZ8xEbCKo9J5MwgJYVy9F3Cpzvh2GY", "???");
     Sender sender01 = new Sender("tNULSeBaMvEtDfvZuukDf2mVyfGo3DdiN8KLRG", "9ce21dad67e0f0af2599b41b515a7f7018059418bab892a7b68f283d489abc4b");
     Sender sender02 = new Sender("tNULSeBaMnrs6JKrCy6TQdzYJZkMZJDng7QAsD", "477059f40708313626cccd26f276646e4466032cabceccbf571a7c46f954eb75");
     Sender sender03 = new Sender("tNULSeBaMrbMRiFAUeeAt6swb4xVBNyi81YL24", "8212e7ba23c8b52790c45b0514490356cd819db15d364cbe08659b5888339e78");

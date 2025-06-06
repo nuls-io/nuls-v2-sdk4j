@@ -24,13 +24,18 @@
 package io.nuls.v2.jsonrpc;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.nuls.base.data.CoinData;
+import io.nuls.core.crypto.HexUtil;
 import io.nuls.core.parse.JSONUtils;
+import io.nuls.core.parse.MapUtils;
+import io.nuls.v2.model.dto.ContractViewCallForm;
 import io.nuls.v2.model.dto.RpcResult;
 import io.nuls.v2.util.JsonRpcUtil;
 import org.junit.Test;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: PierreLuo
@@ -46,4 +51,20 @@ public class JsonRpcTest {
         RpcResult result = JsonRpcUtil.request("getContract", params);
         System.out.println(JSONUtils.obj2PrettyJson(result));
     }
+
+    @Test
+    public void te1() throws Exception {
+        String hex = "0117020001f7351034da5cd539c7550dcc7b3f52475831ecc802000100a067f7050000000000000000000000000000000000000000000000000000000008e2a81a75ce26f58600011702000171302895f74292732dbac8377115406ccc17dbd10200010000e1f505000000000000000000000000000000000000000000000000000000000000000000000000170200011098eb2f1393790d4dedcc65312bb0cfb08c9aff0200010080969800000000000000000000000000000000000000000000000000000000000000000000000000";
+        CoinData coinData = new CoinData();
+        coinData.parse(HexUtil.decode(hex), 0);
+        System.out.println(coinData);
+
+        ContractViewCallForm form = new ContractViewCallForm();
+        Map<String, Object> params = MapUtils.beanToMap(form);
+        System.out.println(params);
+    }
+
+
+
+
 }
