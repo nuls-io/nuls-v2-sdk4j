@@ -985,15 +985,20 @@ public class NulsSDKTool {
             @Parameter(parameterName = "gasLimit", requestType = @TypeDescriptor(value = long.class), parameterDes = "设置合约执行消耗的gas上限"),
             @Parameter(parameterName = "args", requestType = @TypeDescriptor(value = Object[].class), parameterDes = "参数列表", canNull = true),
             @Parameter(parameterName = "argsType", requestType = @TypeDescriptor(value = String[].class), parameterDes = "参数类型列表", canNull = true),
-            @Parameter(parameterName = "remark", parameterDes = "交易备注", canNull = true)
+            @Parameter(parameterName = "remark", parameterDes = "交易备注", canNull = true),
+            @Parameter(parameterName = "contractAddress", parameterDes = "交易备注", canNull = true)
     })
     @ResponseData(name = "返回值", description = "返回一个Map对象", responseType = @TypeDescriptor(value = Map.class, mapKeys = {
             @Key(name = "hash", description = "交易hash"),
             @Key(name = "txHex", description = "交易序列化字符串"),
             @Key(name = "contractAddress", description = "生成的合约地址")
     }))
+    public static Result<Map> createContractTxOffline(String sender, BigInteger senderBalance, String nonce, String alias, String contractCode, long gasLimit, Object[] args, String[] argsType, String remark, String contractAddress) {
+        return contractService.createContractTxOffline(sender, senderBalance, nonce, alias, contractCode, gasLimit, args, argsType, remark, contractAddress);
+    }
+
     public static Result<Map> createContractTxOffline(String sender, BigInteger senderBalance, String nonce, String alias, String contractCode, long gasLimit, Object[] args, String[] argsType, String remark) {
-        return contractService.createContractTxOffline(sender, senderBalance, nonce, alias, contractCode, gasLimit, args, argsType, remark);
+        return contractService.createContractTxOffline(sender, senderBalance, nonce, alias, contractCode, gasLimit, args, argsType, remark, null);
     }
 
     @ApiOperation(description = "离线组装 - 调用合约的交易", order = 452)

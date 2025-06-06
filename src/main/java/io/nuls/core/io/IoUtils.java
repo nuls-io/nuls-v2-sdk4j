@@ -6,6 +6,8 @@ import io.nuls.core.model.ObjectUtils;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author tag
@@ -332,6 +334,30 @@ public class IoUtils {
         }
     }
 
+    public static List readLines(InputStream input) throws IOException {
+        InputStreamReader reader = new InputStreamReader(input);
+        return readLines((Reader)reader);
+    }
+
+    public static List readLines(InputStream input, String encoding) throws IOException {
+        if (encoding == null) {
+            return readLines(input);
+        } else {
+            InputStreamReader reader = new InputStreamReader(input, encoding);
+            return readLines((Reader)reader);
+        }
+    }
+
+    public static List readLines(Reader input) throws IOException {
+        BufferedReader reader = new BufferedReader(input);
+        List list = new ArrayList();
+
+        for(String line = reader.readLine(); line != null; line = reader.readLine()) {
+            list.add(line);
+        }
+
+        return list;
+    }
 
     /**
      * 通过字符输出流输出chars
