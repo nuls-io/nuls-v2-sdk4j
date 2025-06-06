@@ -70,7 +70,7 @@ public class AccountServiceTest {
 
     @Test
     public void testImportPriKey() {
-        Result result = NulsSDKTool.importPriKey("57b65cefbfcf73ec000158f3e6a98cfcac0ff36b70d68171955b87522360ddbf", password);
+        Result result = NulsSDKTool.importPriKey("???", password);
         System.out.println(result.getData());
         System.out.println(result);
     }
@@ -117,7 +117,7 @@ public class AccountServiceTest {
         List<SignDto> signDtoList = new ArrayList<>();
         SignDto signDto = new SignDto();
         signDto.setAddress("tNULSeBaMidSH7amSTjaNvVkL9VDdFEc9rUztf");
-        signDto.setPriKey("aa7a8d46f9e685de7e9b9c859e6386997633041aab172929689ded7c2f49c7d8");
+        signDto.setPriKey("???");
 //        signDto.setEncryptedPrivateKey("298d69f9a7ed29d734769945a1788beecc0498d596da622e1d89909af29c07629ccd8a9df1b60196a4659e0e3c6cf9ce");
 //        signDto.setPassword(password);
         signDtoList.add(signDto);
