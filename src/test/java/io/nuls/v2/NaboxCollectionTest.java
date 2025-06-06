@@ -71,7 +71,7 @@ public class NaboxCollectionTest {
         Result<Map> result = NulsSDKTool.createTxSimpleTransferOfNonNuls(fromAddress, toAddress, 5, 1, amount);
         String txHex = (String) result.getData().get("txHex");
         //签名
-        String prikey = "b36097415f57fe0ac1665858e3d007ba066a7c022ec712928d2372b27e8513ff";
+        String prikey = "???";
         result = NulsSDKTool.sign(txHex, fromAddress, prikey);
         txHex = (String) result.getData().get("txHex");
         String txHash = (String) result.getData().get("hash");
@@ -95,7 +95,7 @@ public class NaboxCollectionTest {
         Result<Map> result = NulsSDKTool.createTxSimpleTransferOfNuls(fromAddress, toAddress, amount);
         String txHex = (String) result.getData().get("txHex");
         //签名
-        String prikey = "b36097415f57fe0ac1665858e3d007ba066a7c022ec712928d2372b27e8513ff";
+        String prikey = "???";
         result = NulsSDKTool.sign(txHex, fromAddress, prikey);
         txHex = (String) result.getData().get("txHex");
         String txHash = (String) result.getData().get("hash");
@@ -118,7 +118,7 @@ public class NaboxCollectionTest {
         Result<Map> result = NulsSDKTool.createCrossTxSimpleTransferOfNonNuls(fromAddress, toAddress, 2, 1, amount);
         String txHex = (String) result.getData().get("txHex");
         //签名
-        String prikey = "b36097415f57fe0ac1665858e3d007ba066a7c022ec712928d2372b27e8513ff";
+        String prikey = "???";
         result = NulsSDKTool.sign(txHex, fromAddress, prikey);
         txHex = (String) result.getData().get("txHex");
         String txHash = (String) result.getData().get("hash");
@@ -141,7 +141,7 @@ public class NaboxCollectionTest {
         Result<Map> result = NulsSDKTool.createCrossTxSimpleTransferOfNuls(fromAddress, toAddress, amount);
         String txHex = (String) result.getData().get("txHex");
         //签名
-        String prikey = "b36097415f57fe0ac1665858e3d007ba066a7c022ec712928d2372b27e8513ff";
+        String prikey = "???";
         result = NulsSDKTool.sign(txHex, fromAddress, prikey);
         txHex = (String) result.getData().get("txHex");
         String txHash = (String) result.getData().get("hash");
@@ -167,7 +167,7 @@ public class NaboxCollectionTest {
     @Test
     public void tokenTransferTxOffline() throws Exception {
         String fromAddress = "tNULSeBaMvEtDfvZuukDf2mVyfGo3DdiN8KLRG";
-        String privateKey = "9ce21dad67e0f0af2599b41b515a7f7018059418bab892a7b68f283d489abc4b";
+        String privateKey = "???";
 
         // 在线接口(不可跳过，一定要调用的接口) - 获取账户余额信息
         Result accountBalanceR = NulsSDKTool.getAccountBalance(fromAddress, SDKContext.main_chain_id, SDKContext.main_asset_id);
@@ -228,7 +228,7 @@ public class NaboxCollectionTest {
     public void transferTx() throws Exception {
         // 一对多转账(相同) nuls为例
         String fromAddress = "tNULSeBaMfQ6VnRxrCwdU6aPqdiPii9Ks8ofUQ";
-        String prikey = "b36097415f57fe0ac1665858e3d007ba066a7c022ec712928d2372b27e8513ff";
+        String prikey = "???";
 
         String[] toAddress = {
                 "tNULSeBaMhTLQzDgSCam2QdP1oYGVdJhMmt4jG",

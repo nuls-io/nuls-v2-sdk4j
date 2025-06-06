@@ -24,9 +24,9 @@ public class AccountServiceTest {
 
     static String address = "tNULSeBaMkm6c3ShAFMzfDX8RKdapZdUcseSw8";
     static String pubKey = "03ac18d40eb3131f934441f81c631b3898097b606a84893da1559de61fe3d3cfe9";
-    static String priKey = "6df381435098e47b685cdc00fa1d7c66fa2ba9cc441179c6dd1a5686153fb0ee";
-    static String encryptedPrivateKey = "0c8e925d27660dbd04104455c001efe7a5d4cba8fc484d06506c8ff4baa653be2d69e31c971243e2185782cabbbe265a";
-    static String password = "nuls123456";
+    static String priKey = "???";
+    static String encryptedPrivateKey = "???";
+    static String password = "???";
 
 
     @Before
@@ -85,7 +85,7 @@ public class AccountServiceTest {
     @Test
     public void testGetPriKeyOffline() {
         String address = "TNVTdTSPFnCMgr9mzvgibQ4hKspVSGEc6XTKE";
-        String encryptedPrivateKey = "c515283abe7f653222ab5bcd11be650347c8ad0eb3f5bb72bfce3d88c3f5efa79d75db7bf2d0681745253313611a3524";
+        String encryptedPrivateKey = "???";
         Result result = NulsSDKTool.getPriKeyOffline(address, encryptedPrivateKey, password);
         Map map = (Map) result.getData();
         System.out.println(map);

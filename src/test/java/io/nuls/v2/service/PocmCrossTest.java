@@ -432,7 +432,7 @@ public class PocmCrossTest {
         return signedTxHex;
     }
 
-    Sender senderMain = new Sender("NULSd6HgZ8xEbCKo9J5MwgJYVy9F3Cpzvh2GY", "598f2ab7adc660b26021c771644d3eb540e7849134a5ef96a9bdec3223c169f0");
+    Sender senderMain = new Sender("NULSd6HgZ8xEbCKo9J5MwgJYVy9F3Cpzvh2GY", "???");
     Sender sender01 = new Sender("tNULSeBaMvEtDfvZuukDf2mVyfGo3DdiN8KLRG", "9ce21dad67e0f0af2599b41b515a7f7018059418bab892a7b68f283d489abc4b");
     Sender sender02 = new Sender("tNULSeBaMnrs6JKrCy6TQdzYJZkMZJDng7QAsD", "477059f40708313626cccd26f276646e4466032cabceccbf571a7c46f954eb75");
     Sender sender03 = new Sender("tNULSeBaMrbMRiFAUeeAt6swb4xVBNyi81YL24", "8212e7ba23c8b52790c45b0514490356cd819db15d364cbe08659b5888339e78");

@@ -12,15 +12,23 @@ import io.nuls.core.basic.Result;
 import io.nuls.core.crypto.ECKey;
 import io.nuls.core.crypto.HexUtil;
 import io.nuls.core.model.StringUtils;
+import io.nuls.base.data.Transaction;
+import io.nuls.base.signture.MultiSignTxSignature;
+import io.nuls.base.signture.P2PHKSignature;
+import io.nuls.core.basic.Result;
+import io.nuls.core.crypto.HexUtil;
+import io.nuls.core.parse.JSONUtils;
+import io.nuls.v2.enums.ChainFeeSettingType;
+import io.nuls.v2.model.ChainFeeSetting;
 import io.nuls.v2.model.dto.*;
 import io.nuls.v2.util.NulsSDKTool;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static io.nuls.v2.constant.Constant.NULS_ASSET_ID;
 import static io.nuls.v2.constant.Constant.NULS_CHAIN_ID;
@@ -29,9 +37,9 @@ public class TransationServiceTest {
 
     static String address = "8CPcA7kaUfbmbNhT6pHGvBhhK1NSKfCrQjdSL";
     static String pubKey = "03ac18d40eb3131f934441f81c631b3898097b606a84893da1559de61fe3d3cfe9";
-    static String priKey = "6df381435098e47b685cdc00fa1d7c66fa2ba9cc441179c6dd1a5686153fb0ee";
-    static String encryptedPrivateKey = "0c8e925d27660dbd04104455c001efe7a5d4cba8fc484d06506c8ff4baa653be2d69e31c971243e2185782cabbbe265a";
-    static String password = "abcd1234";
+    static String priKey = "";
+    static String encryptedPrivateKey = "";
+    static String password = "";
 
     static String packingAddress = "8CPcA7kag6XT1a2yoiTijYaJGY7jceebYWFFq";
 
@@ -39,6 +47,210 @@ public class TransationServiceTest {
     @Before
     public void before() {
         NulsSDKBootStrap.init(5, 2, "TNVT", "http://192.168.1.60:17004/");
+        //NulsSDKBootStrap.initTestWithChainFeeSetting("http://localhost:18004/", SETTING);
+        NulsSDKBootStrap.initTest("https://beta.api.nuls.io");
+        //NulsSDKBootStrap.initMain("https://api.nuls.io");
+    }
+
+    @Test
+    public void testCoinBase() throws Exception{
+        List<String> hashList = new ArrayList<>();
+        //hashList.add("312bd90e51c437a6588af53556ae7a19895c47775b9bc42a9da36be69277795d");
+        hashList.add("6339d96186eae20cc5b889e03383accd9adfea56e824652c560761f44d4ed8a7");
+
+        Set<String> coinBaseTxHashSet = new LinkedHashSet<>();
+        for (String hash : hashList) {
+            Result tx = NulsSDKTool.getTx(hash);
+            TransactionDto txInfo = (TransactionDto) tx.getData();
+            BlockDto block = (BlockDto) NulsSDKTool.getBlock(txInfo.getBlockHeight()).getData();
+            TransactionDto coinbaseTx = block.getTxs().get(0);
+            if (!coinBaseTxHashSet.add(coinbaseTx.getHash())) {
+                continue;
+            }
+            boolean exist = false;
+            List<CoinTosDto> tos = coinbaseTx.getTo();
+            for (CoinTosDto to : tos) {
+                if (AddressTool.validContractAddress(AddressTool.getAddress(to.getAddress()), 1)) {
+                    System.out.println(JSONUtils.obj2json(to));
+                    exist = true;
+                }
+            }
+            if (exist) {
+                System.out.println(String.format("coinbase tx [%s] exist contract", coinbaseTx.getHash()));
+            }
+        }
+        System.out.println("CoinBase Tx Hash: ");
+        coinBaseTxHashSet.forEach(c -> System.out.println(c));
+    }
+
+    @Test
+    public void desTest() throws Exception {
+        String pri = "???";
+        String addr = "TNVTdTSPQtQhy2xCY95XnJiDK6XAGw3EfZeKD";
+        String hex = "10004f63ad672436633465653766312d376137392d343063312d623836332d363833663061646130616536a8020001aafa57b0d1d4fe629b58ad2a5d8fe412ca6a4bf50200023c16df1ed0a0beec061e67b42c866782967449280000000000000000000000000000000000000000000000000000000000000000e0930400000000001900000000000000087472616e7366657200020126744e554c536542614d75427a4234636a725354626568356b7a32714538716178586b7473335701153130303030303030303030303030303030303030308c0117020001aafa57b0d1d4fe629b58ad2a5d8fe412ca6a4bf502000100008e0c0100000000000000000000000000000000000000000000000000000000080e761c0f826eefb8000117020001e6d9409c5bdf62965998a4ddc51a0b8ee51078be0200010080969800000000000000000000000000000000000000000000000000000000000000000000000000006921037c92dfbdafb4de8f1249c2b2c34c693d1525ae47eac6f95146c8233e107879ad46304402200a851e51fef4bd936b3a66cde5115407d35fd3041c042ff73b39b748efb7f7b402205902ddd4cb776da52a8957712e11b4b921c1eefc76daecf6471b8c6087516182";
+        //Result sign = NulsSDKTool.sign(hex, addr, pri);
+        Transaction tx = new Transaction();
+        tx.parse(HexUtil.decode(hex), 0);
+        System.out.println(tx);
+        //byte[] coinData = tx.getCoinData();
+        //CoinData obj = new CoinData();
+        //obj.parse(coinData, 0);
+        //System.out.println(sign);
+    }
+
+    @Test
+    public void testCreateTxByType() throws Exception {
+        //0.1 NULS
+        //0.00000100 BTC
+        //0.00003 ETH
+        String teamFeeAddr = "tNULSeBaMg1rfWF5aieibDXK2dzDuar45sgtsP";
+        BigInteger teamFeeNULS = new BigDecimal("0.1").movePointRight(8).toBigInteger();
+        BigInteger teamFeeBTC = new BigDecimal("0.000001").movePointRight(8).toBigInteger();
+        BigInteger teamFeeETH = new BigDecimal("0.00003").movePointRight(18).toBigInteger();
+
+        //SDKContext.CHAIN_FEE_SETTING_MAP.get("ETH").setAssetId("5-2");
+        String from = "tNULSeBaMvEtDfvZuukDf2mVyfGo3DdiN8KLRG";
+        String to = "tNULSeBaMnrs6JKrCy6TQdzYJZkMZJDng7QAsD";
+        BigInteger amount = new BigDecimal("0.123").movePointRight(8).toBigInteger();
+        long time = System.currentTimeMillis() / 1000;
+        String remark = "feeType test";
+
+        Result<Map> result;
+        String txHex;
+
+        /*result = NulsSDKTool.callContractTxOfflineByFeeType(
+                "tNULSeBaMvCL5jpJiaiUmo2sBEFAVbypXG692o",
+                new BigDecimal("100").movePointRight(8).toBigInteger(),
+                "tNULSeBaN1HcXPtSAdowt43DJKey1txjR6bSCu",
+                200000,
+                "depositForOwn",
+                "",
+                null, null, null, null,
+                ChainFeeSettingType.NULS,
+                teamFeeAddr,
+                teamFeeNULS);
+        System.out.println(JSONUtils.obj2PrettyJson(result));*/
+
+        // String fromAddress, String toAddress, BigInteger amount, long time, String remark, ChainFeeSettingType feeType
+        /*result = NulsSDKTool.createTxSimpleTransferOfNulsByFeeType(from, to, amount, time, remark, ChainFeeSettingType.NULS, null, null);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println("transfer NULS by NULS fee: " + txHex);
+        this.signAndBoradcast(txHex);*/
+        result = NulsSDKTool.createTxSimpleTransferOfNulsByFeeType(from, to, amount, time, remark, ChainFeeSettingType.ETH, null, null);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println("transfer NULS by ETH fee: " + txHex);
+        this.signAndBoradcast(txHex);
+        result = NulsSDKTool.createTxSimpleTransferOfNulsByFeeType(from, to, amount, time, remark, ChainFeeSettingType.BTC, null, null);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println("transfer NULS by BTC fee: " + txHex);
+        this.signAndBoradcast(txHex);
+
+        /*result = NulsSDKTool.createTxSimpleTransferOfNulsByFeeType(from, to, amount, time, remark, ChainFeeSettingType.NULS, teamFeeAddr, teamFeeNULS);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println("transfer NULS by NULS fee & Team Fee: " + txHex);
+        this.signAndBoradcast(txHex);*/
+        result = NulsSDKTool.createTxSimpleTransferOfNulsByFeeType(from, to, amount, time, remark, ChainFeeSettingType.ETH, teamFeeAddr, teamFeeETH);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println("transfer NULS by ETH fee & Team Fee: " + txHex);
+        this.signAndBoradcast(txHex);
+        result = NulsSDKTool.createTxSimpleTransferOfNulsByFeeType(from, to, amount, time, remark, ChainFeeSettingType.BTC, teamFeeAddr, teamFeeBTC);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println("transfer NULS by BTC fee & Team Fee: " + txHex);
+        this.signAndBoradcast(txHex);
+
+        int assetChainId ;
+        int assetId;
+        String transferSymbol;
+
+        /*assetChainId = 5;
+        assetId = 1;
+        transferSymbol = "NVT";
+        // String fromAddress, String toAddress, int assetChainId, int assetId, BigInteger amount, long time, String remark, ChainFeeSettingType feeType
+        result = NulsSDKTool.createTxSimpleTransferOfNonNulsByFeeType(from, to, assetChainId, assetId, amount, time, remark, ChainFeeSettingType.NULS, null, null);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println(String.format("transfer %s by NULS fee: %s", transferSymbol, txHex));
+        result = NulsSDKTool.createTxSimpleTransferOfNonNulsByFeeType(from, to, assetChainId, assetId, amount, time, remark, ChainFeeSettingType.ETH, null, null);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println(String.format("transfer %s by ETH fee: %s" , transferSymbol, txHex));
+        result = NulsSDKTool.createTxSimpleTransferOfNonNulsByFeeType(from, to, assetChainId, assetId, amount, time, remark, ChainFeeSettingType.BTC, null, null);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println(String.format("transfer %s by BTC fee: %s" , transferSymbol, txHex));
+        result = NulsSDKTool.createTxSimpleTransferOfNonNulsByFeeType(from, to, assetChainId, assetId, amount, time, remark, ChainFeeSettingType.NULS, teamFeeAddr, teamFeeNULS);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println(String.format("transfer %s by NULS fee & Team Fee: %s", transferSymbol, txHex));
+        result = NulsSDKTool.createTxSimpleTransferOfNonNulsByFeeType(from, to, assetChainId, assetId, amount, time, remark, ChainFeeSettingType.ETH, teamFeeAddr, teamFeeETH);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println(String.format("transfer %s by ETH fee & Team Fee: %s", transferSymbol, txHex));
+        result = NulsSDKTool.createTxSimpleTransferOfNonNulsByFeeType(from, to, assetChainId, assetId, amount, time, remark, ChainFeeSettingType.BTC, teamFeeAddr, teamFeeBTC);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println(String.format("transfer %s by BTC fee & Team Fee: %s" , transferSymbol, txHex));
+
+        assetChainId = 2;
+        assetId = 202;
+        transferSymbol = "ETH";
+        // String fromAddress, String toAddress, int assetChainId, int assetId, BigInteger amount, long time, String remark, ChainFeeSettingType feeType
+        result = NulsSDKTool.createTxSimpleTransferOfNonNulsByFeeType(from, to, assetChainId, assetId, amount, time, remark, ChainFeeSettingType.NULS, null, null);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println(String.format("transfer %s by NULS fee: %s", transferSymbol, txHex));
+        result = NulsSDKTool.createTxSimpleTransferOfNonNulsByFeeType(from, to, assetChainId, assetId, amount, time, remark, ChainFeeSettingType.ETH, null, null);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println(String.format("transfer %s by ETH fee: %s" , transferSymbol, txHex));
+        result = NulsSDKTool.createTxSimpleTransferOfNonNulsByFeeType(from, to, assetChainId, assetId, amount, time, remark, ChainFeeSettingType.BTC, null, null);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println(String.format("transfer %s by BTC fee: %s" , transferSymbol, txHex));
+        result = NulsSDKTool.createTxSimpleTransferOfNonNulsByFeeType(from, to, assetChainId, assetId, amount, time, remark, ChainFeeSettingType.NULS, teamFeeAddr, teamFeeNULS);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println(String.format("transfer %s by NULS fee & Team Fee: %s", transferSymbol, txHex));
+        result = NulsSDKTool.createTxSimpleTransferOfNonNulsByFeeType(from, to, assetChainId, assetId, amount, time, remark, ChainFeeSettingType.ETH, teamFeeAddr, teamFeeETH);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println(String.format("transfer %s by ETH fee & Team Fee: %s", transferSymbol, txHex));
+        result = NulsSDKTool.createTxSimpleTransferOfNonNulsByFeeType(from, to, assetChainId, assetId, amount, time, remark, ChainFeeSettingType.BTC, teamFeeAddr, teamFeeBTC);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println(String.format("transfer %s by BTC fee & Team Fee: %s" , transferSymbol, txHex));*/
+
+        String contractAddress = "tNULSeBaMyPq6kY8wbofhqs1qpLhNGMJkbRpPh";//testnet
+        //String contractAddress = "tNULSeBaMwB4nKCwEGiwjzzGHseHEeeSAEtChf";//dev
+        amount = new BigDecimal("0.123").movePointRight(8).toBigInteger();
+        long gasLimit = 500000;
+        // String fromAddress, String toAddress, String contractAddress, long gasLimit, BigInteger amount, long time, String remark, ChainFeeSettingType feeType
+        result = NulsSDKTool.createTokenTransferTxByFeeType(from, to, contractAddress, gasLimit, amount, time, remark, ChainFeeSettingType.NULS, null, null);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println("transfer NRC20 by NULS fee: " + txHex);
+        this.signAndBoradcast(txHex);
+        result = NulsSDKTool.createTokenTransferTxByFeeType(from, to, contractAddress, gasLimit, amount, time, remark, ChainFeeSettingType.ETH, null, null);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println("transfer NRC20 by ETH fee: " + txHex);
+        this.signAndBoradcast(txHex);
+        result = NulsSDKTool.createTokenTransferTxByFeeType(from, to, contractAddress, gasLimit, amount, time, remark, ChainFeeSettingType.BTC, null, null);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println("transfer NRC20 by BTC fee: " + txHex);
+        this.signAndBoradcast(txHex);
+        result = NulsSDKTool.createTokenTransferTxByFeeType(from, to, contractAddress, gasLimit, amount, time, remark, ChainFeeSettingType.NULS, teamFeeAddr, teamFeeNULS);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println("transfer NRC20 by NULS fee & Team Fee: " + txHex);
+        this.signAndBoradcast(txHex);
+        result = NulsSDKTool.createTokenTransferTxByFeeType(from, to, contractAddress, gasLimit, amount, time, remark, ChainFeeSettingType.ETH, teamFeeAddr, teamFeeETH);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println("transfer NRC20 by ETH fee & Team Fee: " + txHex);
+        this.signAndBoradcast(txHex);
+        result = NulsSDKTool.createTokenTransferTxByFeeType(from, to, contractAddress, gasLimit, amount, time, remark, ChainFeeSettingType.BTC, teamFeeAddr, teamFeeBTC);
+        txHex = (String) result.getData().get("txHex");
+        System.out.println("transfer NRC20 by BTC fee & Team Fee: " + txHex);
+        this.signAndBoradcast(txHex);
+
+
+    }
+
+    private void signAndBoradcast(String txHex) throws Exception {
+        Result<Map> result = NulsSDKTool.sign(txHex, "tNULSeBaMvEtDfvZuukDf2mVyfGo3DdiN8KLRG", "9ce21dad67e0f0af2599b41b515a7f7018059418bab892a7b68f283d489abc4b");
+        txHex = (String) result.getData().get("txHex");
+        System.out.println(String.format("signed tx: %s", txHex));
+        String txHash = (String) result.getData().get("hash");
+        System.out.println(String.format("hash: %s", txHash));
+        //广播
+        result = NulsSDKTool.broadcast(txHex);
+        System.out.println(String.format("result: %s", JSONUtils.obj2PrettyJson(result)));
+        TimeUnit.SECONDS.sleep(8);
     }
 
     @Test
@@ -79,16 +291,16 @@ public class TransationServiceTest {
 
         CoinFromDto from = new CoinFromDto();
         from.setAddress(fromAddress);
-        from.setAmount(new BigInteger("10000000").add(fee));
+        from.setAmount(new BigInteger("20000000").add(fee));
         from.setAssetChainId(SDKContext.main_chain_id);
         from.setAssetId(SDKContext.main_asset_id);
-        from.setNonce("0000000000000000");
+        from.setNonce("11f5e4619e0a12c2");
         inputs.add(from);
 
         List<CoinToDto> outputs = new ArrayList<>();
         CoinToDto to = new CoinToDto();
         to.setAddress(toAddress);
-        to.setAmount(new BigInteger("10000000"));
+        to.setAmount(new BigInteger("20000000"));
         to.setAssetChainId(SDKContext.main_chain_id);
         to.setAssetId(SDKContext.main_asset_id);
         outputs.add(to);
@@ -99,14 +311,15 @@ public class TransationServiceTest {
         Result<Map> result = NulsSDKTool.createTransferTxOffline(transferDto);
         String txHex = (String) result.getData().get("txHex");
 
-        //签名
-        String prikey = "";
-        result = NulsSDKTool.sign(txHex, fromAddress, prikey);
-        txHex = (String) result.getData().get("txHex");
-
-        String txHash = (String) result.getData().get("hash");
-        //广播
-        result = NulsSDKTool.broadcast(txHex);
+        System.out.println(txHex);
+        ////签名
+        //String prikey = "";
+        //result = NulsSDKTool.sign(txHex, fromAddress, prikey);
+        //txHex = (String) result.getData().get("txHex");
+        //
+        //String txHash = (String) result.getData().get("hash");
+        ////广播
+        //result = NulsSDKTool.broadcast(txHex);
     }
 
 
@@ -249,7 +462,7 @@ public class TransationServiceTest {
         String txHex = (String) result.getData().get("txHex");
 
         //签名
-        String prikey = "33d7eebc0efab7a0c9959d0ac2297923e913ba14028edb4fd9f02e98de2803cb";
+        String prikey = "???";
         result = NulsSDKTool.sign(txHex, fromAddress, prikey);
         txHex = (String) result.getData().get("txHex");
 
@@ -260,6 +473,21 @@ public class TransationServiceTest {
         System.out.println(hash);
     }
 
+
+    @Test
+    public void desMultiSignTx() throws Exception {
+        String hex = "02008fc0856700008c011701000351ea1fbc0fe65d579069201a58a99b6fc752c8ed01000100201d9a000000000000000000000000000000000000000000000000000000000008000000000000000000011701000129562d0f704057c97103756e823b6cfe02c2146d0100010080969800000000000000000000000000000000000000000000000000000000000000000000000000fd0c0204062102089c6782dac3c9dc3c9d196c31aeda179029c4cc8bac2013b50d6b9314aaebd6210325f8f319bd2cc6b1372692111792e2e04cd4511ace2497617321af7a93db95692103439a5c8fe9928370bf86cd228203ff4088ef54605ece18743a99b8b5b6cc09512103a1f65c80936606df6185fe9bd808d7dd5201e1e88f2a475f6b2a70d81f7f52e42103b0d0d5780059e25d9b4c2ab4466a15f5ffc4a7bb0e6d2198543e6233ce5543f52103d18c55fe704458198da46c9ad44c3a2a552fcfa034616a78953db6f9d9d3c7f6210325f8f319bd2cc6b1372692111792e2e04cd4511ace2497617321af7a93db956947304502210094ec9b7df115bfd337810a41bb5c9a1cc80170045f3aa83e76657817e21f05bd022017a63484712c028f6d6a984bf0bb3e22324b3c4616972fc5bcafbbc288d7f93a2103d18c55fe704458198da46c9ad44c3a2a552fcfa034616a78953db6f9d9d3c7f6473045022100a89ff570346f1fafbd041a550cd49ecbfecaccfe481bf97b44c24de20acf6b7e02200501713cfebed6d7e722f20a85aa176d93ce1cd24b16cf2b37757e3b331cf9112103a1f65c80936606df6185fe9bd808d7dd5201e1e88f2a475f6b2a70d81f7f52e44730450221009380de2e2a28044b6f1c0d9dac9c88f7742dec9024cc1d27c593a68db5fef62202204e9b0eb7f99f447075518f1e55b502203b32a16113fc77baf7042fff3125bd7d";
+        Transaction tx = new Transaction();
+        tx.parse(HexUtil.decode(hex), 0);
+        byte[] signature = tx.getTransactionSignature();
+        MultiSignTxSignature txSignature = new MultiSignTxSignature();
+        txSignature.parse(signature, 0);
+        System.out.println(txSignature.getSignersCount());
+        List<P2PHKSignature> list = txSignature.getP2PHKSignatures();
+        for (P2PHKSignature s : list) {
+            System.out.println(HexUtil.encode(s.getPublicKey()));
+        }
+    }
 
     @Test
     public void testCreateMultiSignTx() {
