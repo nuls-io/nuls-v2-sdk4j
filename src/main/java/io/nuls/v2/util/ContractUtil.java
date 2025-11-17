@@ -26,8 +26,8 @@ package io.nuls.v2.util;
 import io.nuls.base.RPCUtil;
 import io.nuls.base.basic.AddressTool;
 import io.nuls.base.basic.NulsByteBuffer;
-import io.nuls.base.basic.TransactionFeeCalculator;
 import io.nuls.base.data.*;
+import io.nuls.base.signture.P2PHKSignature;
 import io.nuls.core.basic.NulsData;
 import io.nuls.core.basic.Result;
 import io.nuls.core.basic.VarInt;
@@ -36,6 +36,7 @@ import io.nuls.core.exception.NulsException;
 import io.nuls.core.log.Log;
 import io.nuls.core.model.LongUtils;
 import io.nuls.core.model.StringUtils;
+import io.nuls.v2.SDKContext;
 import io.nuls.v2.constant.Constant;
 import io.nuls.v2.error.ContractErrorCode;
 import io.nuls.v2.model.dto.AccountAmountDto;
@@ -50,6 +51,7 @@ import io.nuls.v2.txdata.DeleteContractData;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -57,6 +59,8 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
+import static io.nuls.base.basic.TransactionFeeCalculator.KB;
+import static io.nuls.base.basic.TransactionFeeCalculator.NORMAL_PRICE_PRE_1024_BYTES;
 import static io.nuls.core.constant.TxType.*;
 import static io.nuls.core.model.StringUtils.isBlank;
 import static io.nuls.v2.constant.Constant.*;
@@ -400,7 +404,7 @@ public class ContractUtil {
             tx.setCoinData(coinData.serialize());
             tx.setTxData(callContractData.serialize());
 
-            BigInteger txSizeFee = TransactionFeeCalculator.getNormalUnsignedTxFee(tx.getSize() + 130);
+            BigInteger txSizeFee = getNormalUnsignedTxFee(tx.getSize() + 130);
             feeAccountFrom.setAmount(feeAccountFrom.getAmount().add(txSizeFee));
 
             tx.setCoinData(coinData.serialize());
@@ -409,6 +413,16 @@ public class ContractUtil {
             Log.error(e);
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    public static final BigInteger getNormalUnsignedTxFee(int size) {
+        BigInteger price = new BigDecimal(NORMAL_PRICE_PRE_1024_BYTES).movePointRight(SDKContext.decimals - 8).toBigInteger();
+        size += P2PHKSignature.SERIALIZE_LENGTH;
+        BigInteger fee = price.multiply(new BigInteger(String.valueOf(size/KB)));
+        if (size % KB > 0) {
+            fee = fee.add(price);
+        }
+        return fee;
     }
 
     public static DeleteContractTransaction newDeleteTx(int chainId, int assetsId, BigInteger senderBalance, String nonce, DeleteContractData deleteContractData, String remark) {
@@ -474,7 +488,7 @@ public class ContractUtil {
             coinData.addTo(coinTo);
         }
 
-        BigInteger fee = TransactionFeeCalculator.getNormalUnsignedTxFee(txSize + txDataSize + calcSize(coinData));
+        BigInteger fee = getNormalUnsignedTxFee(txSize + txDataSize + calcSize(coinData));
         totalValue = totalValue.add(fee);
         if (senderBalance.compareTo(totalValue) < 0) {
             // Insufficient balance

@@ -1,6 +1,8 @@
 package io.nuls.v2;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.nuls.base.data.Transaction;
+import io.nuls.base.signture.MultiSignTxSignature;
 import io.nuls.core.basic.Result;
 import io.nuls.core.crypto.ECIESUtil;
 import io.nuls.core.crypto.HexUtil;
@@ -32,7 +34,8 @@ public class AccountServiceTest {
 
     @Before
     public void before() {
-        NulsSDKBootStrap.initTest("http://beta.api.nuls.io");
+        //NulsSDKBootStrap.initTest("http://beta.api.nuls.io");
+        NulsSDKBootStrap.initMain("");
     }
 
     @Test
@@ -97,7 +100,7 @@ public class AccountServiceTest {
         AccountKeyStoreDto dto = new AccountKeyStoreDto();
         dto.setAddress("tNULSeBaMhZzUJghK8G8pQDwjVHwmgDSK2698F");
         dto.setPubKey("02f8fdf297dfdb2d4dc92698d2cb8988e15f9a63b39f1db32bf8c74071b7ee2462");
-        dto.setEncryptedPrivateKey("87c7946d48e4e056aee42baa1fecab604620d55b9c44dd73b33b1bc16a12a10799cf7fc844116c6f9317c988bbcf32e2");
+        dto.setEncryptedPrivateKey("xxx");
         Result result = NulsSDKTool.importKeystore(dto, password);
         System.out.println(result.getData());
     }
@@ -119,7 +122,7 @@ public class AccountServiceTest {
         SignDto signDto = new SignDto();
         signDto.setAddress("tNULSeBaMidSH7amSTjaNvVkL9VDdFEc9rUztf");
         signDto.setPriKey("???");
-//        signDto.setEncryptedPrivateKey("298d69f9a7ed29d734769945a1788beecc0498d596da622e1d89909af29c07629ccd8a9df1b60196a4659e0e3c6cf9ce");
+//        signDto.setEncryptedPrivateKey("xxx");
 //        signDto.setPassword(password);
         signDtoList.add(signDto);
 
@@ -130,14 +133,39 @@ public class AccountServiceTest {
 
     @Test
     public void testMultiSign() {
-        String txHex = "02002ef2435d0672656d61726b008c0117020003f6231825aa05e4d25b4772909a15c9ba3c0b6fe202000100402a86481700000000000000000000000000000000000000000000000000000008e2a45f6068c4bb7a00011702000191866cefc8c9e1181b4e1e068b64fa288405b3e60200010000e87648170000000000000000000000000000000000000000000000000000000000000000000000460202210377a7e02381a11a1efe3995d1bced0b3e227cb058d7b09f615042123640f5b8db2103f66892ff89daf758a5585aed62a3f43b0a12cbec8955c3b155474071e156a8a1";
+        String txHex = "02007ad64c6800008c01170100037ca289208cef62a3572f4680fb77d59a0a7d2fe201000100e0c810000000000000000000000000000000000000000000000000000000000008190dcbcad078dd9f000117010001b6bb67f692db16fb45739610f39a9ab56160897f0100010040420f0000000000000000000000000000000000000000000000000000000000000000000000000046020221023a31fd7232e027ef06a6950d4e6a68b1fb24fea4eb3e913a2f35b0da1addaa9d2103bf7f76fed8161c20fc54404cfb29725fb9a415990fe9cb786a84d00c11a0324c";
         SignDto signDto = new SignDto();
-        signDto.setAddress("tNULSeBaMoDwD9pvR4cYMvBdJYPs9LmTnHyq8y");
-        signDto.setPriKey("???");
+        signDto.setAddress("NULSd6Hh91ujCRFuJaJxwENAExBW3MWFxA25m");
+        signDto.setPriKey("xxx");
 
         Result result = NulsSDKTool.multiSign(signDto, txHex);
         Map map = (Map) result.getData();
         System.out.println(map);
+    }
+
+    @Test
+    public void testSign1() {
+        String txHex = "02007ad64c6800008c01170100037ca289208cef62a3572f4680fb77d59a0a7d2fe201000100e0c810000000000000000000000000000000000000000000000000000000000008190dcbcad078dd9f000117010001b6bb67f692db16fb45739610f39a9ab56160897f0100010040420f00000000000000000000000000000000000000000000000000000000000000000000000000af020221023a31fd7232e027ef06a6950d4e6a68b1fb24fea4eb3e913a2f35b0da1addaa9d2103bf7f76fed8161c20fc54404cfb29725fb9a415990fe9cb786a84d00c11a0324c2103bf7f76fed8161c20fc54404cfb29725fb9a415990fe9cb786a84d00c11a0324c46304402207e0de09269f1c73eaaba4a28a0012788db558bff43a7a0eab3824c6b4d37c95d022030beec7ad779212db1a6c06ea99879cc87a3e0e3dc2238e042fbce8a148720c3";
+        String address = "NULSd6Hgj21NKWSNuEgwPXCSddpmNy825sbN7";
+        String priKey = "xxx";
+        //String address = "NULSd6Hgj51fZacC38EhwKZCvzq4K6nVjuMkv";
+        //String priKey = "xxx";
+
+        Result result = NulsSDKTool.sign(txHex, address, priKey);
+        Map map = (Map) result.getData();
+        System.out.println(map);
+    }
+
+    @Test
+    public void desTx() throws Exception {
+        String hex = "02003ae64b6800008c01170100037ca289208cef62a3572f4680fb77d59a0a7d2fe201000100b0ad010000000000000000000000000000000000000000000000000000000000080000000000000000000117010001b6bb67f692db16fb45739610f39a9ab56160897f0100010010270000000000000000000000000000000000000000000000000000000000000000000000000000fd1a01020221023a31fd7232e027ef06a6950d4e6a68b1fb24fea4eb3e913a2f35b0da1addaa9d2103bf7f76fed8161c20fc54404cfb29725fb9a415990fe9cb786a84d00c11a0324c21023a31fd7232e027ef06a6950d4e6a68b1fb24fea4eb3e913a2f35b0da1addaa9d4630440220351f1c58ad2ac8c6a57b32b40f64488cda63d0de851fd9c2a82bcc327955ec2202206653ee65c152cb38ed329d70a31440d9ec6a52390fe07385b4d8f6b1edb2334e2103bf7f76fed8161c20fc54404cfb29725fb9a415990fe9cb786a84d00c11a0324c483046022100ced02a7ba129edb75d63c86a99375d00a87d0f22fc28dcadfd924d3f4954f449022100e17840bbce3335121543f2799f9a6d8462ccdf5251806342f71d4a0233eaa500";
+        Transaction tx = new Transaction();
+        tx.parse(HexUtil.decode(hex), 0);
+        System.out.println(tx.getTransactionSignature().length);
+        System.out.println(HexUtil.encode(tx.getTransactionSignature()));
+        MultiSignTxSignature txSignature = new MultiSignTxSignature();
+        txSignature.parse(tx.getTransactionSignature(), 0);
+        System.out.println(txSignature.size());
     }
 
     @Test
@@ -202,7 +230,7 @@ public class AccountServiceTest {
 
     @Test
     public void encrypAndDecryptMsgTest() throws Exception {
-        String pri = "9ce21dad67e0f0af2599b41b515a7f7018059418bab892a7b68f283d489abc4b";
+        String pri = "xxx";
         String pub = "03958b790c331954ed367d37bac901de5c2f06ac8368b37d7bd6cd5ae143c1d7e3";
         String msg = "werwerwerwe新光天地，没有#$%^&*()cvbcvbcvb";
         byte[] encrypt = ECIESUtil.encrypt(HexUtil.decode(pub), msg.getBytes(StandardCharsets.UTF_8));

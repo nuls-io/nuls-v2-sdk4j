@@ -18,7 +18,7 @@ import java.math.BigInteger;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static io.nuls.v2.constant.Constant.CONTRACT_MINIMUM_PRICE;
+import static io.nuls.v2.SDKContext.CONTRACT_MINIMUM_PRICE;
 import static io.nuls.v2.constant.Constant.MAX_GASLIMIT;
 
 public class NulswapTest {

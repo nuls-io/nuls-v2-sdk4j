@@ -27,7 +27,6 @@ public interface Constant {
     String BALANCE_TRIGGER_METHOD_DESC = "() return void";
 
     long MAX_GASLIMIT = 10000000;
-    long CONTRACT_MINIMUM_PRICE = 25;
 
     /**
      * NRC20

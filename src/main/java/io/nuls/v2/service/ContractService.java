@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.nuls.core.constant.CommonCodeConstanst.NULL_PARAMETER;
-import static io.nuls.v2.constant.Constant.CONTRACT_MINIMUM_PRICE;
+import static io.nuls.v2.SDKContext.CONTRACT_MINIMUM_PRICE;
 import static io.nuls.v2.error.AccountErrorCode.ADDRESS_ERROR;
 import static io.nuls.v2.error.ContractErrorCode.CONTRACT_ALIAS_FORMAT_ERROR;
 import static io.nuls.v2.util.ContractUtil.getFailed;
