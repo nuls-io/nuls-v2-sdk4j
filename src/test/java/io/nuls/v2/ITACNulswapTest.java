@@ -18,6 +18,9 @@ import org.junit.Test;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -48,7 +51,7 @@ public class ITACNulswapTest {
     String betaUrl = "https://api.itac.club/";
     String devUrl = "https://api.itac.club/";
     String treasury = "xxx";
-    String _feeToSetter = "xxx";
+    String multiSign = "xxx";
     String WNULS = "xxx";
     String burn = "xxx";
     String pairCopy = "xxx";
@@ -77,7 +80,7 @@ public class ITACNulswapTest {
 
         NulsSDKBootStrap.init(101, "ITAC", getTestUrl());
         treasury = "ITACdAD3FsBoeiB5ydfhwUwqA9r3G9U9L4WAmo";
-        _feeToSetter = "ITACdAD3FoeNTcmneA4gEj3neCz2ZUksbGmJ7w";
+        multiSign = "ITACdAD3FoeNTcmneA4gEj3neCz2ZUksbGmJ7w";
         WNULS = "ITACdAD3G6VGVLo1MnBRQnpRo6nyhw39L814Xc";
         burn = "ITACdAD3FxXBbzZGdDe7nDcWgtyMM6JLnHWvDw";
         lpTokenCopy = "ITACdAD3G7L8uRopnWNVqbqyuoPWijUMovMRWM";
@@ -87,23 +90,53 @@ public class ITACNulswapTest {
     void main() {
         AddressTool.addPrefix(101, "ITAC");
         NulsSDKBootStrap.init(101, "ITAC", getMainUrl());
-        treasury = "xxx";
-        _feeToSetter = "xxx";
-        WNULS = "xxx";
-        burn = "xxx";
-        lpTokenCopy = "xxx";
-        pairCopy = "xxx";
-        this.sender01 = new Sender("xxx",
-                "???");
+        treasury = "ITACdAD3FspbtDeShEaUajocRajER5JqG9bPF7";
+        multiSign = "ITACdAD3GDqvvJRaKSBGJUB5ELUn4RgdT3ffJb";
+        WNULS = "ITACdAD3G7ovt5DZQvSd7AQwAx343vyHcjTMXD";
+        burn = "ITACdAD3FxPsfAecoaCMi8fTwmkz5px2BtLtgM";
+        lpTokenCopy = "ITACdAD3Fvr779XP7LsBwEf1Coqwzc4eLFDkqC";
+        pairCopy = "ITACdAD3G9bCk88gWSwXc7dhScpA2xNCMcyniC";
+        this.sender01 = new Sender("ITACdAD3FjfnD3p9gCB9vhk8R7vDFfo2gqUvjA",
+                "xxx");
     }
 
     @Before
     public void before() {
-        test();
-        //main();
+        //test();
+        main();
     }
 
 
+    @Test
+    public void createMultiSigAccountTest() throws Exception {
+        Map<String, Object> params = new HashMap<>();
+        List<String> pubKeys = new ArrayList<>();
+
+        //pubKeys.add("03b1d9a50878c1c4dde4b014439b850075497e9e492c274911855c3b1f7d5b59eb");
+        //pubKeys.add("03a1f65c80936606df6185fe9bd808d7dd5201e1e88f2a475f6b2a70d81f7f52e4");
+        //pubKeys.add("0325f8f319bd2cc6b1372692111792e2e04cd4511ace2497617321af7a93db9569");
+        //pubKeys.add("03871958b1127f6d68e15a4a0062b2fdcbe4b29424de01a1a18da6166a06c19e8a");
+        //pubKeys.add("0314c6334ad56204a764f10488f1470043453de9b55d8584f176f53e6085dbc03e");
+        //pubKeys.add("029351db507c3370e2b5eed455e6d838042987d092ce31426cefa3acd5b1c22ea9");
+
+        pubKeys.add("03b1d9a50878c1c4dde4b014439b850075497e9e492c274911855c3b1f7d5b59eb");
+        pubKeys.add("03a1f65c80936606df6185fe9bd808d7dd5201e1e88f2a475f6b2a70d81f7f52e4");
+        pubKeys.add("0325f8f319bd2cc6b1372692111792e2e04cd4511ace2497617321af7a93db9569");
+        pubKeys.add("03871958b1127f6d68e15a4a0062b2fdcbe4b29424de01a1a18da6166a06c19e8a");
+        pubKeys.add("0314c6334ad56204a764f10488f1470043453de9b55d8584f176f53e6085dbc03e");
+
+        Result multiSignAccount = NulsSDKTool.createMultiSignAccount(pubKeys, 3);
+        System.out.println(JSONUtils.obj2PrettyJson(multiSignAccount.getData()));
+    }
+
+    /**
+     * create data extend
+     */
+    @Test
+    public void testDataExtendTxOffline() throws Exception {
+        String path = "/Users/pierreluo/IdeaProjects/contracts/dataExtend/target/dataExtend-1.0-SNAPSHOT.jar";
+        String contract = this._createTxOffline("dataextend", HexUtil.encode(IoUtils.readBytes(new File(path))), new Object[]{}, new String[]{}, "dataextend");
+    }
 
     /**
      * create burn
@@ -120,7 +153,7 @@ public class ITACNulswapTest {
     @Test
     public void testWnulsTxOffline() throws Exception {
         String wnulsPath = "/Users/pierreluo/IdeaProjects/NulsNulswap/wnuls/wNull/target/wNuls-1.0-SNAPSHOT.jar";
-        String wnuls = this._createTxOffline("wnuls", HexUtil.encode(IoUtils.readBytes(new File(wnulsPath))), new Object[]{"WITAC", "WITAC", 18}, new String[]{"String", "String", "int"}, "wnuls");
+        String wnuls = this._createTxOffline("witac", HexUtil.encode(IoUtils.readBytes(new File(wnulsPath))), new Object[]{"WrappedITAC", "WITAC", 18}, new String[]{"String", "String", "int"}, "witac");
     }
 
     /**
@@ -146,11 +179,11 @@ public class ITACNulswapTest {
      */
     @Test
     public void testFactoryCreateTxOffline() throws Exception {
-        String pairCopy = "";
-        String lpTokenCopy = "";
-        String burn = "";
+        //String pairCopy = "";
+        //String lpTokenCopy = "";
+        //String burn = "";
         String factoryPath = "/Users/pierreluo/IdeaProjects/NulsNulswap/Nulswap_V3/NulswapFactory/target/NulswapFactory-1.0-SNAPSHOT.jar";
-        String factory = this._createTxOffline("factory", HexUtil.encode(IoUtils.readBytes(new File(factoryPath))), new Object[]{_feeToSetter, pairCopy, lpTokenCopy, burn}, new String[]{"Address", "Address", "Address", "Address"}, "factory");
+        String factory = this._createTxOffline("factory", HexUtil.encode(IoUtils.readBytes(new File(factoryPath))), new Object[]{multiSign, pairCopy, lpTokenCopy, burn}, new String[]{"Address", "Address", "Address", "Address"}, "factory");
 
     }
 
@@ -159,10 +192,9 @@ public class ITACNulswapTest {
      */
     @Test
     public void testRouterCreateTxOffline() throws Exception {
-        String factory = "xxx";
+        String factory = "ITACdAD3FvNQj7d7TnnbP9Nau8LTEPnQHrU36E";
         String routerPath = "/Users/pierreluo/IdeaProjects/NulsNulswap/Nulswap_V3/NulswapRouter/target/NulswapRouter-1.0-SNAPSHOT.jar";
-        String router = this._createTxOffline("router", HexUtil.encode(IoUtils.readBytes(new File(routerPath))), new Object[]{factory, WNULS, treasury, _feeToSetter}, new String[]{"Address", "Address", "Address", "Address"}, "router");
-
+        String router = this._createTxOffline("router", HexUtil.encode(IoUtils.readBytes(new File(routerPath))), new Object[]{factory, WNULS, treasury, multiSign}, new String[]{"Address", "Address", "Address", "Address"}, "router");
     }
 
     /**
@@ -177,10 +209,10 @@ public class ITACNulswapTest {
         String pair = this._createTxOffline("pair", HexUtil.encode(IoUtils.readBytes(new File(pairPath))), new Object[]{}, new String[]{}, "pair");
         TimeUnit.SECONDS.sleep(5);
         String factoryPath = "/Users/pierreluo/IdeaProjects/NulsNulswap/Nulswap_V3/NulswapFactory/target/NulswapFactory-1.0-SNAPSHOT.jar";
-        String factory = this._createTxOffline("factory", HexUtil.encode(IoUtils.readBytes(new File(factoryPath))), new Object[]{_feeToSetter, pair, lpToken, burn}, new String[]{"Address", "Address", "Address", "Address"}, "factory");
+        String factory = this._createTxOffline("factory", HexUtil.encode(IoUtils.readBytes(new File(factoryPath))), new Object[]{multiSign, pair, lpToken, burn}, new String[]{"Address", "Address", "Address", "Address"}, "factory");
         TimeUnit.SECONDS.sleep(5);
         String routerPath = "/Users/pierreluo/IdeaProjects/NulsNulswap/Nulswap_V3/NulswapRouter/target/NulswapRouter-1.0-SNAPSHOT.jar";
-        String router = this._createTxOffline("router", HexUtil.encode(IoUtils.readBytes(new File(routerPath))), new Object[]{factory, WNULS, treasury, _feeToSetter}, new String[]{"Address", "Address", "Address", "Address"}, "router");
+        String router = this._createTxOffline("router", HexUtil.encode(IoUtils.readBytes(new File(routerPath))), new Object[]{factory, WNULS, treasury, multiSign}, new String[]{"Address", "Address", "Address", "Address"}, "router");
 
     }
 
@@ -192,10 +224,10 @@ public class ITACNulswapTest {
         String pairCopy = "xxx";
         String lpTokenCopy = "xxx";
         String factoryPath = "/Users/pierreluo/IdeaProjects/NulsNulswap/Nulswap_V3/NulswapFactory/target/NulswapFactory-1.0-SNAPSHOT.jar";
-        String factory = this._createTxOffline("factory", HexUtil.encode(IoUtils.readBytes(new File(factoryPath))), new Object[]{_feeToSetter, pairCopy, lpTokenCopy, burn}, new String[]{"Address", "Address", "Address", "Address"}, "factory");
+        String factory = this._createTxOffline("factory", HexUtil.encode(IoUtils.readBytes(new File(factoryPath))), new Object[]{multiSign, pairCopy, lpTokenCopy, burn}, new String[]{"Address", "Address", "Address", "Address"}, "factory");
         TimeUnit.SECONDS.sleep(5);
         String routerPath = "/Users/pierreluo/IdeaProjects/NulsNulswap/Nulswap_V3/NulswapRouter/target/NulswapRouter-1.0-SNAPSHOT.jar";
-        String router = this._createTxOffline("router", HexUtil.encode(IoUtils.readBytes(new File(routerPath))), new Object[]{factory, WNULS, treasury, _feeToSetter}, new String[]{"Address", "Address", "Address", "Address"}, "router");
+        String router = this._createTxOffline("router", HexUtil.encode(IoUtils.readBytes(new File(routerPath))), new Object[]{factory, WNULS, treasury, multiSign}, new String[]{"Address", "Address", "Address", "Address"}, "router");
 
     }
 
